@@ -61,7 +61,9 @@ final List<Product> men_bottomwear = [
   ),  
 ];
 
-final List<Product> men_topwear = [
+
+
+final List<Product> tshirts = [
   Product(
     imageUrl:  'assets/products/men/topwear/1.jpg',
     name : 'Blue topwear',
@@ -105,6 +107,54 @@ final List<Product> men_topwear = [
     sizes: ['L','XLL']
   ),  
 ];
+
+
+
+final List<Product> casual_shirts = [
+  Product(
+    imageUrl:  'assets/products/men/topwear/1.jpg',
+    name : 'Blue topwear',
+    price: 500,
+    mrp: 760,
+    sizes: ['S','M','L','XL','XLL','3XL']
+  ),
+  Product(
+    imageUrl:  'assets/products/men/topwear/2.jpg',
+    name : 'Exclusive Jacket',
+    price: 1500,
+    sizes: ['S','M','L','XL'],
+    mrp: 1920,
+  ),
+  Product(
+    imageUrl:  'assets/products/men/topwear/3.jpg',
+    name : 'Pink wear',
+    price: 430,
+    mrp: 630,
+    sizes: ['S','M','L','XL','3XL']
+  ),
+  Product(
+    imageUrl:  'assets/products/men/topwear/4.jpg',
+    name : 'Blue topwear',
+    price: 490,
+    mrp: 830,
+    sizes: ['S','XL','XLL']
+  ),
+  Product(
+    imageUrl:  'assets/products/men/topwear/5.jpg',
+    name : 'Black and White',
+    price: 590,
+    mrp: 830,
+    sizes: ['S','L','XL']
+  ),
+  Product(
+    imageUrl:  'assets/products/men/topwear/6.jpg',
+    name : 'Black topwear',
+    price: 790,
+    mrp: 820,
+    sizes: ['L','XLL']
+  ),  
+];
+
 
 final List<Product> products = [
   Product(

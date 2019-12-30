@@ -43,7 +43,7 @@ class _SideDrawerState extends State<SideDrawer>
                                 Navigator.pop(context);
                                 Navigator.push(context, MaterialPageRoute(builder: (_)=>ListPage(
                                   list: category_model[index].list[i],
-                                  product: category_model[index].list[i].products,
+                                  // product: category_model[index].list[i].products,
                                 ))); 
                                 },
                                 child: Padding(

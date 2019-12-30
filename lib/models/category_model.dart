@@ -1,7 +1,8 @@
 
-import 'package:shopping_junction/models/products.dart' as prefix0;
+// import 'package:shopping_junction/models/products.dart' as prefix0;
 import 'package:shopping_junction/models/slide_content.dart';
 import 'package:shopping_junction/models/subcategory.dart';
+import 'package:shopping_junction/models/subcategory_model.dart';
 
 class Category {
   String imageUrl;
@@ -89,12 +90,6 @@ final List<SlideContent> women_slider = [
 ];
 
 final List<SlideContent> men_slider = [
-  // SlideContent(
-  //   imageUrl: 'assets/slider/4.JPG',
-  //   name: 'Get 50% Off',
-  //   discount: 2,
-  //   price: 175,
-  // ),
   SlideContent(
     imageUrl: 'assets/slider/5.jpg',
     name: 'Tranding',
@@ -115,28 +110,31 @@ final List<SlideContent> men_slider = [
   ),
 ];
 
+
+
 final List<SubList> sublist = [
   SubList(
     name: "Topwear",
-    products: prefix0.men_topwear
+    subCateogry:  top_wear_subcategory, 
     ),
   SubList(name: "Bottomwear",
-    products: prefix0.men_bottomwear
+    subCateogry: bottom_wear_subcategory,
   ),
+
   SubList(name: "Sportwear",
-  products: prefix0.men_bottomwear
+  subCateogry: bottom_wear_subcategory
   ),
   SubList(name: "Festivalwear",
-  products: prefix0.men_bottomwear
+  subCateogry: bottom_wear_subcategory
   ),
   SubList(name: "Plus Size",
-  products: prefix0.men_bottomwear
+  subCateogry: bottom_wear_subcategory
   ),
   SubList(name: "FootWear",
-  products: prefix0.men_bottomwear
+  subCateogry: bottom_wear_subcategory
   ),
   SubList(name: "Watches",
-  products: prefix0.men_bottomwear),
+  subCateogry: bottom_wear_subcategory),
   
   // Lst(name: "Topwear"),
 ];

@@ -74,7 +74,7 @@ class _CategoryScreenState extends State<CategoryScreen>
                               child: InkWell(
                               
                               onTap: ()=>Navigator.push(context, MaterialPageRoute(builder: (_)=>ListPage(
-                                product: this.widget.category.list[index].products,
+                                // product: this.widget.category.list[index].products,
                                 list: this.widget.category.list[index],
                               ))),
 

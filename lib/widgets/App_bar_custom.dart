@@ -20,6 +20,8 @@ class _CustomAppBarState extends State<CustomAppBar>
           elevation: 0,
           title: Text(this.widget.name),
           backgroundColor: Colors.transparent,
+          
+          
           actions: <Widget>[
               IconButton(
                 icon: Icon(Icons.notifications),
@@ -39,7 +41,7 @@ class _CustomAppBarState extends State<CustomAppBar>
                 color: Colors.white,
                 onPressed: (){},
               )                            
-          ],                  
+          ],
         ),
       );
   }
