@@ -12,7 +12,7 @@ class _CategoryState extends State<Category>{
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
-        border: Border.all(color: Colors.grey),
+        border: Border.all(color: Colors.grey[200]),
         borderRadius: BorderRadius.all(Radius.circular(5)),
       ),
 

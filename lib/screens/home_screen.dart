@@ -20,10 +20,6 @@ class _HomeScreenState extends State<HomeScreen>{
       body: ListView(
         children: <Widget>[          
           Container(
-            decoration: BoxDecoration(
-              // border: Border.all(color: Colors.black),
-              color: Colors.blue
-            ),
             width:MediaQuery.of(context).size.width,
             child: Stack(
               overflow: Overflow.visible,
@@ -58,7 +54,7 @@ class _HomeScreenState extends State<HomeScreen>{
                       child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: <Widget>[
-                        Text("Top Selling",style: TextStyle(fontSize: 19),),
+                        Text("Top Selling",style: TextStyle(fontSize: 19,color: Colors.grey[800]),),
                         Text("View All",style: TextStyle(fontSize: 18,color: Theme.of(context).primaryColor),)
                       ],
                     ),
@@ -184,20 +180,7 @@ class _HomeScreenState extends State<HomeScreen>{
           ),
 
 
-          Container(
-            height: 500,
-            // color: Colors.green,
-            decoration: BoxDecoration(
-              border: Border.all(color: Colors.black)
-            ),
-          ),
-          Container(
-            height: 500,
-            // color: Colors.yellow,
-            decoration: BoxDecoration(
-              border: Border.all(color: Colors.black)
-            ),
-          )                    
+                            
         ],
       )
     );
