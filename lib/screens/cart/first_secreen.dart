@@ -1,8 +1,19 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:shopping_junction/models/cart.dart';
+import 'package:shopping_junction/widgets/cart/product.dart';
 
-class CartScreen extends StatelessWidget{
+class CartScreen extends StatefulWidget{
   @override
+  _ChatScreenState createState() => _ChatScreenState();
+}
+
+
+
+
+class _ChatScreenState extends State<CartScreen>   {
+  @override
+  var qty=2;
   Widget build(BuildContext context)
   {
     return Scaffold(
@@ -28,130 +39,138 @@ class CartScreen extends StatelessWidget{
               )
             ],
           ),
-          // Icon(Icons.access_alarm),
-          // Icon(Icons.access_alarm)
         ],
       ),
       body: Scaffold(
         body: ListView(
           children: <Widget>[
+
+
+            CartProductWidget(),
             Container(
-              width: MediaQuery.of(context).size.width,
-              child: ListView.builder(
-                shrinkWrap: true,
-                itemCount: cart.products.length,
-                itemBuilder: (BuildContext context,int index){
-                  return 
-                    Container(
-                      padding: EdgeInsets.all(10),
-                      decoration: BoxDecoration(
-                      ),
-                      // child: Text(cart.products[index].product.name),
-                      child: Column(
+              margin: EdgeInsets.only(top:50),
+              // padding: EdgeInsets.only(top:50),
 
-                        // crossAxisAlignment: CrossAxisAlignment.center,
-                        
-                        children: <Widget>[
-                          Container(
-                            height: 150,
-                            decoration: BoxDecoration(
-                              border: Border.all(color: Colors.green)
-                            ),
-                            child: Row(
-                              // mainAxisAlignment: MainAxisAlignment.spaceBetween,
-
-                              crossAxisAlignment: CrossAxisAlignment.center,
-
-                              children: <Widget>[
-                                // Text("sdf"),
-                                Image.asset(cart.products[index].product.imageUrl),
-                                Padding(
-                                  padding: const EdgeInsets.only(top:30),
-                                  child: Container(
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: <Widget>[
-                                        Text(cart.products[index].product.name,style: TextStyle(fontSize: 20,fontWeight: FontWeight.w300,),),
-                                        SizedBox(height: 5,),
-                                        Row(
-                                          // crossAxisAlignment: CrossAxisAlignment.center,
-                                          children: <Widget>[
-                                            // Text(cart.products[index].product.name),
-                                                Text("\u20B9",style: TextStyle(fontWeight: FontWeight.bold,fontSize: 20),),
-                                                Text(cart.products[index].product.price.toString(),style: TextStyle(fontWeight: FontWeight.bold,fontSize: 20),),
-                                                SizedBox(width: 10,),
-                                                Text("\u20B9",style: TextStyle(fontWeight: FontWeight.w500,fontSize: 15,color: Colors.red),),
-                                                Text(cart.products[index].product.mrp.toString(),style: TextStyle(fontWeight: FontWeight.w500,fontSize: 15,color: Colors.red,decoration: TextDecoration.lineThrough),),
-                                                SizedBox(width: 6,),
-                                                
-                                                // double d = cart.products[index].product.mrp;
-                                                Text(
-                                                    "("+
-                                                  ((cart.products[index].product.mrp - cart.products[index].product.price)*100 / cart.products[index].product.mrp ).toInt().toString()
-                                                    +"% off)",
-                                                    style: TextStyle(
-                                                      color: Colors.red,
-                                                      fontWeight: FontWeight.w400,
-                                                      fontSize: 12
-                                                    ),
-                                                )
-                                          ],
-                                        ),
-                                        SizedBox(height: 10,),
-                                        Row(
-                                          children: <Widget>[
-                                            Text("Size:"),
-                                            SizedBox(width: 5,),
-                                            Text("M")
-                                          // DropdownButton<String>(
-                                          //   items: <String>['A', 'B', 'C', 'D'].map((String val) {
-                                          //           return new DropdownMenuItem<String>(
-                                          //                 value: val,
-                                          //                 child: new Text(val),
-                                          //                 );
-                                          //             }).toList(),
-                                          //   hint: Text("Please choose a location"),
-                                          //   onChanged: (newVal) {
-                                          //     _selectedLocation = newVal;
-                                          //     this.setState(() {});
-                                          //     }
-                                          //     );
-
-                                              // DropdownButton<String>(
-                                              //   items: <String>['A', 'B', 'C', 'D'].map((String value) {
-                                              //     return new DropdownMenuItem<String>(
-                                              //       value: value,
-                                              //       child: new Text(value),
-                                              //     );
-                                              //   }).toList(),
-                                              //   onChanged: (_) {},
-                                              // )
-
-                                          ],
-                                        )
-
-                                      ],
-                                    ),
-                                  ),
-                                )
-                              ],
-                            ),
-                          )
-                        ],
+              color: Colors.grey[200],
 
 
-                      ),
-                    
-                    );  
-                  // Text(cart.products[index].product.name);
-                
-                },
 
+              child: Padding(
+                padding: const EdgeInsets.all(10.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: <Widget>[
+                    Text("Apply Coupon",style: TextStyle(color: Colors.black,fontSize: 17,fontWeight: FontWeight.w300),),
+                    Text("Enter Promo Code",style: TextStyle(color: Colors.grey[500],fontSize: 15,fontWeight: FontWeight.w300),)
+                  ],
+                ),
               ),
-            )
+            ),
+
+            Container(
+              color: Colors.grey[200],
+              margin: EdgeInsets.only(top:5),
+              child: Column(
+                children: <Widget>[
+                  Padding(
+                    padding: const EdgeInsets.all(10.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: <Widget>[
+                        Text("Big Total ",style: TextStyle(color: Colors.grey[500],fontSize: 17,fontWeight: FontWeight.w300),),
+                        Text("\$130",style: TextStyle(color: Colors.grey[700],fontSize: 17,fontWeight: FontWeight.w300),)
+                      ],
+                    ),
+                  ),
+
+
+                  Padding(
+                    padding: const EdgeInsets.all(10.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: <Widget>[
+                        Text("Bag Discount",style: TextStyle(color: Colors.grey[500],fontSize: 17,fontWeight: FontWeight.w300),),
+                        Text("-\$30",style: TextStyle(color: Colors.green,fontSize: 17,fontWeight: FontWeight.w300),)
+                      ],
+                    ),
+                  ),
+
+
+                  Padding(
+                    padding: const EdgeInsets.all(10.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: <Widget>[
+                        Text("Sub Total ",style: TextStyle(color: Colors.grey[500],fontSize: 17,fontWeight: FontWeight.w300),),
+                        Text("\$100",style: TextStyle(color: Colors.grey[700],fontSize: 17,fontWeight: FontWeight.w300),)
+                      ],
+                    ),
+                  ),
+
+
+                  Padding(
+                    padding: const EdgeInsets.all(10.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: <Widget>[
+                        Text("Coupon Discount ",style: TextStyle(color: Colors.grey[500],fontSize: 17,fontWeight: FontWeight.w300),),
+                        Text("\$0",style: TextStyle(color: Colors.green,fontSize: 17,fontWeight: FontWeight.w300),)
+                      ],
+                    ),
+                  ),
+
+                  Padding(
+                    padding: const EdgeInsets.all(10.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: <Widget>[
+                        Text("Delivery ",style: TextStyle(color: Colors.grey[500],fontSize: 17,fontWeight: FontWeight.w300),),
+                        Text("Free",style: TextStyle(color: Colors.green,fontSize: 17,fontWeight: FontWeight.w300),)
+                      ],
+                    ),
+                  ),
+
+
+                  Padding(
+                    padding: const EdgeInsets.all(10.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: <Widget>[
+                        Text("Total Payable ",style: TextStyle(color: Colors.black,fontSize: 17,fontWeight: FontWeight.w300),),
+                        Text("\$130",style: TextStyle(color: Colors.grey[700],fontSize: 17,fontWeight: FontWeight.w600),)
+                      ],
+                    ),
+                  ),                                    
+
+
+                ],
+              ),
+            ),
+
+            // SizedBox(height: 100,)
           ],
+        ),
+                bottomNavigationBar: BottomAppBar(
+          child: Container(
+            height: 50,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                Text("Place Order",
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 17
+                  ),
+                )
+              ],
+            ),
+          ),
+          color: Colors.green,
+          
         ),
       ),
     );
   }
+
+
 }
