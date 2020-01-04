@@ -70,12 +70,13 @@ class _DetailPageState extends State<DetailPage>
   var selectedColor = '0xffb74093';
   var qty = 1;
   var picheight = 300.0;  
+  
   @override
-  // void initState()
-  // {
-  //   super.initState();
-  //   var selectedSize = widget.product.sizes[0];
-  // }
+  void initState()
+  {
+    super.initState();
+    selectedSize = widget.product.sizes[0];
+  }
 
   // selectSize(widget.product.sizes[0]);
 
@@ -90,11 +91,6 @@ class _DetailPageState extends State<DetailPage>
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
-              // Icon(Icons.sort,
-              // color: Colors.white,
-              // size: 22,
-              // ),
-              // SizedBox(width: 10,),
               Text("ADD TO CART",
                 style: TextStyle(
                   color: Colors.white,

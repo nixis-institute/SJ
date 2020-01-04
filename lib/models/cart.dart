@@ -19,12 +19,14 @@ Cart cart =
 class CartProduct{
   Product product;
   String selectedSize;
-  CartProduct({this.product,this.selectedSize});
+  int qty;
+  CartProduct({this.product,this.selectedSize,this.qty});
 }
 
 List<CartProduct> cart_product = [
   CartProduct(
     selectedSize: 'S',
+    qty:2 ,
     product:Product(
       imageUrl:  'assets/products/men/topwear/3.jpg',
       name : 'Pink wear',
@@ -37,6 +39,7 @@ List<CartProduct> cart_product = [
 
     CartProduct(
     selectedSize: 'XL',
+    qty:5 ,
     product:Product(
     imageUrl:  'assets/products/men/topwear/4.jpg',
     name : 'Blue topwear',
@@ -47,6 +50,7 @@ List<CartProduct> cart_product = [
 
     CartProduct(
     selectedSize: 'L',
+    qty:1 ,
     product:Product(
     imageUrl:  'assets/products/men/topwear/5.jpg',
     name : 'Black and White',

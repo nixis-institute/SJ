@@ -139,7 +139,8 @@ class _CartProductState extends State<CartProductWidget>{
                                 InkWell(
                                     onTap: (){
                                       // AddQty();
-                                      RemoveQty();
+                                      // RemoveQty();
+                                      cart.products[index].qty-=1;
                                     },
 
                                     child: Container(
@@ -151,15 +152,16 @@ class _CartProductState extends State<CartProductWidget>{
                                 ),
 
                                 SizedBox(width: 15,),
-                                Text( "$qty",
+                                Text(cart.products[index].qty.toString(),
                                 style: TextStyle(fontSize: 20),),
-                                
                                 SizedBox(width: 15,),
 
                                 InkWell(
+                                  
                                   onTap: (){
-                                    AddQty();
+                                    cart.products[index].qty+=1;
                                   },
+
                                   child: Container(
                                   decoration: BoxDecoration(
                                   color: Colors.grey[200]

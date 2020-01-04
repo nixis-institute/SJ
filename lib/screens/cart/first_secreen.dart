@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:shopping_junction/models/cart.dart';
+import 'package:shopping_junction/screens/cart/second_screen.dart';
 import 'package:shopping_junction/widgets/cart/product.dart';
 
 class CartScreen extends StatefulWidget{
@@ -19,10 +20,9 @@ class _ChatScreenState extends State<CartScreen>   {
     return Scaffold(
       appBar: AppBar(
         title: Text("CART"),
+
         actions: <Widget>[
           Row(
-            // crossAxisAlignment: CrossAxisAlignment.baseline,
-            // crossAxisAlignment: CrossAxisAlignment.end,
             children: <Widget>[
               
               Padding(
@@ -36,7 +36,8 @@ class _ChatScreenState extends State<CartScreen>   {
               Padding(
                 padding: const EdgeInsets.only(top:5),
                 child: Text("/3",style: TextStyle(fontSize: 16,fontWeight: FontWeight.w300),),
-              )
+              ),
+              SizedBox(width: 15,)
             ],
           ),
         ],
@@ -150,24 +151,28 @@ class _ChatScreenState extends State<CartScreen>   {
             // SizedBox(height: 100,)
           ],
         ),
-                bottomNavigationBar: BottomAppBar(
-          child: Container(
-            height: 50,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                Text("Place Order",
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 17
-                  ),
-                )
-              ],
+          bottomNavigationBar: InkWell(
+            onTap:()=>Navigator.push(context, MaterialPageRoute(builder: (_)=>AddressScreen(
+            ))),
+            child: BottomAppBar(
+            child: Container(
+              height: 50,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  Text("Place Order",
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 17
+                    ),
+                  )
+                ],
+              ),
             ),
-          ),
-          color: Colors.green,
-          
+            color: Colors.green,
+            
         ),
+          ),
       ),
     );
   }
