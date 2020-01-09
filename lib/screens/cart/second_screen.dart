@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shopping_junction/screens/cart/add_address.dart';
 import 'package:shopping_junction/screens/cart/third_screen.dart';
 
 class AddressScreen extends StatefulWidget{
@@ -157,7 +158,11 @@ class _AddressScreenState extends State<AddressScreen>{
                                         decoration: BoxDecoration(
                                           // color: Colors.red
                                         ),
-                                        child: Text("Add New Address",style:TextStyle(color: Colors.grey),)
+                                        child: InkWell(
+                                          onTap: (){
+                                            Navigator.push(context, MaterialPageRoute(builder: (_)=>AddAddress()));
+                                          },
+                                          child: Text("Add New Address",style:TextStyle(color: Colors.grey),))
                                         ),                                        
 
                                       // Text("Add New Address"),

@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:shopping_junction/models/products.dart';
+import 'package:shopping_junction/widgets/App_bar.dart';
+
+import 'cart/first_secreen.dart';
 
 class DetailPage extends StatefulWidget{
   @override
@@ -111,9 +114,76 @@ class _DetailPageState extends State<DetailPage>
           color: Colors.green,
           
         ),
+        // appBar: AppBar(title: Text("Details"),),
+        appBar: AppBar(
+          elevation: 0,
+          title: Text(this.widget.product.name),
+          backgroundColor: Colors.green,
+          
+          
+          actions: <Widget>[
+              IconButton(
+                icon: Icon(Icons.notifications),
+                iconSize: 30,
+                color: Colors.white,
+                onPressed: (){},
+              ),
+
+              Stack(
+                  children:<Widget>[
+                    IconButton(
+                    icon: Icon(Icons.add_shopping_cart),
+                    iconSize: 30,
+                    color: Colors.white,
+                    
+                    onPressed: (){
+                      Navigator.push(context, MaterialPageRoute(builder: (_)=>CartScreen(
+                      )));
+                    },
+                ),
+                Positioned(
+                  top: 1,
+                  left: 20,
+                  child: Container(
+                    height: 20,
+                    width: 20,
+                    // color: Colors.red,
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      color: Colors.red,
+                      borderRadius: BorderRadius.circular(10)
+                    ),
+                    child: Text("3"),
+                  ),
+                )
+              ]
+            ),
+
+
+              // IconButton(
+              //   icon: Icon(Icons.add_shopping_cart),
+              //   iconSize: 30,
+              //   color: Colors.white,
+              //   onPressed: (){
+              //     Navigator.push(context, MaterialPageRoute(builder: (_)=>CartScreen(
+              //     )));
+              //   },                
+              //   // onPressed: (){},
+              // ),
+
+
+              IconButton(
+                icon: Icon(Icons.more_vert),
+                iconSize: 30,
+                color: Colors.white,
+                onPressed: (){},
+              )                            
+          ],
+        ),
         body: ListView(
             children: <Widget>[
-
+              // CustomAppBar(name: this.widget.category.name),
+              // CustomAppBar(name:"Detail"),
               GestureDetector(
                   onTap: (){
                     ChangeHeight();

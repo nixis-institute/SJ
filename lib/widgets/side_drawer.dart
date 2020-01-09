@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shopping_junction/models/category_model.dart';
+import 'package:shopping_junction/screens/accounts/login.dart';
 import 'package:shopping_junction/screens/listpage_screen.dart';
 
 class SideDrawer extends StatefulWidget{
@@ -25,6 +26,7 @@ class _SideDrawerState extends State<SideDrawer>
             SizedBox(height: 30,),
             ListView.builder(
               shrinkWrap: true,
+              physics: ClampingScrollPhysics(),
               itemCount: category_model.length,
               itemBuilder: (BuildContext context,int index){
                 // return ListTile(title: Text(category_model[index].name),);
@@ -37,6 +39,7 @@ class _SideDrawerState extends State<SideDrawer>
                       ListView.builder(
                         shrinkWrap: true,
                         itemCount: category_model[index].list.length,
+                        physics: ClampingScrollPhysics(),
                         itemBuilder: (BuildContext context, int i){
                           return InkWell(
                                 onTap: (){
@@ -84,11 +87,28 @@ class _SideDrawerState extends State<SideDrawer>
               style: TextStyle(color: Colors.white,fontSize: 18,fontWeight: FontWeight.w400),
               ),
             ),
+
+            InkWell(
+                onTap: (){
+                  Navigator.pop(context);
+                  Navigator.push(context, MaterialPageRoute(builder: (_)=>LoginScreen(
+                    // product: category_model[index].list[i].products,
+                  )));
+                },
+
+                child: ListTile(
+                title:Text("LOGIN",
+                style: TextStyle(color: Colors.white,fontSize: 18,fontWeight: FontWeight.w400),
+                ),
+              ),
+            ),
+
             ListTile(
               title:Text("MORE",
               style: TextStyle(color: Colors.white,fontSize: 18,fontWeight: FontWeight.w400),
               ),
             ),
+            
           ],
         )
         
