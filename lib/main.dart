@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:shopping_junction/screens/home_screen.dart';
 
@@ -22,10 +24,48 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.green,
       ),
       // home: MyHomePage(title: 'Flutter Demo Home Page'),
-      home:HomeScreen()
+      // home:SplashScreen(),
+    home: HomeScreen(),
+    //   routes: <String, WidgetBuilder>{
+    //   '/HomeScreen': (BuildContext context) => new HomeScreen()
+    // },
+
     );
   }
 }
+
+
+
+class SplashScreen extends StatefulWidget {
+  @override
+  _SplashScreenState createState() => new _SplashScreenState();
+}
+
+class _SplashScreenState extends State<SplashScreen> {
+  startTime() async {
+    var _duration = new Duration(seconds: 2);
+    return new Timer(_duration, navigationPage);
+  }    
+  void navigationPage() {
+    Navigator.of(context).pushReplacementNamed('/HomeScreen');
+  }
+  @override
+  void initState() {
+    super.initState();
+    startTime();
+  }
+  @override
+  Widget build(BuildContext context) {
+    return new Scaffold(
+      body: new Center(
+        child: Text("This is splash screen"),
+        // child: new Image.asset('assets/splash.jpeg'),
+      ),
+    );
+  }  
+
+}
+
 
 
 

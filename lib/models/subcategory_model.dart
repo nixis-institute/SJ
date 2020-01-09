@@ -18,6 +18,15 @@ final List<SubCategory> top_wear_subcategory=[
   SubCategory(name: "Casual Shirts",products: prefix0.tshirts),
 ];
 
+
+final List<SubCategory> sorted_categories=[
+  SubCategory(name: "T-Shirts",products: prefix0.tshirts),
+  SubCategory(name: "Casual Shirts",products: prefix0.tshirts),
+  // SubCategory(name: "Casual Shirts",products: prefix0.tshirts),
+  // SubCategory(name: "Casual Shirts",products: prefix0.tshirts),
+];
+
+
 final List<SubCategory> bottom_wear_subcategory=[
   SubCategory(name: "T-Shirts",products: prefix0.tshirts),
   SubCategory(name: "Casual Shirts",products: prefix0.tshirts),

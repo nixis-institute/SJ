@@ -1,17 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:shopping_junction/models/filter_model.dart';
 import 'package:shopping_junction/models/products.dart';
 import 'package:shopping_junction/models/subcategory.dart';
 import 'package:shopping_junction/screens/cart/first_secreen.dart';
+import 'package:shopping_junction/screens/sort_and_filter.dart';
 import 'package:shopping_junction/widgets/product_grid.dart';
 import 'package:shopping_junction/widgets/side_drawer.dart';
 
 class ListPage extends StatefulWidget{
   @override
-  final List<Product> product;
+  // final List<Product> product;
   final SubList list;
-  ListPage({this.product,this.list});
-
+  ListPage({this.list});
+  // final FilterModel flter;
   _ListPageState createState() => _ListPageState();
 }
  
@@ -21,8 +23,21 @@ class ListPage extends StatefulWidget{
 class _ListPageState extends State<ListPage>
 {
   @override
+  var nlist;
+   void initState()
+  {
+    super.initState();
+    nlist = widget.list;
+  } 
+
   Widget build(BuildContext context)
   {
+    
+    print("-----------------------------");
+    print(nlist);
+    print("-----------------------------");
+
+
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle(
             statusBarColor: Colors.transparent,
@@ -32,10 +47,11 @@ class _ListPageState extends State<ListPage>
       ),
           child: DefaultTabController(
           
-          length: widget.list.subCateogry.length,
+          length: nlist.subCateogry.length,
+          
           child: Scaffold(
           appBar: AppBar(
-            title: Text(widget.list.name),
+            title: Text(nlist.name),
                 actions: <Widget>[
                 IconButton(
                   icon: Icon(Icons.search),
@@ -98,7 +114,7 @@ class _ListPageState extends State<ListPage>
                 //   iconSize: 30,
                 //   color: Colors.white,
                 //   onPressed: (){},
-                // )                            
+                // )
             ],
 
             bottom: TabBar(
@@ -107,10 +123,9 @@ class _ListPageState extends State<ListPage>
               indicator: BoxDecoration(
                 // color: Colors.grey
               ),
-              tabs: List.generate(widget.list.subCateogry.length, (index)=>
+              tabs: List.generate(nlist.subCateogry.length, (index)=>
                 Tab(
-                  
-                  child: Text(widget.list.subCateogry[index].name),
+                  child: Text(nlist.subCateogry[index].name),
                 ),
                )
             ,
@@ -125,9 +140,9 @@ class _ListPageState extends State<ListPage>
           
 
           body: TabBarView(
-            children: List.generate(widget.list.subCateogry.length, (generator)=>
+            children: List.generate(nlist.subCateogry.length, (generator)=>
               ProductGrid(
-                product: widget.list.subCateogry[generator].products,
+                product: nlist.subCateogry[generator].products,
               )
              )
           ),
@@ -138,23 +153,34 @@ class _ListPageState extends State<ListPage>
           
 
           bottomNavigationBar: BottomAppBar(
-            child: Container(
-              height: 50,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  Icon(Icons.sort,
-                  color: Colors.white,
-                  size: 22,
-                  ),
-                  SizedBox(width: 10,),
-                  Text("Sort & Filter",
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 17
+            child: InkWell(
+                onTap: (){
+
+                // Navigator.push(context,MaterialPageRoute(
+                //     builder:(context)=>SortAndFilter()
+                //    ));
+                _navigateAndDisplay(context);
+
+
+                  },
+                child: Container(
+                height: 50,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    Icon(Icons.sort,
+                    color: Colors.white,
+                    size: 22,
                     ),
-                  )
-                ],
+                    SizedBox(width: 10,),
+                    Text("Sort & Filter",
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 17
+                      ),
+                    )
+                  ],
+                ),
               ),
             ),
             color: Colors.green,
@@ -162,6 +188,47 @@ class _ListPageState extends State<ListPage>
           ),
         ),
       ),
+    );
+  }
+
+
+  _navigateAndDisplay(BuildContext context) async
+  {
+      final product = await Navigator.push(context, MaterialPageRoute(
+        builder: (context) => SortAndFilter()
+      ));
+        if(product!=null)
+        {
+          setState(() {
+              nlist = product;        
+          });
+        }
+
+        // else if(product == false)
+        // {
+            
+        // }
+
+        // nlist = product;
+
+  }
+
+
+  _setting(context){
+    showModalBottomSheet(
+      context: context,
+      builder: (BuildContext context){
+       return Container(
+        // color: Colors.transparent,
+        decoration: BoxDecoration(
+          
+          color: Colors.white
+        ),
+
+        height: MediaQuery.of(context).size.height*2,
+        child: Text("Works"),
+       );
+      }
     );
   }
 }

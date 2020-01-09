@@ -112,6 +112,14 @@ final List<SlideContent> men_slider = [
 
 
 
+final List<SubList> sort_list = [
+  SubList(
+    name: "Topwear",
+    subCateogry: sorted_categories
+  )
+];
+
+
 final List<SubList> sublist = [
   SubList(
     name: "Topwear",

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shopping_junction/screens/cart/third_screen.dart';
 
 class AddressScreen extends StatefulWidget{
   @override
@@ -183,6 +184,28 @@ class _AddressScreenState extends State<AddressScreen>{
           )
         ],
       ),
+          bottomNavigationBar: InkWell(
+            onTap:()=>Navigator.push(context, MaterialPageRoute(builder: (_)=>PaymentScreen(
+            ))),
+            child: BottomAppBar(
+            child: Container(
+              height: 50,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  Text("Place Order",
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 17
+                    ),
+                  )
+                ],
+              ),
+            ),
+            color: Colors.green,
+            
+        ),
+          ),      
     );
 
   }
