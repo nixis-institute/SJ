@@ -1,5 +1,6 @@
 import 'dart:async';
-
+import 'package:graphql_flutter/graphql_flutter.dart';
+import 'package:shopping_junction/GraphQL/services.dart';
 import 'package:flutter/material.dart';
 import 'package:shopping_junction/screens/home_screen.dart';
 
@@ -25,7 +26,12 @@ class MyApp extends StatelessWidget {
       ),
       // home: MyHomePage(title: 'Flutter Demo Home Page'),
       // home:SplashScreen(),
-    home: HomeScreen(),
+    home: GraphQLProvider(
+      client: client,
+      child: CacheProvider(
+        child: HomeScreen()
+        )
+      ),
     //   routes: <String, WidgetBuilder>{
     //   '/HomeScreen': (BuildContext context) => new HomeScreen()
     // },
