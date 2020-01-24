@@ -14,6 +14,13 @@ class Product {
     this.mrp,
     this.sizes,
   });
+
+  getImgUrl() => this.imageUrl;
+  getName() => this.name;
+  getDiscount() => this.discount;
+  getPrice() => this.price;
+  getMrp() =>this.price;
+  getSizes() =>this.price;
 }
 
 final List<Product> men_bottomwear = [

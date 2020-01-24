@@ -4,6 +4,24 @@ import 'package:shopping_junction/models/slide_content.dart';
 import 'package:shopping_junction/models/subcategory.dart';
 import 'package:shopping_junction/models/subcategory_model.dart';
 
+
+class ProductCategory{
+  String id;
+  String name;
+  String imageUrl;
+  ProductCategory(
+    this.id,this.name,this.imageUrl
+  );
+  getId() => this.id;
+  getImgUrl() => this.imageUrl;
+  getName() => this.name;
+  // getDiscount() => this.discount;
+  // getPrice() => this.price;
+  // getMrp() =>this.price;
+  // getSizes() =>this.price;
+
+}
+
 class Category {
   String imageUrl;
   String name;

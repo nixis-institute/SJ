@@ -28,6 +28,40 @@ query GetSubCateogry(\$CateogryId:ID!){
 """;
 
 
+final String GetSubListAndProductBySubCateogryId = """ 
+query GetSubList(\$SubCateogryId:ID!){
+  sublistBySubcategoryId(subCategoryId:\$SubCateogryId)
+  {
+    edges{
+      node
+      {
+        id
+        name
+        productSet{
+          edges{
+            node{
+              id
+              name
+            	listPrice
+              mrp
+              productimagesSet{
+                edges{
+                  node{
+                    id
+                    image
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+""";
+
 final String GetSubListBySubCategoryId = """ 
 query GetSubList(\$SubCateogryId:ID!){
   sublistBySubcategoryId(subCategoryId:\$SubCateogryId)

@@ -44,10 +44,10 @@ class _SideDrawerState extends State<SideDrawer>
                           return InkWell(
                                 onTap: (){
                                 Navigator.pop(context);
-                                Navigator.push(context, MaterialPageRoute(builder: (_)=>ListPage(
-                                  list: category_model[index].list[i],
-                                  // product: category_model[index].list[i].products,
-                                ))); 
+                                // Navigator.push(context, MaterialPageRoute(builder: (_)=>ListPage(
+                                //   subCategory: category_model[index].list[i],
+                                //   // product: category_model[index].list[i].products,
+                                // ))); 
                                 },
                                 child: Padding(
                                 padding: EdgeInsets.only(left: 10),

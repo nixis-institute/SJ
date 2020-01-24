@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:graphql_flutter/graphql_flutter.dart';
+import 'package:shopping_junction/GraphQL/Queries.dart';
+import 'package:shopping_junction/GraphQL/services.dart';
 import 'package:shopping_junction/models/filter_model.dart';
-import 'package:shopping_junction/models/products.dart';
+import 'package:shopping_junction/models/productAndCat.dart';
+// import 'package:shopping_junction/models/products.dart';
 import 'package:shopping_junction/models/subcategory.dart';
+import 'package:shopping_junction/models/subcategory_model.dart';
 import 'package:shopping_junction/screens/cart/first_secreen.dart';
 import 'package:shopping_junction/screens/sort_and_filter.dart';
 import 'package:shopping_junction/widgets/product_grid.dart';
@@ -11,8 +16,9 @@ import 'package:shopping_junction/widgets/side_drawer.dart';
 class ListPage extends StatefulWidget{
   @override
   // final List<Product> product;
-  final SubList list;
-  ListPage({this.list});
+  // final SubList list;
+  final ProductSubCategory subCategory;
+  ListPage({this.subCategory});
   // final FilterModel flter;
   _ListPageState createState() => _ListPageState();
 }
@@ -22,20 +28,85 @@ class ListPage extends StatefulWidget{
 
 class _ListPageState extends State<ListPage>
 {
+List<TypeAndProduct> product = List<TypeAndProduct>();
+// List<Product> 
+void fillProductAndCateogry() async{
+    GraphQLClient _client = clientToQuery();
+    QueryResult result = await _client.query(
+      QueryOptions(
+        documentNode: gql(GetSubListAndProductBySubCateogryId),
+        variables:{"SubCateogryId":id}
+      )
+    );
+    if(result.loading)
+    {
+      print("loading..");
+    }
+
+    if(!result.hasException)
+    {
+      print("__data__");
+      for(var i=0;i<result.data["sublistBySubcategoryId"]["edges"].length;i++)
+        {
+
+          List prd = result.data["sublistBySubcategoryId"]["edges"][i]["node"]["productSet"]["edges"];
+          List<Product> prdList = [];
+
+
+          for(var j = 0;j<prd.length;j++){
+            print(prd[j]["node"]["name"]);
+            List im = prd[j]["node"]["productimagesSet"]["edges"];
+            List<ProductImage> imgList = [];
+
+
+            for(var k = 0;k<im.length;k++){
+              imgList.add(
+                ProductImage(im[k]["node"]["id"], im[k]["node"]["image"])
+              );
+            }
+
+            prdList.add(
+              Product(prd[j]["node"]["id"], 
+              prd[j]["node"]["name"], 
+              prd[j]["node"]["listPrice"],
+              prd[j]["node"]["mrp"],
+              imgList
+              )
+            );
+          }
+
+          setState(() {
+            product.add(
+              TypeAndProduct(
+                  result.data["sublistBySubcategoryId"]["edges"][i]["node"]["id"],
+                  result.data["sublistBySubcategoryId"]["edges"][i]["node"]["name"],
+                  prdList
+              )
+            );
+          });
+        }
+    }    
+}
+
+
+
   @override
   var nlist;
-   void initState()
+  var id;
+  void initState()
   {
     super.initState();
-    nlist = widget.list;
+    id = widget.subCategory.id;
+    fillProductAndCateogry();
+    // nlist = widget.list;
   } 
 
   Widget build(BuildContext context)
   {
     
-    print("-----------------------------");
-    print(nlist);
-    print("-----------------------------");
+    // print("-----------------------------");
+    // print(product[0].product);
+    // print("-----------------------------");
 
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
@@ -47,11 +118,12 @@ class _ListPageState extends State<ListPage>
       ),
           child: DefaultTabController(
           
-          length: nlist.subCateogry.length,
+          // length: nlist.subCateogry.length,
+          length: product.length,
           
           child: Scaffold(
           appBar: AppBar(
-            title: Text(nlist.name),
+            title: Text(this.widget.subCategory.name),
                 actions: <Widget>[
                 IconButton(
                   icon: Icon(Icons.search),
@@ -123,9 +195,9 @@ class _ListPageState extends State<ListPage>
               indicator: BoxDecoration(
                 // color: Colors.grey
               ),
-              tabs: List.generate(nlist.subCateogry.length, (index)=>
+              tabs: List.generate(product.length, (index)=>
                 Tab(
-                  child: Text(nlist.subCateogry[index].name),
+                  child: Text(product[index].name),
                 ),
                )
             ,
@@ -140,9 +212,9 @@ class _ListPageState extends State<ListPage>
           
 
           body: TabBarView(
-            children: List.generate(nlist.subCateogry.length, (generator)=>
+            children: List.generate(product.length, (generator)=>
               ProductGrid(
-                product: nlist.subCateogry[generator].products,
+                product: product[generator].product
               )
              )
           ),
