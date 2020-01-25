@@ -1,8 +1,10 @@
 import 'package:flutter/cupertino.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 
+final server_url = 'http://shoppingjunction.pythonanywhere.com';
 final HttpLink httpLink = HttpLink(
-  uri: 'http://10.0.2.2:8000/graphql/'
+  // uri: 'http://10.0.2.2:8000/graphql/'
+  uri: server_url+'/graphql/'
 );
 
 final ValueNotifier<GraphQLClient> client = ValueNotifier<GraphQLClient>(

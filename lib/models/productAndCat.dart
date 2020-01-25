@@ -12,8 +12,9 @@ class Product{
   String name;
   double listPrice;
   double mrp;
+  List sizes;
   List<ProductImage> images;
-  Product(this.id,this.name,this.listPrice,this.mrp,this.images);
+  Product(this.id,this.name,this.listPrice,this.mrp,this.images,this.sizes);
 }
 
 class TypeAndProduct{

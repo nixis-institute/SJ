@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shopping_junction/GraphQL/services.dart';
 import 'package:shopping_junction/models/productAndCat.dart';
 import 'package:shopping_junction/screens/detail_screen.dart';
 
@@ -26,19 +27,19 @@ class _ProductGridState extends State<ProductGrid>
       children: List.generate(widget.product.length, (index){
         return Container(
           child: GestureDetector(
-            onTap: (){},
-              //   onTap: ()=>Navigator.push(context, MaterialPageRoute(builder: (_)=>DetailPage(
-              //   // category:category_model[index],
-              //   // slider: category_model[index].slider,
-              //   product: widget.product[index],
-              // ))),
+            // onTap: (){},
+                onTap: ()=>Navigator.push(context, MaterialPageRoute(builder: (_)=>DetailPage(
+                // category:category_model[index],
+                // slider: category_model[index].slider,
+                product: widget.product[index],
+              ))),
                 
                 child: Card(
                 child: Column(
                   children: <Widget>[
                     Container(
                       height: 230,
-                      child: Image.network("http://10.0.2.2:8000/media/"+widget.product[index].images[0].imgUrl ,fit:BoxFit.fill),
+                      child: Image.network(server_url+"/media/"+widget.product[index].images[0].imgUrl ,fit:BoxFit.fill),
                       // child:CircleAvatar(
                       //   radius: 0,
                       //   backgroundImage: NetworkImage("http://10.0.2.2:8000/media/"+widget.product[index].images[0].imgUrl),

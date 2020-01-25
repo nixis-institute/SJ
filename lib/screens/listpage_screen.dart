@@ -40,15 +40,20 @@ void fillProductAndCateogry() async{
     );
     if(result.loading)
     {
-      print("loading..");
+      // print("loading..");
+      setState(() {
+        isLoading = true;
+      });
     }
 
     if(!result.hasException)
     {
-      print("__data__");
+      // print("__data__");
+      setState(() {
+        isLoading = false;
+      });
       for(var i=0;i<result.data["sublistBySubcategoryId"]["edges"].length;i++)
         {
-
           List prd = result.data["sublistBySubcategoryId"]["edges"][i]["node"]["productSet"]["edges"];
           List<Product> prdList = [];
 
@@ -70,19 +75,23 @@ void fillProductAndCateogry() async{
               prd[j]["node"]["name"], 
               prd[j]["node"]["listPrice"],
               prd[j]["node"]["mrp"],
-              imgList
+              imgList,
+              prd[j]["node"]["sizes"].split(","),
               )
             );
           }
 
           setState(() {
-            product.add(
-              TypeAndProduct(
-                  result.data["sublistBySubcategoryId"]["edges"][i]["node"]["id"],
-                  result.data["sublistBySubcategoryId"]["edges"][i]["node"]["name"],
-                  prdList
-              )
-            );
+              if(prdList.length >0)
+              {
+                product.add(
+                  TypeAndProduct(
+                      result.data["sublistBySubcategoryId"]["edges"][i]["node"]["id"],
+                      result.data["sublistBySubcategoryId"]["edges"][i]["node"]["name"],
+                      prdList
+                  )
+                );
+              }
           });
         }
     }    
@@ -93,6 +102,7 @@ void fillProductAndCateogry() async{
   @override
   var nlist;
   var id;
+  var isLoading = true;
   void initState()
   {
     super.initState();
@@ -211,13 +221,25 @@ void fillProductAndCateogry() async{
             ),
           
 
-          body: TabBarView(
+          // body: TabBarView(
+          //   children: List.generate(product.length, (generator)=>
+          //     ProductGrid(
+          //       product: product[generator].product
+          //     )
+          //    )
+          // ),
+          body: isLoading
+          ?Center(child: CircularProgressIndicator())
+          :
+           TabBarView(
             children: List.generate(product.length, (generator)=>
               ProductGrid(
                 product: product[generator].product
               )
              )
-          ),
+          )
+          ,
+          // body: Center(child: CircularProgressIndicator()),
           
           // ProductGrid(
           //   product: widget.product,

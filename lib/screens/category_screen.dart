@@ -34,10 +34,19 @@ void fillSubCategory() async{
         variables:{"CateogryId":id}
       )
     );
-    // if(result.loading)
+    if(result.loading)
+    {
+      setState(() {
+        isLoading = true;
+      });
+    }
     if(!result.hasException)
     {
-      print("__data__");
+      setState(() {
+        isLoading = false;
+      });
+
+      // print("__data__");
       for(var i=0;i<result.data["subcateogryByCategoryId"]["edges"].length;i++)
         {
           print(result.data["subcateogryByCategoryId"]["edges"][i]["id"]);
@@ -56,6 +65,7 @@ void fillSubCategory() async{
 
 
   var id ="";
+  var isLoading = true;
   @override
   void initState()
   {
@@ -106,7 +116,17 @@ void fillSubCategory() async{
                     child: Container(
                       height: MediaQuery.of(context).size.height,
                       margin: EdgeInsets.only(left: 12,right: 12),
-                      child: ListView.builder(
+                      
+                      child: isLoading?
+                          // CircularProgressIndicator()
+                        Container(
+                          padding: EdgeInsets.only(top:65),
+                          alignment: Alignment.topCenter,
+                          child: CircularProgressIndicator(),
+                        )
+                        // Center(child: CircularProgressIndicator(),)
+                      :
+                      ListView.builder(
                         physics: ClampingScrollPhysics(),
                         shrinkWrap: true,
                         scrollDirection: Axis.vertical,

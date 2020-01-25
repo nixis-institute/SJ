@@ -87,7 +87,7 @@ class _CategoryState extends State<Category>{
                     
                     CircleAvatar(
                       radius: 35,
-                      backgroundImage: NetworkImage("http://10.0.2.2:8000/media/"+listCategory[index].imageUrl),
+                      backgroundImage: NetworkImage(server_url+"/media/"+listCategory[index].imageUrl),
                       // backgroundImage: AssetImage(category_model[index].imageUrl),
                       // backgroundImage: NetworkImage("http://10.0.2.2:8000/media/"+prd["node"]["image"]),
                     ),

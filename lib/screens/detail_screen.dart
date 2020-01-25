@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:shopping_junction/models/products.dart';
+import 'package:shopping_junction/GraphQL/services.dart';
+import 'package:shopping_junction/models/productAndCat.dart';
 import 'package:shopping_junction/widgets/App_bar.dart';
 
 import 'cart/first_secreen.dart';
@@ -191,11 +192,20 @@ class _DetailPageState extends State<DetailPage>
                   child: AnimatedContainer(
                   duration: Duration(milliseconds: 300),
                   height: picheight,
-                  child: Image.asset(
-                    widget.product.imageUrl,
+                  child: 
+                  Image.network(
+                    server_url+"/media/"+widget.product.images[0].imgUrl,
                     fit:BoxFit.cover,
                     alignment: Alignment.topCenter,
-                    )
+                    )                  
+                  // Image.asset(
+                  //   widget.product.images[0].imgUrl,
+                  //   fit:BoxFit.cover,
+                  //   alignment: Alignment.topCenter,
+                  //   )
+
+
+
                 ),
               ),
 
@@ -214,16 +224,20 @@ class _DetailPageState extends State<DetailPage>
                         decoration: BoxDecoration(
                           // color: Colors.green
                         ),
-
                         child: Row(
+                          // spacing: ,
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: <Widget>[
-
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: <Widget>[
                                 // Text("sdfdsf",textAlign: ),
-                                    Text(widget.product.name, textAlign: TextAlign.left, style: TextStyle(fontSize: 20,fontWeight: FontWeight.w300,),),
+                                Text(
+                                    widget.product.name,
+                                    overflow: TextOverflow.ellipsis,
+                                    textAlign: TextAlign.left, 
+                                    style: TextStyle(fontSize: 15,fontWeight: FontWeight.w300,),
+                                  ),
                                 // Text("Exclusive Jacket"),
                                 SizedBox(height: 5,),
                                 Padding(
@@ -231,7 +245,7 @@ class _DetailPageState extends State<DetailPage>
                                   child: Row(
                                     children: <Widget>[
                                           Text("\u20B9",style: TextStyle(fontWeight: FontWeight.bold,fontSize: 20),),
-                                          Text(widget.product.price.toString(),style: TextStyle(fontWeight: FontWeight.bold,fontSize: 20),),
+                                          Text(widget.product.listPrice.toString(),style: TextStyle(fontWeight: FontWeight.bold,fontSize: 20),),
                                           SizedBox(width: 10,),
                                           Text("\u20B9",style: TextStyle(fontWeight: FontWeight.w500,fontSize: 15,color: Colors.red),),
                                           Text(widget.product.mrp.toString(),style: TextStyle(fontWeight: FontWeight.w500,fontSize: 15,color: Colors.red,decoration: TextDecoration.lineThrough),),
@@ -240,7 +254,7 @@ class _DetailPageState extends State<DetailPage>
                                           // double d = widget.product.mrp;
                                           Text(
                                               "("+
-                                            ((widget.product.mrp - widget.product.price)*100 / widget.product.mrp ).toInt().toString()
+                                            ((widget.product.mrp - widget.product.listPrice)*100 / widget.product.mrp ).toInt().toString()
                                               +"% off)",
                                               style: TextStyle(
                                                 color: Colors.red,

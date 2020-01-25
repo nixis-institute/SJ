@@ -44,6 +44,8 @@ query GetSubList(\$SubCateogryId:ID!){
               name
             	listPrice
               mrp
+              sizes
+              colors
               productimagesSet{
                 edges{
                   node{
