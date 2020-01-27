@@ -19,13 +19,27 @@ class _CategoryState extends State<Category>{
       )
     );
     if(result.loading)
-      print("sdfkj");
+    {
+      setState(() {
+        isLoading = true;
+      });
+    }
+    else if(result.hasException)
+    {
+        isError = true;
+        Error = result.exception.toString();
+    } 
+
     if(!result.hasException)
     {
+      setState(() {
+        isLoading = false;
+      });
       print("__data__");
       for(var i=0;i<result.data["allCategory"]["edges"].length;i++)
         {
-          print(result.data["allCategory"]["edges"][i]["id"]);
+          // print("-->");
+          // print(result.data["allCategory"]["edges"][i]["node"]["id"]);
           setState(() {
             listCategory.add(
               ProductCategory(
@@ -40,6 +54,9 @@ class _CategoryState extends State<Category>{
   }
 
   @override
+  var isLoading = true;
+  var isError = false;
+  var Error = "";
   void initState()
   {
     super.initState();
@@ -61,7 +78,11 @@ class _CategoryState extends State<Category>{
       height: 120,
 
 
-      child: ListView.builder(
+      child: 
+      isLoading
+      ?Center(child: CircularProgressIndicator())
+      :
+      ListView.builder(
           padding: EdgeInsets.only(left: 10),
           shrinkWrap: true,
           // itemCount: category_model.length,
