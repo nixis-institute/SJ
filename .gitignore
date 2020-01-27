@@ -26,6 +26,7 @@
 .pub-cache/
 .pub/
 /build/
+/backend/py3/
 
 # Android related
 **/android/**/gradle-wrapper.jar
