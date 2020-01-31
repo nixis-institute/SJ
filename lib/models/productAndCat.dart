@@ -13,8 +13,9 @@ class Product{
   double listPrice;
   double mrp;
   List sizes;
+  List imageLink;
   List<ProductImage> images;
-  Product(this.id,this.name,this.listPrice,this.mrp,this.images,this.sizes);
+  Product(this.id,this.name,this.listPrice,this.mrp,this.images,this.sizes,this.imageLink);
 }
 
 class TypeAndProduct{

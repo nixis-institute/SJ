@@ -192,12 +192,14 @@ class _DetailPageState extends State<DetailPage>
                   child: AnimatedContainer(
                   duration: Duration(milliseconds: 300),
                   height: picheight,
-                  child: 
-                  Image.network(
-                    server_url+"/media/"+widget.product.images[0].imgUrl,
-                    fit:BoxFit.cover,
-                    alignment: Alignment.topCenter,
-                    )                  
+                  child: Image.network(
+                    widget.product.imageLink[0]
+                  )
+                  // Image.network(
+                  //   server_url+"/media/"+widget.product.images[0].imgUrl,
+                  //   fit:BoxFit.cover,
+                  //   alignment: Alignment.topCenter,
+                  //   )
                   // Image.asset(
                   //   widget.product.images[0].imgUrl,
                   //   fit:BoxFit.cover,

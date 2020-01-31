@@ -59,7 +59,7 @@ void fillProductAndCateogry() async{
 
 
           for(var j = 0;j<prd.length;j++){
-            print(prd[j]["node"]["name"]);
+            // print(prd[j]["node"]["name"]);
             List im = prd[j]["node"]["productimagesSet"]["edges"];
             List<ProductImage> imgList = [];
 
@@ -77,6 +77,7 @@ void fillProductAndCateogry() async{
               prd[j]["node"]["mrp"],
               imgList,
               prd[j]["node"]["sizes"].split(","),
+              prd[j]["node"]["imageLink"].split(","),
               )
             );
           }

@@ -17,7 +17,8 @@ class _ProductGridState extends State<ProductGrid>
   Widget build(BuildContext context)
   {
     print("product....");
-    print(widget.product);
+    print(widget.product[0].imageLink[0] );
+
     return GridView.count(
       shrinkWrap: true,
       crossAxisCount: 2,
@@ -25,6 +26,7 @@ class _ProductGridState extends State<ProductGrid>
       scrollDirection: Axis.vertical,
       childAspectRatio: 2/3,
       children: List.generate(widget.product.length, (index){
+        // print(widget.product[index].name);
         return Container(
           child: GestureDetector(
             // onTap: (){},
@@ -39,7 +41,9 @@ class _ProductGridState extends State<ProductGrid>
                   children: <Widget>[
                     Container(
                       height: 230,
-                      child: Image.network(server_url+"/media/"+widget.product[index].images[0].imgUrl ,fit:BoxFit.fill),
+                      // child: Image.network(server_url+"/media/"+widget.product[index].images[0].imgUrl ,fit:BoxFit.fill),
+                      child: Image.network(widget.product[index].imageLink[0].toString() ,fit:BoxFit.fill),
+
                       // child:CircleAvatar(
                       //   radius: 0,
                       //   backgroundImage: NetworkImage("http://10.0.2.2:8000/media/"+widget.product[index].images[0].imgUrl),
