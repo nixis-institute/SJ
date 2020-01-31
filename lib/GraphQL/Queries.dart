@@ -12,6 +12,9 @@ final String Categories = """
 }
 """;
 
+
+
+
 final String GetSubCategoryByCategoryId = """ 
 query GetSubCateogry(\$CateogryId:ID!){
   subcateogryByCategoryId(mainCategoryId:\$CateogryId)
@@ -28,6 +31,44 @@ query GetSubCateogry(\$CateogryId:ID!){
 """;
 
 
+final String GetSubListAndProductBySubCateogryIdAfter = """ 
+query GetSubList(\$SubCateogryId:ID!,\$after:String!){
+  sublistBySubcategoryId(subCategoryId:\$SubCateogryId)
+  {
+    edges{
+      node
+      {
+        id
+        name
+        productSet(first:5,after:\$after){
+          edges{
+            node{
+              id
+              name
+            	listPrice
+              mrp
+              sizes
+              colors
+              imageLink
+              productimagesSet{
+                edges{
+                  node{
+                    id
+                    image
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+""";
+
+
 final String GetSubListAndProductBySubCateogryId = """ 
 query GetSubList(\$SubCateogryId:ID!){
   sublistBySubcategoryId(subCategoryId:\$SubCateogryId)
@@ -37,7 +78,7 @@ query GetSubList(\$SubCateogryId:ID!){
       {
         id
         name
-        productSet(first:15){
+        productSet(first:5){
           edges{
             node{
               id
