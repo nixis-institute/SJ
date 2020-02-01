@@ -30,6 +30,9 @@ class _ListPageState extends State<ListPage>
 {
 List<TypeAndProduct> product = List<TypeAndProduct>();
 // List<Product> 
+
+
+
 void fillProductAndCateogry() async{
     GraphQLClient _client = clientToQuery();
     QueryResult result = await _client.query(
@@ -51,6 +54,7 @@ void fillProductAndCateogry() async{
       // print("__data__");
       setState(() {
         isLoading = false;
+        // endCursor = result.data["sublistBySubcategoryId"]["pageInfo"]["endCursor"];
       });
       for(var i=0;i<result.data["sublistBySubcategoryId"]["edges"].length;i++)
         {
@@ -99,11 +103,12 @@ void fillProductAndCateogry() async{
 }
 
 
-
+  // ScrollController _scrollController = new ScrollController();
   @override
   var nlist;
   var id;
   var isLoading = true;
+  var endCursor = "";
   void initState()
   {
     super.initState();
@@ -233,6 +238,7 @@ void fillProductAndCateogry() async{
           ?Center(child: CircularProgressIndicator())
           :
            TabBarView(
+            // controller:,
             children: List.generate(product.length, (generator)=>
               ProductGrid(
                 product: product[generator].product

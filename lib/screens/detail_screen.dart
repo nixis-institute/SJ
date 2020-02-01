@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:shopping_junction/GraphQL/services.dart';
@@ -192,9 +193,18 @@ class _DetailPageState extends State<DetailPage>
                   child: AnimatedContainer(
                   duration: Duration(milliseconds: 300),
                   height: picheight,
-                  child: Image.network(
-                    widget.product.imageLink[0]
-                  )
+                  child: CachedNetworkImage(
+                    height: 230,
+                    imageUrl: widget.product.imageLink[0].toString(),
+                    fit: BoxFit.cover,
+                    alignment: Alignment.topCenter,
+                    placeholder: (context, url) =>Center(child: CircularProgressIndicator()),
+                    // placeholder: (context, url) => Container(height: 20,child:Container(child: CircularProgressIndicator(value: 0.2,))),
+                    // errorWidget: (context, url, error) => Icon(Icons.error),
+                  ),
+                  // child: Image.network(
+                  //   widget.product.imageLink[0]
+                  // )
                   // Image.network(
                   //   server_url+"/media/"+widget.product.images[0].imgUrl,
                   //   fit:BoxFit.cover,

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:shopping_junction/GraphQL/services.dart';
 import 'package:shopping_junction/models/productAndCat.dart';
 import 'package:shopping_junction/screens/detail_screen.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class ProductGrid extends StatefulWidget{
   @override
@@ -13,6 +14,7 @@ class ProductGrid extends StatefulWidget{
 
 class _ProductGridState extends State<ProductGrid>
 {
+  // ScrollController _scrollController = new ScrollController();
   @override
   Widget build(BuildContext context)
   {
@@ -20,6 +22,7 @@ class _ProductGridState extends State<ProductGrid>
     print(widget.product[0].imageLink[0] );
 
     return GridView.count(
+      // controller: _scrollController,
       shrinkWrap: true,
       crossAxisCount: 2,
       physics: ClampingScrollPhysics(),
@@ -40,16 +43,38 @@ class _ProductGridState extends State<ProductGrid>
                 child: Column(
                   children: <Widget>[
                     Container(
-                      height: 230,
-                      // child: Image.network(server_url+"/media/"+widget.product[index].images[0].imgUrl ,fit:BoxFit.fill),
-                      child: Image.network(widget.product[index].imageLink[0].toString() ,fit:BoxFit.fill),
+                        height: 230,
+                        child: CachedNetworkImage(
+                          height: 230,
+                          imageUrl: widget.product[index].imageLink[0].toString(),
+                          fit: BoxFit.fill,
+                          placeholder: (context, url) =>Center(child: CircularProgressIndicator()),
 
-                      // child:CircleAvatar(
-                      //   radius: 0,
-                      //   backgroundImage: NetworkImage("http://10.0.2.2:8000/media/"+widget.product[index].images[0].imgUrl),
-                      // ) ,
-                      // child: Image.asset("http://10.0.2.2:80"+widget.product[index].images[0].imgUrl ,fit:BoxFit.fill),
+                          // placeholder: (context, url) => Container(height: 20,child:Container(child: CircularProgressIndicator(value: 0.2,))),
+                          // errorWidget: (context, url, error) => Icon(Icons.error),
+                        ),
                     ),
+
+
+                    // Container(
+                    //   height: 230,
+                    //   // child: Image.network(server_url+"/media/"+widget.product[index].images[0].imgUrl ,fit:BoxFit.fill),
+                    //   // child: Image.network(widget.product[index].imageLink[0].toString() ,fit:BoxFit.fill),
+                    //   child: CachedNetworkImage(
+                    //     imageUrl: widget.product[index].imageLink[0].toString(),
+                    //     fit: BoxFit.fill,
+                    //     placeholder: (context, url) => Container(height: 20,width: 20, margin: EdgeInsets.all(5),child:CircularProgressIndicator(value: 0.2,)),
+                    //     // errorWidget: (context, url, error) => Icon(Icons.error),
+                    //   ),
+
+                    //   // child:CircleAvatar(
+                    //   //   radius: 0,
+                    //   //   backgroundImage: NetworkImage("http://10.0.2.2:8000/media/"+widget.product[index].images[0].imgUrl),
+                    //   // ) ,
+                    //   // child: Image.asset("http://10.0.2.2:80"+widget.product[index].images[0].imgUrl ,fit:BoxFit.fill),
+                    // ),
+
+
                     Container(
                       child: Padding(
                         // padding: const EdgeInsets.all(8.0),
