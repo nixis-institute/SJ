@@ -54,15 +54,20 @@ class SubList(models.Model):
 
 class Product(models.Model):
     name = models.CharField(max_length=200)
-    brand = models.CharField(max_length=100)
+    brand = models.CharField(max_length=100,blank=True)
+    published = models.BooleanField(default=True)
+    isFeatured = models.BooleanField(default=True)
+    shortDescription = models.TextField(null=True,blank=True)
     description = models.TextField(null=True,blank=True)
     mrp = models.FloatField()
     list_price = models.FloatField()
     discount = models.FloatField(null=True,blank=True)
     qty = models.IntegerField()
+    instock = models.BooleanField(default=0)
     colors = models.TextField(null=True,blank=True)
     sizes = models.TextField(null=True,blank=True)
     features = models.TextField(null=True,blank=True)
+    image_link = models.TextField(blank=True)
     sublist = models.ForeignKey(SubList,on_delete=models.CASCADE)
     def __str__(self):
         return self.name
