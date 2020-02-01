@@ -73,6 +73,9 @@ final String GetSubListAndProductBySubCateogryId = """
 query GetSubList(\$SubCateogryId:ID!){
   sublistBySubcategoryId(subCategoryId:\$SubCateogryId)
   {
+  pageInfo{
+      endCursor
+    }    
     edges{
       node
       {

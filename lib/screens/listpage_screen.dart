@@ -35,10 +35,14 @@ List<TypeAndProduct> product = List<TypeAndProduct>();
 
 void fillProductAndCateogry() async{
     GraphQLClient _client = clientToQuery();
+    print(endCursor);
     QueryResult result = await _client.query(
       QueryOptions(
-        documentNode: gql(GetSubListAndProductBySubCateogryId),
-        variables:{"SubCateogryId":id}
+        documentNode: gql(endCursor.length>0?GetSubListAndProductBySubCateogryIdAfter:GetSubListAndProductBySubCateogryId),
+        variables:{
+          "SubCateogryId":id,
+          "after":endCursor
+          }
       )
     );
     if(result.loading)
@@ -51,10 +55,10 @@ void fillProductAndCateogry() async{
 
     if(!result.hasException)
     {
-      // print("__data__");
+
       setState(() {
         isLoading = false;
-        // endCursor = result.data["sublistBySubcategoryId"]["pageInfo"]["endCursor"];
+          endCursor = result.data["sublistBySubcategoryId"]["pageInfo"]["endCursor"];
       });
       for(var i=0;i<result.data["sublistBySubcategoryId"]["edges"].length;i++)
         {
@@ -124,7 +128,7 @@ void fillProductAndCateogry() async{
     // print(product[0].product);
     // print("-----------------------------");
 
-
+  // print(endCursor);
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle(
             statusBarColor: Colors.transparent,
@@ -134,7 +138,6 @@ void fillProductAndCateogry() async{
       ),
           child: DefaultTabController(
           
-          // length: nlist.subCateogry.length,
           length: product.length,
           
           child: Scaffold(
@@ -260,8 +263,8 @@ void fillProductAndCateogry() async{
                 // Navigator.push(context,MaterialPageRoute(
                 //     builder:(context)=>SortAndFilter()
                 //    ));
-                _navigateAndDisplay(context);
-
+                // _navigateAndDisplay(context);
+                  fillProductAndCateogry();
 
                   },
                 child: Container(
