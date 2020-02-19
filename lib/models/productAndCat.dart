@@ -21,7 +21,8 @@ class Product{
 class TypeAndProduct{
   String id;
   String name;
+  String endCursor;
   List<Product> product;
-  TypeAndProduct(this.id,this.name,this.product);
+  TypeAndProduct(this.id,this.name,this.product,this.endCursor);
 
 }

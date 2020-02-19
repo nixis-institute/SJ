@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shopping_junction/common/functions/requestLogin.dart';
 import 'package:shopping_junction/screens/accounts/registration.dart';
 import 'package:shopping_junction/screens/home_screen.dart';
 
@@ -9,9 +10,37 @@ class LoginScreen extends StatefulWidget{
 
 class _LoginScreenState extends State<LoginScreen>
 {
+  final _User = TextEditingController();
+  final _Pass = TextEditingController();
+  bool isPasswordVisible = false;
+  bool isConfirmPasswordVisible = false;
+  bool isSubmit = false;
+  bool isWrong = false;
+
   @override
+  void initState(){
+    isPasswordVisible = false;
+    isConfirmPasswordVisible = false;
+    super.initState();
+  }
+
   Widget build(BuildContext context)
   {
+    _sendToServer(context,username,password)
+      async {
+        var x = await requestLoginApi(context,username,password);
+        if(x==null){
+          setState(() {
+            isWrong = true;
+            isSubmit = false;
+          });
+        }
+        else{
+          Navigator.pop(context);
+        }
+
+      }      
+    
     return Scaffold(
       body: Container(
         color: Colors.white,
@@ -43,19 +72,48 @@ class _LoginScreenState extends State<LoginScreen>
                     Container(
                       child: Column(
                         children: <Widget>[
-                          TextField(
+                          isWrong?
+                          Text('Wrong username or password',style: TextStyle(color: Colors.red),):
+                          SizedBox(height: 1,),
+                          TextFormField(
+                            controller: _User,
                             decoration: InputDecoration(
                               // border: InputBord
-                              hintText: 'Mail-id / Phone Number'
+                              hintText: 'Mail-id / Phone Number',
+                              labelText: 'Mail-id / Phone Number'
                             ),
+                            onTap: (){
+                              setState(() {
+                                isWrong = false;
+                              });
+                            },                            
                           ),
                           SizedBox(height: 40,),
-                          TextField(
+                          TextFormField(
+                            autofocus: false,
+                            controller: _Pass,
+                            // onChanged: ,
                             decoration: InputDecoration(
                               // border: InputBord
-                              hintText: 'Password'
+                              hintText: 'Password',
+                              labelText: 'Password',
+                              suffixIcon: IconButton(
+                                icon: Icon(isPasswordVisible?Icons.visibility:Icons.visibility_off),
+                                onPressed: (){
+                                  setState(() {
+                                    isPasswordVisible = !isPasswordVisible;
+                                  });
+                                },
+                              ),
+                              
                             ),
-                            obscureText: true,
+                            onTap: (){
+                              setState(() {
+                                isWrong = false;
+                              });
+                            },
+
+                            obscureText: !isPasswordVisible,
                           ),
                           SizedBox(height: 30,),
                           Container(
@@ -65,14 +123,31 @@ class _LoginScreenState extends State<LoginScreen>
                           
                           SizedBox(height: 30,),
 
-                          Container(
-                            height: 50,
-                            alignment: Alignment.center,
-                            width: MediaQuery.of(context).size.width,
-                            decoration: BoxDecoration(
-                              color: Colors.green
+                          InkWell(
+                            onTap: (){
+                                setState(() {
+                                  isSubmit = true;
+                                });
+                              _sendToServer(context,_User.text,_Pass.text);
+                            },
+                              child: Container(
+                              height: 50,
+                              alignment: Alignment.center,
+                              width: MediaQuery.of(context).size.width,
+                              decoration: BoxDecoration(
+                                
+                                color: Colors.green
+                              ),
+                              child: isSubmit?
+                              
+                              // Text("Sign In",style: TextStyle(color: Colors.white,fontSize: 19),),
+                              Container(
+                                height: 25,
+                                width: 25,
+                                // child: Text("Login in"),
+                                child: CircularProgressIndicator(strokeWidth: 3,valueColor: AlwaysStoppedAnimation(Colors.white),),
+                              ):Text("Sign In",style: TextStyle(color: Colors.white,fontSize: 19),),                              
                             ),
-                            child: Text("Sign In",style: TextStyle(color: Colors.white,fontSize: 19),),
                           ),
 
                             SizedBox(height: 30,),

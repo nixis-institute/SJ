@@ -30,11 +30,83 @@ query GetSubCateogry(\$CateogryId:ID!){
 }
 """;
 
+final String getUser = """
+query GetUser(\$id:Int!){
+  user(userId:\$id)
+  {
+    id
+    username
+    firstName
+    lastName
+    email
+    profile{
+      gender
+      phoneNumber
+    }
+    addressSet{
+      edges{
+        node{
+          id
+          houseNo
+          colony
+          personName
+          landmark
+          city
+          state
+          personName
+          phoneNumber
+          alternateNumber
+        }
+      }
+    }
+  }
+}
+""";
+
+
+final String GetSubListById = """
+query xyz(\$Id:ID!,\$after:String!)
+{
+  sublistById(id:\$Id)
+  {
+    id
+    name
+    productSet(first:10,after:\$after){
+      pageInfo{
+        endCursor
+      }
+      edges{
+        node{
+          id
+          name
+          listPrice
+          mrp
+          sizes
+          colors
+          imageLink
+          productimagesSet{
+            edges{
+              node{
+                id
+                image
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+""";
 
 final String GetSubListAndProductBySubCateogryIdAfter = """ 
 query GetSubList(\$SubCateogryId:ID!,\$after:String!){
   sublistBySubcategoryId(subCategoryId:\$SubCateogryId)
   {
+  pageInfo{
+      endCursor
+    }    
     edges{
       node
       {
@@ -75,13 +147,16 @@ query GetSubList(\$SubCateogryId:ID!){
   {
   pageInfo{
       endCursor
-    }    
+    }
     edges{
       node
       {
         id
         name
         productSet(first:5){
+          pageInfo{
+            endCursor
+          }
           edges{
             node{
               id

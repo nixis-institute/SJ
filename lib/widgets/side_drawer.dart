@@ -1,18 +1,55 @@
 import 'package:flutter/material.dart';
 import 'package:shopping_junction/models/category_model.dart';
+import 'package:shopping_junction/models/userModel.dart';
+import 'package:shopping_junction/screens/accounts/account.dart';
 import 'package:shopping_junction/screens/accounts/login.dart';
+// import 'package:shopping_junction/screens/accounts/profile.dart';
 import 'package:shopping_junction/screens/listpage_screen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SideDrawer extends StatefulWidget{
   @override
   _SideDrawerState createState() => _SideDrawerState();
 }
 
+// class SharedPreferencesHelper{
+//   // static final String key = "";
+//   static Future<String> getToken() async {
+//      final SharedPreferences prefs = await SharedPreferences.getInstance();
+//      return prefs.getString("LastToken");
+//   }
+//   static Future<String> getName() async {
+//      final SharedPreferences prefs = await SharedPreferences.getInstance();
+//      return prefs.getString("LastUser");
+//   }  
+// }
+
 class _SideDrawerState extends State<SideDrawer>
 {
+  // final username = SharedPreferencesHelper.getName();
+  String user ='Login';
+  int uid;
   @override
+  void initState(){
+    super.initState();
+    _loadUser();
+  }
+
+  _loadUser() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      uid = (prefs.getInt('Id'));
+      user = (prefs.getString("LastUser"));
+    });
+  }
+
   Widget build(BuildContext context)
   {
+    // print("username");
+    // print(user);
+    // print(username.toString());
+
+
     return 
     Drawer(
       elevation: 1,
@@ -91,13 +128,25 @@ class _SideDrawerState extends State<SideDrawer>
             InkWell(
                 onTap: (){
                   Navigator.pop(context);
+                  user!=null?
+                  Navigator.push(context, MaterialPageRoute(builder: (_)=>ProfileScreen(
+                    uid:uid
+                  )))
+                  :
                   Navigator.push(context, MaterialPageRoute(builder: (_)=>LoginScreen(
-                    // product: category_model[index].list[i].products,
                   )));
                 },
 
                 child: ListTile(
-                title:Text("LOGIN",
+                title:Text(
+
+                    user!=null?
+                    '$user':'LOGIN',
+                    // '$user??Login',
+                    // user.toString().length >0)?user:"Login",
+                  // "LOGIN",
+
+                
                 style: TextStyle(color: Colors.white,fontSize: 18,fontWeight: FontWeight.w400),
                 ),
               ),

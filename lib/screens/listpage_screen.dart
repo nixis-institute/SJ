@@ -32,16 +32,92 @@ List<TypeAndProduct> product = List<TypeAndProduct>();
 // List<Product> 
 
 
-
-void fillProductAndCateogry() async{
+void fillMoreProduct() async{
     GraphQLClient _client = clientToQuery();
+    // print("cursor");
     print(endCursor);
     QueryResult result = await _client.query(
       QueryOptions(
-        documentNode: gql(endCursor.length>0?GetSubListAndProductBySubCateogryIdAfter:GetSubListAndProductBySubCateogryId),
+        documentNode: gql(GetSubListById),
+        variables:{
+          "Id":id,
+          "after":endCursor
+          }
+      )
+    );
+    if(result.loading)
+    {
+      // print("loading..");
+      setState(() {
+        isLoading = true;
+      });
+    }
+
+    if(!result.hasException)
+    {
+      var prd = result.data["sublistById"]["productSet"];
+      setState(() {
+        isLoading = false;
+          endCursor = prd["endCursor"];
+          // endCursor = result.data["sublistBySubcategoryId"]["pageInfo"]["endCursor"];
+      });
+      
+      
+      for(var i=0;i<result.data["sublistBySubcategoryId"]["edges"].length;i++)
+        {
+          List prd = result.data["sublistBySubcategoryId"]["edges"][i]["node"]["productSet"]["edges"];
+          List<Product> prdList = [];
+
+
+          for(var j = 0;j<prd.length;j++){
+            List im = prd[j]["node"]["productimagesSet"]["edges"];
+            List<ProductImage> imgList = [];
+
+
+            for(var k = 0;k<im.length;k++){
+              imgList.add(
+                ProductImage(im[k]["node"]["id"], im[k]["node"]["image"])
+              );
+            }
+
+            prdList.add(
+              Product(prd[j]["node"]["id"], 
+              prd[j]["node"]["name"], 
+              prd[j]["node"]["listPrice"],
+              prd[j]["node"]["mrp"],
+              imgList,
+              prd[j]["node"]["sizes"].split(","),
+              prd[j]["node"]["imageLink"].split(","),
+              )
+            );
+          }
+
+          setState(() {
+              if(prdList.length >0)
+              {
+                product.add(
+                  TypeAndProduct(
+                      result.data["sublistBySubcategoryId"]["edges"][i]["node"]["id"],
+                      result.data["sublistBySubcategoryId"]["edges"][i]["node"]["name"],
+                      prdList,
+                      result.data["sublistBySubcategoryId"]["edges"][i]["node"]["productSet"]["pageInfo"]["endCursor"],
+                  )
+                );
+              }
+          });
+        }
+    }    
+}
+
+void fillProductAndCateogry() async{
+    GraphQLClient _client = clientToQuery();
+    // print("cursor");
+    print(endCursor);
+    QueryResult result = await _client.query(
+      QueryOptions(
+        documentNode: gql(GetSubListAndProductBySubCateogryId),
         variables:{
           "SubCateogryId":id,
-          "after":endCursor
           }
       )
     );
@@ -97,7 +173,8 @@ void fillProductAndCateogry() async{
                   TypeAndProduct(
                       result.data["sublistBySubcategoryId"]["edges"][i]["node"]["id"],
                       result.data["sublistBySubcategoryId"]["edges"][i]["node"]["name"],
-                      prdList
+                      prdList,
+                      result.data["sublistBySubcategoryId"]["edges"][i]["node"]["productSet"]["pageInfo"]["endCursor"],                      
                   )
                 );
               }
@@ -149,7 +226,7 @@ void fillProductAndCateogry() async{
                   iconSize: 25,
                   color: Colors.white,
                   onPressed: (){
-                    // showSearchPage(context, _searchDelegate);
+                    //  search_page(context, _searchDelegate);
                   },
                 ),
                 IconButton(

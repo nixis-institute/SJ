@@ -6,11 +6,13 @@ from datetime import datetime
 
 class Profile(models.Model):
     user = models.OneToOneField(User,on_delete=models.CASCADE)
-    phone_number = models.IntegerField(null=True,blank=True)
+    # phone_number = models.IntegerField(null=True,blank=True)
+    phone_number = models.CharField(max_length = 12,null=True,blank=True)
     gender = models.CharField(max_length=10,null=True,blank=True)
     GST_number = models.CharField(max_length=20, null=True,blank=True)
+    # image = models.ImageField(upload_to="profile/",blank=True,null=True)
     def __str__(self):
-        return self.user.name
+        return self.user.username
     
 
 

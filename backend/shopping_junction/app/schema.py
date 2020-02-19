@@ -12,6 +12,7 @@ from graphene_django.debug import DjangoDebug
 from graphql_relay.node.node import from_global_id
 from django.utils.dateparse import parse_date
 from graphene import relay
+from django.contrib.auth.models import User
 
 class ProductNode(DjangoObjectType):
     class Meta:
@@ -37,11 +38,41 @@ class SubListNode(DjangoObjectType):
         filter_fields = ()
         interfaces = (relay.Node,)
 
+class AddressNode(DjangoObjectType):
+    class Meta:
+        model = Address
+        filter_fields = ()
+        interfaces = (relay.Node,)
+
+
 class ImageNode(DjangoObjectType):
     class Meta:
         model = ProductImages
         filter_fields = ()
-        interfaces = (relay.Node,)        
+        interfaces = (relay.Node,)
+
+class SubListSingleNode(DjangoObjectType):
+    class Meta:
+        model = SubList
+        filter_fields = ()
+        interfaces = (graphene.Node,)
+
+class UserNode(DjangoObjectType):
+    class Meta:
+        model = User
+        filter_fields = ()
+        interfaces = (graphene.Node,)
+class ProfileNode(DjangoObjectType):
+    class Meta:
+        model = Profile
+        filter_fields = ()
+        interfaces = (graphene.Node,)
+
+# class AddressNode(DjangoObjectType):
+#     class Meta:
+#         model = Address
+#         filter_fields = ()
+#         interfaces = (relay.Node)
 
 class Query(graphene.AbstractType):
     all_products = DjangoFilterConnectionField(ProductNode)
@@ -53,8 +84,18 @@ class Query(graphene.AbstractType):
     subcateogry_by_category_id = DjangoFilterConnectionField(SubCategoryNode,main_category_id = graphene.ID())
     sublist_by_subcategory_id = DjangoFilterConnectionField(SubListNode, sub_category_id=graphene.ID())
     product_by_sublist_id = DjangoFilterConnectionField(ProductNode, sublist_id=graphene.ID())
+    user = graphene.Field(UserNode,user_id = graphene.Int())
 
 
+    sublist_by_id = graphene.Field(SubListSingleNode,id=graphene.ID())
+
+
+    def resolve_user(self,info,user_id):
+        return User.objects.get(id = user_id)
+
+    def resolve_sublist_by_id(self,info,id):
+        ids = from_global_id(id)[1]
+        return SubList.objects.get(id=ids)
 
     def resolve_product_by_sublist_id(self,info,sublist_id):
         ids = from_global_id(sublist_id)[1]

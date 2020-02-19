@@ -20,9 +20,13 @@ from django.views.decorators.csrf import csrf_exempt
 
 from django.conf import settings
 from django.conf.urls.static import static
+from app.views import *
+from rest_framework_jwt.views import obtain_jwt_token
 
 urlpatterns = [
     # path('graphql/', GraphQLView.as_view(graphiql=True)),
     path('graphql/',csrf_exempt(GraphQLView.as_view(graphiql=True))),
     path('admin/', admin.site.urls),
+    path('api-token-auth/', obtain_jwt_token),
+    path("",home),
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
