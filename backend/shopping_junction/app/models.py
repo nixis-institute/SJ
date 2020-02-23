@@ -80,13 +80,13 @@ class ProductImages(models.Model):
     def __str__(self):
         return self.product.name
 
-class ProductReview(models.Model):
-    rating = models.FloatField(null=True,blank=True)
-    description = models.TextField(null=True,blank=True)
-    product = models.ForeignKey(Product,on_delete=models.CASCADE)
-    user = models.ForeignKey(User,on_delete = models.CASCADE)
-    def __str__(self):
-        return self.product.name
+# class ProductReview(models.Model):
+#     rating = models.FloatField(null=True,blank=True)
+#     description = models.TextField(null=True,blank=True)
+#     product = models.ForeignKey(Product,on_delete=models.CASCADE)
+#     user = models.ForeignKey(User,on_delete = models.CASCADE)
+#     def __str__(self):
+#         return self.product.name
 
 class WishList(models.Model):
     size = models.IntegerField(null=True,blank=True)

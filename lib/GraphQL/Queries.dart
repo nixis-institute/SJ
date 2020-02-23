@@ -29,6 +29,81 @@ query GetSubCateogry(\$CateogryId:ID!){
   }
 }
 """;
+final String createUser = """
+
+mutation create(\$user:String!,\$email:String!,\$password:String!){
+  createUser(username:\$user,email:\$email,password:\$password){
+    user{
+      id
+      username
+    }
+  }
+}
+
+
+""";
+
+final String isUserExisted = """
+query existed(\$username:String!)
+{
+  isUserExisted(username:\$username)
+  {
+    id
+    username
+  }  
+}
+""";
+
+final String updateUser ="""
+mutation xbv(\$id:ID!,\$firstName:String!,\$lname:String!,\$phone:String!,\$gender:String!,\$email:String!)
+{
+  updateUser(firstName:\$firstName,lastName:\$lname,phone:\$phone,gender:\$gender,email:\$email,id:\$id)
+  {
+    user{
+    id
+    username
+    firstName
+    lastName
+    email
+    profile{
+      gender
+      phoneNumber
+    }
+    addressSet{
+      edges{
+        node{
+          id
+          houseNo
+          colony
+          personName
+          landmark
+          city
+          state
+          personName
+          phoneNumber
+          alternateNumber
+        }
+      }
+    }     
+    }
+  }
+}
+
+
+""";
+
+final String changeUserPassword = """
+mutation abc(\$id:ID!,\$old:String!,\$new:String!){
+  changePassword(id:\$id,newPassword:\$new,oldPassword:\$old)
+  {
+    user{
+      id
+      username
+    }
+  }
+}
+""";
+
 
 final String getUser = """
 query GetUser(\$id:Int!){

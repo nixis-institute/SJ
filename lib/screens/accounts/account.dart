@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shopping_junction/GraphQL/Queries.dart';
 import 'package:shopping_junction/GraphQL/services.dart';
 import 'package:shopping_junction/models/userModel.dart';
-import 'package:shopping_junction/widgets/profile.dart';
+import 'package:shopping_junction/screens/accounts/checkpassword.dart';
+
+import '../profile.dart';
+// import 'package:shopping_junction/widgets/profile.dart';
 
 class ProfileScreen extends StatefulWidget{
   @override
@@ -24,7 +28,7 @@ class _ProfileScreenState extends State<ProfileScreen>{
       QueryOptions(
         documentNode: gql(getUser),
         variables:{
-          "id":this.widget.uid,
+          "id":_uid,
           }
       )
     );
@@ -42,25 +46,18 @@ class _ProfileScreenState extends State<ProfileScreen>{
         loading=false;
       });
       // print(result);
+
       var d = result.data["user"];
-
       var phone,gender = "";
-
-
-
       if(d["profile"]!= null)
       {
         phone = d["profile"]["phoneNumber"]??"";
         gender = d["profile"]["gender"]??"";
       }
-
       List<Address> adds = [];
-      // print(d["addressSet"]["edges"][0]["node"]["houseNo"]);
       List t = d["addressSet"]["edges"];
       for(int j=0;j<t.length;j++)
       {
-        // print(t[j]["node"]["houseNo"]);
-        
         adds.add(Address(t[j]["node"]["id"],
           t[j]["node"]["houseNo"],
           t[j]["node"]["colony"],
@@ -72,7 +69,6 @@ class _ProfileScreenState extends State<ProfileScreen>{
           t[j]["node"]["alternateNumber"].toString()
           ));
       }
-
       setState(() {
         user = UserModel(
           d["username"],
@@ -101,25 +97,45 @@ _clear() async{
 
   // int uid;
   bool loading = true;
+  int _uid;
   @override
   void initState()
   {
     super.initState();
-    // _loadUser();
+    _loadUser();
+    _uid = this.widget.uid;
     updateUser();
   }
 
-  // _loadUser() async {
-  //   SharedPreferences prefs = await SharedPreferences.getInstance();
-  //   setState(() {
-  //     uid = (prefs.getInt('Id'));
-  //     // user = (prefs.getString("LastUser"));
-  //   });
-  // }
+  _loadUser() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _uid = (prefs.getInt('Id'));
+      // user = (prefs.getString("LastUser"));
+    });
+  }
 
 
   Widget build(BuildContext context){
     // print(uid);
+    // final prefs =  SharedPreferences.getInstance();
+
+  
+
+    _gotoInfo(user) async{
+    Navigator.push(context, MaterialPageRoute(builder: (_)=>MyInfo(
+        user:user
+    )));
+
+    // if(id!=null)
+    // {
+    //   setState(() {
+    //     _uid = int.parse(id.toString());
+    //   });
+    // }
+
+    }
+
     return Scaffold(
       appBar: AppBar(
         title: Text("Profile"),
@@ -166,21 +182,39 @@ _clear() async{
                 leading: Icon(Icons.person),
                 title: Text("My Info",style: TextStyle(fontWeight: FontWeight.normal,fontSize: 18)),
                 onTap: (){
-                  Navigator.push(context, MaterialPageRoute(builder: (_)=>MyInfo(
-                    user:user
-                    // uid:uid
-                  )));
+                  _gotoInfo(user);
+                  
+                  // Navigator.push(context, MaterialPageRoute(builder: (_)=>MyInfo(
+                  //   user:user
+                  //   // uid:uid
+                  // )));
+
+
+
                 },
                 ),
               ListTile(leading: Icon(Icons.home),title: Text("My Address",style: TextStyle(fontWeight: FontWeight.normal,fontSize: 18),),),
+              ListTile(
+                leading: Icon(FontAwesomeIcons.redo),
+                title: Text("Change Password",style: TextStyle(fontSize: 18,fontWeight: FontWeight.normal),),
+                onTap: (){
+
+                Navigator.push(context, MaterialPageRoute(builder: (_)=>ChangePasswordScreen(
+                  id:user.id
+                  // uid:uid
+                )));
+
+                },
+              ),
               
               ListTile(leading: Icon(Icons.power_settings_new,color: Colors.red,),title: Text('Logout',style: TextStyle(color: Colors.red,fontWeight: FontWeight.bold,fontSize: 18),),
               onTap:(){
               _clear();
               Navigator.pop(context);
+              }
+              ),
 
-              } 
-              )
+
             ],),
           )
         ],

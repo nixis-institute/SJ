@@ -226,7 +226,6 @@ void fillProductAndCateogry() async{
                   iconSize: 25,
                   color: Colors.white,
                   onPressed: (){
-                    //  search_page(context, _searchDelegate);
                   },
                 ),
                 IconButton(
@@ -265,24 +264,6 @@ void fillProductAndCateogry() async{
                   )
                 ]
               ),
-
-
-
-                // IconButton(
-                //   icon: Icon(Icons.add_shopping_cart),
-                //   iconSize: 25,
-                //   color: Colors.white,
-                //   onPressed: (){
-                //     Navigator.push(context, MaterialPageRoute(builder: (_)=>CartScreen(
-                //     )));
-                //   },
-                // ),
-                // IconButton(
-                //   icon: Icon(Icons.more_vert),
-                //   iconSize: 30,
-                //   color: Colors.white,
-                //   onPressed: (){},
-                // )
             ],
 
             bottom: TabBar(

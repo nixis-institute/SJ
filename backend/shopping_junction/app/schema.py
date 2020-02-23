@@ -12,6 +12,7 @@ from graphene_django.debug import DjangoDebug
 from graphql_relay.node.node import from_global_id
 from django.utils.dateparse import parse_date
 from graphene import relay
+from django.contrib.auth import get_user_model
 from django.contrib.auth.models import User
 
 class ProductNode(DjangoObjectType):
@@ -19,6 +20,8 @@ class ProductNode(DjangoObjectType):
         model = Product
         filter_fields = ()
         interfaces = (relay.Node,)
+
+
 
 class ProductCategoryNode(DjangoObjectType):
     class Meta:
@@ -74,6 +77,85 @@ class ProfileNode(DjangoObjectType):
 #         filter_fields = ()
 #         interfaces = (relay.Node)
 
+class UserType(DjangoObjectType):
+    class Meta:
+        model = get_user_model()
+
+class CreateUser(graphene.Mutation):
+    # user = graphene.Field(UserNode)
+    class Arguments:
+        username = graphene.String(required=True)
+        password = graphene.String(required=True)
+        email = graphene.String(required=True)
+    user = graphene.Field(UserNode)
+    def mutate(self,info,username,password,email):
+        user = get_user_model()(username = username,email = email)
+        user.set_password(password)
+        user.save()
+        return CreateUser(user=user)
+
+class UpdateUser(graphene.Mutation):
+    class Arguments:
+        id = graphene.ID(required=True)
+        firstName = graphene.String(required = True)
+        lastName = graphene.String(required=True)
+        email = graphene.String(required=True)
+        phone = graphene.String(required=True)
+        gender = graphene.String(required=True)
+    user = graphene.Field(UserNode)
+    def mutate(self,info,id,firstName,lastName,email,phone,gender):
+        user = Profile.objects.filter(user_id=from_global_id(id)[1])
+        u = User.objects.get(id = from_global_id(id)[1])
+        u.first_name = firstName
+        u.last_name = lastName
+        u.email = email
+        u.save()
+        if(user):
+            # user = User.objects.get(id = from_global_id(id)[1])
+            print(phone)
+            user[0].phone_number = phone
+            user[0].gender = gender
+            user[0].save()
+        else:
+            Profile.objects.create(user_id=u.id,phone_number=phone,gender=gender)
+        return UpdateUser(user = u)
+
+
+
+
+class ChangePassword(graphene.Mutation):
+    class Arguments:
+        # username = graphene.String(required = True)
+        id = graphene.ID(required = True)
+        old_password = graphene.String(required = True)
+        new_password = graphene.String(required = True)
+    success = graphene.Boolean()
+    user = graphene.Field(UserNode)
+
+
+    def mutate(self,info,id,old_password,new_password):
+        # user = get_user_model()(username = username,email = email)
+        user = User.objects.get(id = from_global_id(id)[1])
+
+        # user.set_password(password)
+
+        print(old_password)
+        if(user.check_password(old_password)):
+            user.set_password(new_password)
+            user.save()
+            return ChangePassword(user=user,success=True)
+        else:
+            print("not match...........")
+            return ChangePassword(success=False)
+        
+        
+
+
+class Mutation(graphene.ObjectType):
+    create_user = CreateUser.Field()
+    change_password = ChangePassword.Field()
+    update_user = UpdateUser.Field()
+
 class Query(graphene.AbstractType):
     all_products = DjangoFilterConnectionField(ProductNode)
     all_category = DjangoFilterConnectionField(ProductCategoryNode)
@@ -86,9 +168,18 @@ class Query(graphene.AbstractType):
     product_by_sublist_id = DjangoFilterConnectionField(ProductNode, sublist_id=graphene.ID())
     user = graphene.Field(UserNode,user_id = graphene.Int())
 
+    is_user_existed = graphene.Field(UserNode,username = graphene.String())
 
     sublist_by_id = graphene.Field(SubListSingleNode,id=graphene.ID())
 
+
+    def resolve_is_user_existed(self,info,username):
+        d = User.objects.filter(username = username)
+        # return d
+        if d:
+            return d[0]
+        # else:
+        #     return False
 
     def resolve_user(self,info,user_id):
         return User.objects.get(id = user_id)

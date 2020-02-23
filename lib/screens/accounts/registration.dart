@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:graphql_flutter/graphql_flutter.dart';
+import 'package:shopping_junction/GraphQL/Queries.dart';
+import 'package:shopping_junction/GraphQL/services.dart';
 import 'package:shopping_junction/screens/accounts/login%20copy.dart';
 import 'package:shopping_junction/screens/home_screen.dart';
 
@@ -9,6 +12,20 @@ class RegistrationScreen extends StatefulWidget{
 
 class _RegistrationScreenState extends State<RegistrationScreen>
 {
+  final _User = TextEditingController();
+  final _Email = TextEditingController();
+  final _Pass1 = TextEditingController();
+  final _Pass2 = TextEditingController();
+  bool isPasswordVisible = false;
+  bool isConfirmPasswordVisible = false;
+  bool isSubmit = false;
+  bool isWrong = false;
+  bool isWork = false;  
+  bool isSearch = false;  
+  bool isPasswordMatch =true; 
+  bool isAvailable = false;  
+
+
   DateTime _date = DateTime.now();
   Future<Null> selectDate(BuildContext context) async{
     final DateTime picked = await showDatePicker(
@@ -30,6 +47,83 @@ class _RegistrationScreenState extends State<RegistrationScreen>
   @override
   Widget build(BuildContext context)
   {
+    _createUser(context,username,email,password)
+    async {
+    if(username.length==0)
+    {
+      
+    }
+    setState(() {
+      isSubmit = true;
+    });
+
+    GraphQLClient _client = clientToQuery();
+    QueryResult result = await _client.mutate(
+      MutationOptions(
+        documentNode: gql(createUser),
+        variables:{
+          "user":username,
+          "email":email,
+          "password":password
+          }
+      )
+    );
+    if(result.loading)
+    {
+      setState(() {
+        isSubmit = true;
+      });
+    }
+    if(!result.hasException)
+    {
+      Navigator.pop(context);
+    }
+  }
+
+
+  _isUserAvailable(username)
+  async{
+    setState(() {
+      isWork = true;
+      isSearch = true;
+    });
+    GraphQLClient _client = clientToQuery();
+    QueryResult result = await _client.query(
+      QueryOptions(
+        documentNode: gql(isUserExisted),
+        variables: {
+          "username":username
+        }
+      )
+    );
+    
+    if(result.loading)
+    {
+      setState(() {
+        isSearch = true;        
+      });
+    }
+    if(!result.hasException)
+    {
+      setState(() {
+        isSearch = false;        
+      });
+      if(result.data["isUserExisted"]==null)
+      {
+        setState(() {
+          isAvailable = false;          
+        });
+      }
+      else{
+        setState(() {
+          isAvailable = true;          
+        });
+      }
+
+    }
+  }
+
+
 
     return Scaffold(
       
@@ -64,61 +158,185 @@ class _RegistrationScreenState extends State<RegistrationScreen>
                     Container(
                       child: Column(
                         children: <Widget>[
-                          TextField(
+                          
+                          TextFormField(
+                            autofocus: false,
+                            controller: _User,
+                            // onChanged: ,
                             decoration: InputDecoration(
                               // border: InputBord
-                              hintText: 'Username'
-                            ),
-                          ),
-                          SizedBox(height: 30,),
-                          TextField(
-                            decoration: InputDecoration(
-                              // border: InputBord
-                              hintText: 'Email'
-                            ),
-                          ),
-
-                          SizedBox(height: 30,),
-                          TextField(
-                            decoration: InputDecoration(
-                              // border: InputBord
-                              hintText: 'Date of Birth'
-                            ),
-                            // controller: ,
+                              hintText: 'Username',
+                              labelText: !isAvailable?'Username':"Username is not available",
+                              labelStyle: TextStyle(
+                                color: !isAvailable?Colors.grey:Colors.red
+                              ),
+                                suffix: 
+                                Container(
+                                  height: 20,
+                                  width: 20,
+                                  child:!isWork
+                                  ?Text(""):
+                                  isSearch?
+                                  CircularProgressIndicator(strokeWidth: 2,valueColor: AlwaysStoppedAnimation(Colors.green),)
+                                  :!isAvailable
+                                  ?
+                                  Icon(Icons.check_circle_outline,color: Colors.green,):
+                                  Icon(Icons.info_outline,color: Colors.red,)
+                                  
+                                  )
+                                  
+                                  
+                                  ,
+                              ),
                             
+                            onTap: (){
+                              setState(() {
+                                // isWork = false;
+                                isWrong = false;
+                              });
+
+                            },
+                            onChanged: (text){
+                              // print(text);
+                              if(text.length>3)
+                              {
+                              _isUserAvailable(text);
+                              }
+                              else{
+                                // print("less than 2");
+                                setState(() {
+                                isWork = false;                                  
+                                });
+
+                                // isSearch = false;
+                              }
+                            },
+
+                            // obscureText: !isPasswordVisible,
                           ),
 
-                          SizedBox(height: 30,),
-                          TextField(
+
+
+
+
+                          SizedBox(height: 20,),
+                          TextFormField(
+                            autofocus: false,
+                            controller: _Email,
+                            // onChanged: ,
                             decoration: InputDecoration(
                               // border: InputBord
-                              hintText: 'Password'
+                              hintText: 'Email',
+                              labelText: 'Email',
+                              
                             ),
-                            obscureText: true,
+                            onTap: (){
+                              setState(() {
+                                isWrong = false;
+                              });
+                            },
+
                           ),
 
-
-                          SizedBox(height: 30,),
-                          TextField(
-                            decoration: InputDecoration(
-                              // border: InputBord
-                              hintText: 'Confirm Password'
-                            ),
-                            obscureText: true,
-                          ),
                           SizedBox(height: 20,),
 
-                          Container(
-                            height: 50,
-                            alignment: Alignment.center,
-                            width: MediaQuery.of(context).size.width,
-                            decoration: BoxDecoration(
-                              color: Colors.green
+                          TextFormField(
+                            autofocus: false,
+                            controller: _Pass1,
+                            // onChanged: ,
+                            decoration: InputDecoration(
+                              // border: InputBord
+                              hintText: 'Password',
+                              labelText: 'Password',
+
+                              suffixIcon: IconButton(
+                                icon: Icon(isPasswordVisible?Icons.visibility:Icons.visibility_off),
+                                onPressed: (){
+                                  setState(() {
+                                    isPasswordVisible = !isPasswordVisible;
+                                  });
+                                },
+                              ),
+                              
                             ),
-                            child: Text("Sign Up",style: TextStyle(color: Colors.white,fontSize: 19),),
+                            onTap: (){
+                              setState(() {
+                                isWrong = false;
+                              });
+                            },
+                            obscureText: !isPasswordVisible,
                           ),
 
-                          SizedBox(height: 30,),
+
+                          SizedBox(height: 20,),
+                          TextFormField(
+                            autofocus: false,
+                            controller: _Pass2,
+                            // onChanged: ,
+                            decoration: InputDecoration(
+                              // border: InputBord
+                              hintText: 'Confirm Password',
+                              labelText: isPasswordMatch?'Confirm Password':"Password doesn't match",
+                              labelStyle: TextStyle(
+                                color: isPasswordMatch?Colors.grey:Colors.red
+                              ),
+
+                              suffix: 
+                                Container(
+                                  height: 20,
+                                  width: 20,
+                                  child:isPasswordMatch
+                                  ?Text(""):
+                                  Icon(Icons.info_outline,color: Colors.red,)                                  
+                                  )                                            
+                            ),
+                            onTap: (){
+                              setState(() {
+                                isWrong = false;
+                              });
+                            },
+                            onChanged: (text){
+                              if(_Pass1.text!=text)
+                              {
+                                setState(() {
+                                  isPasswordMatch = false;
+                                });
+                              }
+                              else{
+                                setState(() {
+                                  isPasswordMatch = true;
+                                });
+                              }
+                            },
+
+                            obscureText: !isPasswordVisible,
+                          ),
+
+
+
+                          SizedBox(height: 20,),
+
+                          InkWell(
+                              onTap: (){
+                                _createUser(context,_User.text,_Email.text,_Pass1.text);
+                              },
+                              child: Container(
+                              height: 50,
+                              alignment: Alignment.center,
+                              width: MediaQuery.of(context).size.width,
+                              decoration: BoxDecoration(
+                                color: Colors.green
+                              ),
+                              child: isSubmit
+                                ?Container(
+                                  height: 25,
+                                  width: 25,
+                                  child: CircularProgressIndicator(strokeWidth: 3,valueColor: AlwaysStoppedAnimation(Colors.white),),)
+                                :Text("Sign In",style: TextStyle(color: Colors.white,fontSize: 19),),
+                            ),
+                          ),
+
+                          SizedBox(height: 20,),
                           Container(
                             alignment: Alignment.center,
                             child: InkWell(

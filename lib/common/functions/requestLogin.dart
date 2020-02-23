@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:shopping_junction/GraphQL/services.dart';
 import 'package:shopping_junction/common/functions/saveCurrentlogin.dart';
 import 'package:shopping_junction/models/userModel.dart';
 // import 'dart:convert';
@@ -20,7 +21,8 @@ Future<LoginModel> requestLoginApi(BuildContext context,String username,String p
 
 
   // final url = "http://10.0.2.2:8000/api-token-auth/";
-  final url = "http://mybebo.pythonanywhere.com/api-token-auth/";
+  final url = server_url+"/api-token-auth/";
+  // final url = "http://mybebo.pythonanywhere.com/api-token-auth/";
 
     Map<String, String> body = {
     'username': username,

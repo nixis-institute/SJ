@@ -138,15 +138,12 @@ class _LoginScreenState extends State<LoginScreen>
                                 
                                 color: Colors.green
                               ),
-                              child: isSubmit?
-                              
-                              // Text("Sign In",style: TextStyle(color: Colors.white,fontSize: 19),),
-                              Container(
+                              child: isSubmit
+                              ?Container(
                                 height: 25,
                                 width: 25,
-                                // child: Text("Login in"),
-                                child: CircularProgressIndicator(strokeWidth: 3,valueColor: AlwaysStoppedAnimation(Colors.white),),
-                              ):Text("Sign In",style: TextStyle(color: Colors.white,fontSize: 19),),                              
+                                child: CircularProgressIndicator(strokeWidth: 3,valueColor: AlwaysStoppedAnimation(Colors.white),),)
+                              :Text("Sign In",style: TextStyle(color: Colors.white,fontSize: 19),),
                             ),
                           ),
 
