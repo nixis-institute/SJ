@@ -105,6 +105,37 @@ mutation abc(\$id:ID!,\$old:String!,\$new:String!){
 """;
 
 
+final String searchCategoryQuery = """
+query xyz(\$match:String!){
+	searchCategory(match:\$match){
+    name
+    
+    subCategory{
+      id
+      name
+      mainCategory{
+        id
+        name
+      }
+    }
+  }
+}
+
+""";
+
+
+final String searchProductQuery = """
+query xyz(\$match:String!){
+  searchResult(match:\$match)
+  {
+		name
+    id
+    listPrice
+    mrp
+  }
+}
+""";
+
 final String getUser = """
 query GetUser(\$id:Int!){
   user(userId:\$id)

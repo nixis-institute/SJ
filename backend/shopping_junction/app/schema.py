@@ -21,6 +21,27 @@ class ProductNode(DjangoObjectType):
         filter_fields = ()
         interfaces = (relay.Node,)
 
+class ProductList(DjangoObjectType):
+    # prd = graphene.ObjectType()
+    # cat = graphene.ObjectType(graphene.String)
+    # prd = graphene.ObjectType()
+    class Meta:
+        model = Product
+        filter_fields = ()
+        interfaces = (relay.Node,)        
+    # class Meta:
+    #     model = Product
+    #     filter_fields = ()
+    #     interfaces = (relay.Node,)
+
+
+    # prd_list = graphene.List(graphene.String)
+    # catetory  =graphene.ObjectType()
+    # class Meta:
+    #     model = Product
+    # def resolve_product_list(self,info):
+    #     return [i.name for i in Product.objects.all()]
+    # appears_in = graphene.List(graphene.String)
 
 
 class ProductCategoryNode(DjangoObjectType):
@@ -93,6 +114,8 @@ class CreateUser(graphene.Mutation):
         user.set_password(password)
         user.save()
         return CreateUser(user=user)
+
+
 
 class UpdateUser(graphene.Mutation):
     class Arguments:
@@ -171,6 +194,35 @@ class Query(graphene.AbstractType):
     is_user_existed = graphene.Field(UserNode,username = graphene.String())
 
     sublist_by_id = graphene.Field(SubListSingleNode,id=graphene.ID())
+
+    search_result = graphene.List(ProductNode,match = graphene.String())
+    search_category = graphene.List(SubListNode,match = graphene.String())
+    # s = graphene.ObjectType()
+
+    def resolve_search_category(self,info, match):
+        cat = SubList.objects.filter(name__icontains=match)
+        return cat
+
+    def resolve_search_result(self,info,match):
+        prd = Product.objects.filter(name__icontains=match)
+        # cat = SubList.objects.filter(name__icontains=match)
+        # prd =["45345","435"]
+        # cat=["sdf","pdk"]
+
+        return prd
+        # return ProductList(
+        #     prd = prd,
+        #     # cat = cat
+        #     # prd = [i.name for i in prd],
+        #     # cat = [i.name for i in cat]
+        # )
+
+
+        # print(prd)
+        # return prd
+        # return prd
+
+
 
 
     def resolve_is_user_existed(self,info,username):

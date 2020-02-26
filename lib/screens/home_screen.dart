@@ -1,15 +1,20 @@
+import 'package:flappy_search_bar/search_bar_style.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:graphql_flutter/graphql_flutter.dart';
+import 'package:shopping_junction/GraphQL/services.dart';
 import 'package:shopping_junction/models/products.dart';
 import 'package:shopping_junction/models/top_sellings.dart';
+import 'package:shopping_junction/screens/customSearchBar.dart';
+import 'package:shopping_junction/screens/flappySearchBar.dart';
 // import 'package:shopping_junction/screens/flappy_search_bar.dart';
 import 'package:shopping_junction/widgets/App_bar_custom.dart';
 // import 'package:shopping_junction/widgets/App_bar.dart';
-
+import 'package:flappy_search_bar/flappy_search_bar.dart';
 import 'package:shopping_junction/widgets/category.dart';
 import 'package:shopping_junction/widgets/side_drawer.dart';
 import 'package:shopping_junction/widgets/slider.dart';
-
+import 'package:shopping_junction/GraphQL/Queries.dart';
 import 'accounts/login.dart';
 import 'cart/first_secreen.dart';
 import 'searchResult.dart';
@@ -39,7 +44,10 @@ class _HomeScreenState extends State<HomeScreen>{
                   iconSize: 25,
                   color: Colors.white,
                   onPressed: (){
-                    showSearch(context: context, delegate:DataSearch());
+                    Navigator.push(context, MaterialPageRoute(builder: (_)=>CustomSearchBar(
+                    )));
+                    // FlappySearchBar()
+                    // showSearch(context: context, delegate:DataSearch());
                   },
                 ),
                 IconButton(
@@ -79,11 +87,12 @@ class _HomeScreenState extends State<HomeScreen>{
                 ]
               ),
             ],
+            // bottom: PreferredSize(child: SearchBar(), preferredSize: Size(50, 50)),
             ),
         drawer: SideDrawer(),
         body: ListView(
-          children: <Widget>[          
-
+          
+          children: <Widget>[
             Container(
               width:MediaQuery.of(context).size.width,
               child: Stack(
@@ -257,7 +266,48 @@ class _HomeScreenState extends State<HomeScreen>{
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 class DataSearch extends SearchDelegate<String>{
+  // var data;
+
+  fillMoreProduct() async
+  {
+    var data;
+    GraphQLClient _client = clientToQuery();
+    QueryResult result = await _client.query(
+      QueryOptions(
+        documentNode: gql(searchProductQuery),
+        variables:{
+          "match":"shirt",
+          }
+      )
+    );
+
+    if(!result.hasException)
+    {
+      data = result.data["searchResult"];
+      // print(data[0]["name"]);
+    }
+    else data=[];
+    
+    return data;
+  }
+
+
   final cities=[
     'delhi',
     "mumbai",
@@ -269,6 +319,9 @@ class DataSearch extends SearchDelegate<String>{
     // "mumbai",
     "kolkata",
   ];
+
+
+
 
 
   @override
@@ -306,12 +359,50 @@ class DataSearch extends SearchDelegate<String>{
 
   @override
   Widget buildSuggestions(BuildContext context){
+    Future list = fillMoreProduct();
+    
+    var x = list.then((l){
+      return List();
+    });
+    print(x);
+    // print(list.then((){
+    //   return 
+    // }));
+
+
+  // return FutureBuilder(
+  //   future: Geocoder.local.findAddressesFromQuery(query),
+  //   builder: (BuildContext context, AsyncSnapshot snapshot) {
+  //     // check if snapshot.hasData
+  //     var addresses = snapshot.data;
+
+  //     final Iterable<Address> suggestions = query.isEmpty
+  //         ? _history
+  //         : addresses;
+
+  //     return _SuggestionList(
+  //       query: query,
+  //       suggestions: suggestions.map<String>((String i) => '$i').toList(),
+  //       onSelected: (String suggestion) {
+  //         query = suggestion;
+  //         this.close(context, query);
+  //       },
+  //     );
+  //  )
+
+    
+    // List data = fillMoreProduct();
+    
+    // print("dddd");
+    // print(data.length);
+
     final suggestion = query.isEmpty
     ?rec:
     cities.where((p)=>p.startsWith(query)).toList();
     
     return ListView.builder(
       itemCount: suggestion.length,
+      // itemCount:
       itemBuilder:(context,index){
         return Container(
           child: ListTile(
