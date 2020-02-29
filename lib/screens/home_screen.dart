@@ -100,18 +100,24 @@ class _HomeScreenState extends State<HomeScreen>{
                 children:<Widget>[
                   TopSlider(),
                   // CustomAppBar(),
-                  Positioned(
-                    top: 240,
-                    width: MediaQuery.of(context).size.width*1,
-                    child: Category()
-                  )
+                  // Positioned(
+                  //   top: 200,
+                  //   width: MediaQuery.of(context).size.width*1,
+                  //   child: Category()
+                  // )
 
                 ], 
                 
                 ),
             ),
+            // SizedBox(height: 20,),
+            Category(),
 
-            SizedBox(height: 80),
+            // Container(
+            //   child: ,
+            // ),
+
+            SizedBox(height: 20),
 
             Container(
               // height: 500,

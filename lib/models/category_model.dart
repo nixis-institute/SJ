@@ -76,6 +76,14 @@ final List<Category> category_model = [
     slider: women_slider,
     list: sublist
   ),
+  Category(
+    imageUrl: 'assets/category/4.jpg',
+    name: 'Special',
+    price: 100,
+    discount: 1,
+    slider: women_slider,
+    list: sublist
+  ),
 
 ];
 

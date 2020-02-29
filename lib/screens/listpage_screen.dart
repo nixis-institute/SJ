@@ -34,7 +34,6 @@ List<TypeAndProduct> product = List<TypeAndProduct>();
 
 void fillMoreProduct() async{
     GraphQLClient _client = clientToQuery();
-    // print("cursor");
     print(endCursor);
     QueryResult result = await _client.query(
       QueryOptions(

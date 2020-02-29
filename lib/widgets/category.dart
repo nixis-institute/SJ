@@ -68,13 +68,15 @@ class _CategoryState extends State<Category>{
     // print("sdlfjlksdjf");
     // print(listCategory);
     return Container(
+      
       decoration: BoxDecoration(
+        // boxShadow: Shadow(),  
         color: Colors.white,
-        border: Border.all(color: Colors.grey[200]),
-        borderRadius: BorderRadius.all(Radius.circular(5)),
+        // border: Border.all(color: Colors.grey[200]),
+        // borderRadius: BorderRadius.all(Radius.circular(5)),
       ),
 
-      margin: EdgeInsets.only(left:10,right:10),
+      // margin: EdgeInsets.only(left:10,right:10),
       height: 120,
 
 
@@ -119,7 +121,7 @@ class _CategoryState extends State<Category>{
                       // prd["node"]["name"],
                       // category_model[index].name,
                     style: 
-                    TextStyle(color: Colors.blueGrey),
+                    TextStyle(color: Colors.black,fontWeight: FontWeight.bold),
                     )
                   ],
                 ),

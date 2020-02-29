@@ -108,8 +108,8 @@ mutation abc(\$id:ID!,\$old:String!,\$new:String!){
 final String searchCategoryQuery = """
 query xyz(\$match:String!){
 	searchCategory(match:\$match){
+    id
     name
-    
     subCategory{
       id
       name
@@ -128,12 +128,24 @@ final String searchProductQuery = """
 query xyz(\$match:String!){
   searchResult(match:\$match)
   {
-		name
     id
+    name
     listPrice
     mrp
+    sizes
+    colors
+    imageLink
+    productimagesSet{
+      edges{
+        node{
+          id
+          image
+        }
+      }
+    }
   }
 }
+
 """;
 
 final String getUser = """
@@ -306,14 +318,27 @@ query GetSubList(\$SubCateogryId:ID!){
 """;
 
 final String GetProductBySubListId = """ 
-query GetSubList(\$SubListId:ID!){
-  productBySublistId(sublistId:\$SubListId)
+query xyz(\$SubListId:ID!){
+productBySublistId(sublistId:\$SubListId)
   {
     edges{
       node
       {
         id
         name
+        listPrice
+        mrp
+        sizes
+        colors
+        imageLink
+        productimagesSet{
+          edges{
+            node{
+              id
+              image
+            }
+          }
+        }        
       }
     }
   }
