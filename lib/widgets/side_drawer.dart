@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:graphql_flutter/graphql_flutter.dart';
+import 'package:shopping_junction/GraphQL/Queries.dart';
+import 'package:shopping_junction/GraphQL/services.dart';
 import 'package:shopping_junction/models/category_model.dart';
 import 'package:shopping_junction/models/userModel.dart';
 import 'package:shopping_junction/screens/accounts/account.dart';
@@ -8,28 +11,36 @@ import 'package:shopping_junction/screens/listpage_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SideDrawer extends StatefulWidget{
+  List<ProductCategory> productCategory;
+  SideDrawer({this.productCategory});
   @override
   _SideDrawerState createState() => _SideDrawerState();
 }
 
-// class SharedPreferencesHelper{
-//   // static final String key = "";
-//   static Future<String> getToken() async {
-//      final SharedPreferences prefs = await SharedPreferences.getInstance();
-//      return prefs.getString("LastToken");
-//   }
-//   static Future<String> getName() async {
-//      final SharedPreferences prefs = await SharedPreferences.getInstance();
-//      return prefs.getString("LastUser");
-//   }  
-// }
+class SharedPreferencesHelper{
+  // static final String key = "";
+  static Future<String> getToken() async {
+     final SharedPreferences prefs = await SharedPreferences.getInstance();
+     return prefs.getString("LastToken");
+  }
+  static Future<String> getName() async {
+     final SharedPreferences prefs = await SharedPreferences.getInstance();
+     return prefs.getString("LastUser");
+  }  
+}
 
 class _SideDrawerState extends State<SideDrawer>
 {
   // final username = SharedPreferencesHelper.getName();
   String user ='Login';
   int uid;
+  List<ProductCategory> listCategory = List<ProductCategory>();
+
+
   @override
+  var isLoading = false;
+  var isError = false;
+  var Error = "";
   void initState(){
     super.initState();
     _loadUser();
@@ -45,11 +56,6 @@ class _SideDrawerState extends State<SideDrawer>
 
   Widget build(BuildContext context)
   {
-    // print("username");
-    // print(user);
-    // print(username.toString());
-
-
     return 
     Drawer(
       elevation: 1,
@@ -61,21 +67,33 @@ class _SideDrawerState extends State<SideDrawer>
           // scrollDirection: Axis.vertical,
           children: <Widget>[
             SizedBox(height: 30,),
+            isLoading
+            ?
+            
+            Center(
+              child: Container(
+                height: 50,
+                width: 50,
+                child: CircularProgressIndicator()),
+            ):
+            
+            
             ListView.builder(
               shrinkWrap: true,
               physics: ClampingScrollPhysics(),
-              itemCount: category_model.length,
+              // itemCount:  listCategory.length,
+              itemCount: this.widget.productCategory.length,
               itemBuilder: (BuildContext context,int index){
                 // return ListTile(title: Text(category_model[index].name),);
                 return Padding(
                   padding: const EdgeInsets.only(left:10.0,right: 10),
                   child: ExpansionTile(
-                    title: Text(category_model[index].name.toUpperCase(),style: TextStyle(color: Colors.white,fontSize: 18,fontWeight: FontWeight.w400),),
+                    title: Text(this.widget.productCategory[index].name.toUpperCase(),style: TextStyle(color: Colors.white,fontSize: 18,fontWeight: FontWeight.w400),),
                     trailing: Icon(Icons.add,color:Colors.white),
                     children: <Widget>[
                       ListView.builder(
                         shrinkWrap: true,
-                        itemCount: category_model[index].list.length,
+                        itemCount: this.widget.productCategory[index].subCat.length,
                         physics: ClampingScrollPhysics(),
                         itemBuilder: (BuildContext context, int i){
                           return InkWell(
@@ -89,7 +107,7 @@ class _SideDrawerState extends State<SideDrawer>
                                 child: Padding(
                                 padding: EdgeInsets.only(left: 10),
                                 child: ListTile(
-                                title: Text(category_model[index].list[i].name.toUpperCase(),style: TextStyle(color: Colors.white,fontWeight: FontWeight.w400),),
+                                title: Text(this.widget.productCategory[index].subCat[i].toUpperCase(),style: TextStyle(color: Colors.white,fontWeight: FontWeight.w400),),
                                 ),
                             ),
                           );

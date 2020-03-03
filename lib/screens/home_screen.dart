@@ -2,7 +2,9 @@ import 'package:flappy_search_bar/search_bar_style.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shopping_junction/GraphQL/services.dart';
+import 'package:shopping_junction/models/category_model.dart';
 import 'package:shopping_junction/models/products.dart';
 import 'package:shopping_junction/models/top_sellings.dart';
 import 'package:shopping_junction/screens/customSearchBar.dart';
@@ -11,7 +13,7 @@ import 'package:shopping_junction/screens/flappySearchBar.dart';
 import 'package:shopping_junction/widgets/App_bar_custom.dart';
 // import 'package:shopping_junction/widgets/App_bar.dart';
 import 'package:flappy_search_bar/flappy_search_bar.dart';
-import 'package:shopping_junction/widgets/category.dart';
+import 'package:shopping_junction/widgets/category.dart' as CAT;
 import 'package:shopping_junction/widgets/side_drawer.dart';
 import 'package:shopping_junction/widgets/slider.dart';
 import 'package:shopping_junction/GraphQL/Queries.dart';
@@ -25,7 +27,95 @@ class HomeScreen extends StatefulWidget{
 }
 
 class _HomeScreenState extends State<HomeScreen>{
+
+List<ProductCategory> listCategory = List<ProductCategory>();
+  // void getCartCount() async{
+  //   GraphQLClient _client = clientToQuery();
+  //   QueryResult result = await _client.query(
+  //     QueryOptions(
+  //       documentNode: gql(CartProductsQuery)
+  //     )
+  //   ); 
+  // }
+
+  void fillList() async {
+     GraphQLClient _client = clientToQuery();
+    QueryResult result = await _client.query(
+      QueryOptions(
+        documentNode: gql(Categories)
+      )
+    );
+    // GraphQLClient _client = clientToQuery();
+    QueryResult _result = await _client.query(
+      QueryOptions(
+        documentNode: gql(CartProductsQuery)
+      )
+    ); 
+
+    if(!_result.hasException)
+    {
+      SharedPreferences preferences = await SharedPreferences.getInstance();
+      var len = _result.data["cartProducts"]["edges"];
+      setState(() {
+        _count = len.length;
+      });
+      preferences.setString("cartCount", len.length.toString());
+    }
+
+    if(result.loading)
+    {
+      setState(() {
+        isLoading = true;
+      });
+    }
+    else if(result.hasException)
+    {
+        isError = true;
+        Error = result.exception.toString();
+    } 
+
+    if(!result.hasException)
+    {
+      setState(() {
+        isLoading = false;
+      });
+      print("__data__");
+      for(var i=0;i<result.data["allCategory"]["edges"].length;i++)
+        {
+          // print("-->");
+          // print(result.data["allCategory"]["edges"][i]["node"]["id"]);
+          List sub = result.data["allCategory"]["edges"][i]["node"]["subcategorySet"]["edges"];
+          List temp=[];
+          for(int j=0;j<sub.length;j++)
+          {
+            temp.add(sub[j]["node"]["name"]);
+          }
+          setState(() {
+            listCategory.add(
+              ProductCategory(
+                result.data["allCategory"]["edges"][i]["node"]["id"],
+                result.data["allCategory"]["edges"][i]["node"]["name"],
+                result.data["allCategory"]["edges"][i]["node"]["image"],
+                temp
+              ),
+            );
+          });
+        }
+    }
+  }
+
   @override
+  var isLoading = true;
+  var isError = false;
+  var Error = "";
+  var _count=0;
+  void initState(){
+    super.initState();
+    // _loadUser();
+    fillList();
+  }  
+
+  
   Widget build (BuildContext context){
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle(
@@ -37,6 +127,7 @@ class _HomeScreenState extends State<HomeScreen>{
       
       child: Scaffold(
         appBar: AppBar(
+            iconTheme: IconThemeData(color: Colors.white),
             title: Text("Shopping Junction",style: TextStyle(color: Colors.white),),
                 actions: <Widget>[
                 IconButton(
@@ -81,7 +172,11 @@ class _HomeScreenState extends State<HomeScreen>{
                         color: Colors.red,
                         borderRadius: BorderRadius.circular(10)
                       ),
-                      child: Text("3"),
+                      child: Text(
+                        isLoading?"":
+                        _count.toString(),
+                        style: TextStyle(color:Colors.white),
+                        ),
                     ),
                   )
                 ]
@@ -89,7 +184,7 @@ class _HomeScreenState extends State<HomeScreen>{
             ],
             // bottom: PreferredSize(child: SearchBar(), preferredSize: Size(50, 50)),
             ),
-        drawer: SideDrawer(),
+        drawer: SideDrawer(productCategory:listCategory),
         body: ListView(
           
           children: <Widget>[
@@ -111,7 +206,9 @@ class _HomeScreenState extends State<HomeScreen>{
                 ),
             ),
             // SizedBox(height: 20,),
-            Category(),
+            // Category(),
+            
+            CAT.Category(productCategory:listCategory),
 
             // Container(
             //   child: ,

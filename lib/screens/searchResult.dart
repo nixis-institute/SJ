@@ -103,7 +103,8 @@ class _SearchResultScreenState extends State<SearchResultScreen>
   {
     return Scaffold(
       appBar: AppBar(
-        title: Text(this.widget.slug),
+        iconTheme: IconThemeData(color: Colors.white),
+        title: Text(this.widget.slug,style: TextStyle(color:Colors.white),),
         actions: <Widget>[
         IconButton(
           icon: Icon(Icons.search),

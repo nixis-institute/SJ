@@ -56,7 +56,7 @@ class SubList(models.Model):
 
 class Product(models.Model):
     name = models.CharField(max_length=200)
-    brand = models.CharField(max_length=100,blank=True)
+    brand = models.CharField(max_length=100,blank=True,null=True)
     published = models.BooleanField(default=True)
     isFeatured = models.BooleanField(default=True)
     shortDescription = models.TextField(null=True,blank=True)
@@ -80,6 +80,13 @@ class ProductImages(models.Model):
     def __str__(self):
         return self.product.name
 
+
+class ProductImages2(models.Model):
+    image = models.ImageField(upload_to='product/')
+    product = models.ForeignKey(Product,on_delete=models.CASCADE)
+    def __str__(self):
+        return self.product.name
+
 # class ProductReview(models.Model):
 #     rating = models.FloatField(null=True,blank=True)
 #     description = models.TextField(null=True,blank=True)
@@ -91,19 +98,20 @@ class ProductImages(models.Model):
 class WishList(models.Model):
     size = models.IntegerField(null=True,blank=True)
     qty = models.IntegerField(null=True,blank=True)
-    product = models.ForeignKey(Product,on_delete=models.CASCADE)
-    user = models.ForeignKey(User,on_delete=models.CASCADE)
+    product = models.ForeignKey(Product,on_delete=models.CASCADE,blank=True,null=True)
+    user = models.ForeignKey(User,on_delete=models.CASCADE,blank=True,null=True)
     def __str__(self):
         return self.product.name
+    
     
 
 class Cart(models.Model):
     size = models.IntegerField(null=True,blank=True)
     qty = models.IntegerField(null=True,blank=True)
-    product = models.ForeignKey(Product,on_delete=models.CASCADE)
-    user = models.ForeignKey(User,on_delete=models.CASCADE)
+    cart_products = models.ForeignKey(Product,on_delete=models.CASCADE,blank=True,null=True,related_name="cart_products")
+    user = models.ForeignKey(User,on_delete=models.CASCADE,blank=True,null=True)
     def __str__(self):
-        return self.product.name    
+        return self.cart_products.name    
 
 
 

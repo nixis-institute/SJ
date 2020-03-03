@@ -6,6 +6,13 @@ final String Categories = """
         id
         name
         image
+        subcategorySet{
+          edges{
+            node{
+              name
+            }
+          }
+        }        
       }
     }
   }
@@ -104,6 +111,38 @@ mutation abc(\$id:ID!,\$old:String!,\$new:String!){
 }
 """;
 
+
+final CartCartByID = """
+query getP(\$id:ID!){
+	cartProduct(id:\$id)
+  {
+    id
+  }
+}
+""";
+
+final CartProductsQuery ="""
+
+query {
+  cartProducts{
+    edges{
+      node{
+        id
+        size
+        cartProducts{
+          id
+          name
+					imageLink        
+          mrp
+          listPrice
+          qty
+        }
+      }
+    }
+  }
+}
+
+""";
 
 final String searchCategoryQuery = """
 query xyz(\$match:String!){

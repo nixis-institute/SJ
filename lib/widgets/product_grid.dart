@@ -18,8 +18,8 @@ class _ProductGridState extends State<ProductGrid>
   @override
   Widget build(BuildContext context)
   {
-    print("product....");
-    print(widget.product[0].imageLink[0] );
+    // print("product....");
+    // print(widget.product[0].imageLink[0] );
 
     return GridView.count(
       // controller: _scrollController,

@@ -92,6 +92,13 @@ class ProfileNode(DjangoObjectType):
         filter_fields = ()
         interfaces = (graphene.Node,)
 
+class CartNode(DjangoObjectType):
+    class Meta:
+        model = Cart
+        filter_fields = ()
+        interfaces = (relay.Node,)
+
+
 # class AddressNode(DjangoObjectType):
 #     class Meta:
 #         model = Address
@@ -183,13 +190,20 @@ class Query(graphene.AbstractType):
     all_products = DjangoFilterConnectionField(ProductNode)
     all_category = DjangoFilterConnectionField(ProductCategoryNode)
     sub_category = DjangoFilterConnectionField(SubCategoryNode)
+    cart_products = DjangoFilterConnectionField(CartNode)
 
+    cart_product = graphene.Field(CartNode,id = graphene.ID())
+    
     # subcateogry_by_category_id = graphene.List(SubCategoryNode, main_category_id=graphene.ID())
 
     subcateogry_by_category_id = DjangoFilterConnectionField(SubCategoryNode,main_category_id = graphene.ID())
     sublist_by_subcategory_id = DjangoFilterConnectionField(SubListNode, sub_category_id=graphene.ID())
     product_by_sublist_id = DjangoFilterConnectionField(ProductNode, sublist_id=graphene.ID())
     user = graphene.Field(UserNode,user_id = graphene.Int())
+
+    product_by_id = graphene.Field(ProductNode,id = graphene.ID())
+
+    
 
     is_user_existed = graphene.Field(UserNode,username = graphene.String())
 
@@ -198,6 +212,31 @@ class Query(graphene.AbstractType):
     search_result = graphene.List(ProductNode,match = graphene.String())
     search_category = graphene.List(SubListNode,match = graphene.String())
     # s = graphene.ObjectType()
+
+
+    def resolve_cart_product(self,info,id):
+        id_ = from_global_id(id)[1]
+        # print(id_)
+        c = Cart.objects.filter(cart_products_id=id_)
+        print(id_)
+        if(c):
+            return c[0]
+        
+        # if(Cart.objects.filter(cart_products_id=id_)):
+
+        # return Cart.objects.filter()
+
+
+    def resolve_product_by_id(self,info,id):
+        id = from_global_id(id)[1]
+        return Product.objects.get(id = id)
+
+    def resolve_cart_products(self,info):
+        cart = Cart.objects.all()
+        print(info.context.user)
+        # print(dir(info.context.user))
+        return cart
+
 
     def resolve_search_category(self,info, match):
         cat = SubList.objects.filter(name__icontains=match)

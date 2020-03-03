@@ -74,6 +74,12 @@ void fillSubCategory() async{
       id = this.widget.category.id;
     });
     fillSubCategory();
+
+    // getCartCount().then((c){
+    //   setState(() {
+    //   _count = c;
+    //   });
+    // });
   }
 
 

@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:shopping_junction/GraphQL/Queries.dart';
 import 'package:shopping_junction/GraphQL/services.dart';
+import 'package:shopping_junction/common/commonFunction.dart';
 import 'package:shopping_junction/models/filter_model.dart';
 import 'package:shopping_junction/models/productAndCat.dart';
 // import 'package:shopping_junction/models/products.dart';
@@ -34,7 +35,7 @@ List<TypeAndProduct> product = List<TypeAndProduct>();
 
 void fillMoreProduct() async{
     GraphQLClient _client = clientToQuery();
-    print(endCursor);
+    // print(endCursor);
     QueryResult result = await _client.query(
       QueryOptions(
         documentNode: gql(GetSubListById),
@@ -111,7 +112,7 @@ void fillMoreProduct() async{
 void fillProductAndCateogry() async{
     GraphQLClient _client = clientToQuery();
     // print("cursor");
-    print(endCursor);
+    // print(endCursor);
     QueryResult result = await _client.query(
       QueryOptions(
         documentNode: gql(GetSubListAndProductBySubCateogryId),
@@ -189,11 +190,17 @@ void fillProductAndCateogry() async{
   var id;
   var isLoading = true;
   var endCursor = "";
+  var _count ="";
   void initState()
   {
     super.initState();
     id = widget.subCategory.id;
     fillProductAndCateogry();
+    getCartCount().then((c){
+      setState(() {
+      _count = c;
+      });
+    });
     // nlist = widget.list;
   } 
 
@@ -258,7 +265,9 @@ void fillProductAndCateogry() async{
                         color: Colors.red,
                         borderRadius: BorderRadius.circular(10)
                       ),
-                      child: Text("3"),
+                      child: Text(_count,
+                      style: TextStyle(color:Colors.white),
+                      ),
                     ),
                   )
                 ]

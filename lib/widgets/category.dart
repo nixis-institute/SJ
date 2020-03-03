@@ -6,61 +6,23 @@ import 'package:shopping_junction/models/category_model.dart';
 import 'package:shopping_junction/screens/category_screen.dart';
 import 'package:shopping_junction/models/slide_content.dart';
 class Category extends StatefulWidget{
+  List<ProductCategory> productCategory;
+  Category({this.productCategory});
   @override
+
   _CategoryState createState() => _CategoryState();
 }
 class _CategoryState extends State<Category>{
   List<ProductCategory> listCategory = List<ProductCategory>();
-  void fillList() async {
-     GraphQLClient _client = clientToQuery();
-    QueryResult result = await _client.query(
-      QueryOptions(
-        documentNode: gql(Categories)
-      )
-    );
-    if(result.loading)
-    {
-      setState(() {
-        isLoading = true;
-      });
-    }
-    else if(result.hasException)
-    {
-        isError = true;
-        Error = result.exception.toString();
-    } 
-
-    if(!result.hasException)
-    {
-      setState(() {
-        isLoading = false;
-      });
-      print("__data__");
-      for(var i=0;i<result.data["allCategory"]["edges"].length;i++)
-        {
-          // print("-->");
-          // print(result.data["allCategory"]["edges"][i]["node"]["id"]);
-          setState(() {
-            listCategory.add(
-              ProductCategory(
-                result.data["allCategory"]["edges"][i]["node"]["id"],
-                result.data["allCategory"]["edges"][i]["node"]["name"],
-                result.data["allCategory"]["edges"][i]["node"]["image"],
-              ),
-            );
-          });
-        }
-    }
-  }
 
   @override
-  var isLoading = true;
+  var isLoading = false;
   var isError = false;
   var Error = "";
   void initState()
   {
     super.initState();
-    fillList();
+    // fillList();
   }
 
 
@@ -88,17 +50,17 @@ class _CategoryState extends State<Category>{
           padding: EdgeInsets.only(left: 10),
           shrinkWrap: true,
           // itemCount: category_model.length,
-          itemCount: listCategory.length,
+          itemCount: this.widget.productCategory.length,
           // scrollDirection: Axis.horizontal,
           scrollDirection: Axis.horizontal,
           
           itemBuilder: (BuildContext context, int index){
 
-            dynamic prd = listCategory[index];
+            dynamic prd = this.widget.productCategory[index];
             return GestureDetector(
                 onTap: ()=>Navigator.push(context, MaterialPageRoute(builder: (_)=>CategoryScreen(
                   // category:category_model[index],
-                  category: listCategory[index],
+                  category: this.widget.productCategory[index],
                   slider: category_model[index].slider,
                 ))),
 
@@ -110,14 +72,14 @@ class _CategoryState extends State<Category>{
                     
                     CircleAvatar(
                       radius: 35,
-                      backgroundImage: NetworkImage(server_url+"/media/"+listCategory[index].imageUrl),
+                      backgroundImage: NetworkImage(server_url+"/media/"+this.widget.productCategory[index].imageUrl),
                       // backgroundImage: AssetImage(category_model[index].imageUrl),
                       // backgroundImage: NetworkImage("http://10.0.2.2:8000/media/"+prd["node"]["image"]),
                     ),
 
                     SizedBox(height: 6),
                     Text(
-                      listCategory[index].name,
+                      this.widget.productCategory[index].name,
                       // prd["node"]["name"],
                       // category_model[index].name,
                     style: 

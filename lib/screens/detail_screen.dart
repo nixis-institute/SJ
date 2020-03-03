@@ -1,7 +1,11 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:graphql_flutter/graphql_flutter.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:shopping_junction/GraphQL/Queries.dart';
 import 'package:shopping_junction/GraphQL/services.dart';
+import 'package:shopping_junction/common/commonFunction.dart';
 import 'package:shopping_junction/models/productAndCat.dart';
 import 'package:shopping_junction/widgets/App_bar.dart';
 
@@ -11,57 +15,9 @@ class DetailPage extends StatefulWidget{
   @override
   final Product product;
   DetailPage({this.product});
-  // this.product.sizes[0]
   _DetailPageState createState() => _DetailPageState();
+
 }
-
-
-
-  // selectCard(size) {
-  //   setState(() {
-  //     selectedSize = size;
-  //   });
-  // }
-
-// Widget _size(String size,bool selected){
-//     return InkWell(
-//           onTap: (){
-//             selectCard(size);
-//           },
-//           child: Container(
-//           height: 35,
-//           width: 35,
-//           alignment: Alignment.center,
-//           decoration: BoxDecoration(
-//             borderRadius: BorderRadius.all(Radius.circular(30)),
-//             color: selected? Colors.blue:Colors.grey[300],
-//             border: Border.all(color: Colors.grey,width: 0.2)
-//           ),
-//           child: Text(size,style: TextStyle(color: selected?Colors.white:Colors.grey),),
-//         ),
-//     );
-// }
-
-// Widget _color(String colors,bool selected){
-//     return Container(
-//         height: 35,
-//         width: 35,
-//         alignment: Alignment.center,
-//         decoration: BoxDecoration(
-//           borderRadius: BorderRadius.all(Radius.circular(30)),
-//           // color: selected? Colors.blue:Colors.grey[300],
-//           color:Color(int.parse(colors)),
-
-//           border: Border.all(
-//             color: Colors.grey[200],
-//             width: selected?4:0.2
-            
-//             )
-//         ),
-//         // child: Text(size,style: TextStyle(color: selected?Colors.white:Colors.grey),),
-//       );
-// }
-
 
 
 
@@ -69,18 +25,76 @@ class _DetailPageState extends State<DetailPage>
 {
   // var selectedSize = 'S';  //it works fine
 
+  void XX() async
+  {
+    // print("print__");
+    GraphQLClient _client = clientToQuery();
+    QueryResult result = await _client.query(
+      QueryOptions(
+        documentNode: gql(CartCartByID),
+        variables:{
+          "id":_id
+          }
+      )
+    );
+
+    // print("called");
+
+    if(result.loading)
+    {
+      setState(() {
+        isLoading = true;
+      });
+    }
+    // print("sdlkfjkdlsf");
+    // print(result.hasException.toString());
+
+    if(!result.hasException)
+    {
+      // print(result.data["cartProduct"]);
+      if(result.data["cartProduct"] !=null)
+      {
+        setState(() {
+          isInCart = true;
+        });
+      }else{
+        setState(() {
+          isInCart = false;
+        });        
+      }
+      
+    }
+
+  }
+
+
 
   var selectedSize = "";
-  
+  bool isLoading = true;
 
   var selectedColor = '0xffb74093';
   var qty = 1;
   var picheight = 300.0;  
+  var _count = "";
+  String _id;
+
   
   @override
+  bool isInCart = false; 
   void initState()
   {
     super.initState();
+    // _count = xb();
+    _id = this.widget.product.id;    
+    XX();
+    getCartCount().then((c){
+      setState(() {
+      _count = c;
+      });
+    });
+
+    
+
     selectedSize = widget.product.sizes[0];
   }
 
@@ -88,7 +102,8 @@ class _DetailPageState extends State<DetailPage>
 
   Widget build(BuildContext context)
   {
-    
+    // print(_count);
+    // print(isInCart);
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle(
             statusBarColor: Colors.transparent,
@@ -99,21 +114,35 @@ class _DetailPageState extends State<DetailPage>
           child: Scaffold(
         // appBar: AppBar(title: Text("Detail Page"),),
         bottomNavigationBar: BottomAppBar(
-          child: Container(
-            height: 50,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                Text("ADD TO CART",
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 17
-                  ),
-                )
-              ],
+          child: 
+          
+          
+          InkWell(
+              onTap: (){
+
+              },
+              child: Container(
+              height: 50,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  
+                  // isInCart==true?Text("Carted"):
+                  Text(
+                    isInCart==true?"Already In Cart":
+                    "ADD TO CART",
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 17,
+                      fontWeight: FontWeight.bold
+                    ),
+                  )
+                ],
+              ),
             ),
           ),
-          color: Colors.green,
+          color: isInCart==true?Colors.grey:
+          Colors.green,
           
         ),
         // appBar: AppBar(title: Text("Details"),),
@@ -155,23 +184,14 @@ class _DetailPageState extends State<DetailPage>
                       color: Colors.red,
                       borderRadius: BorderRadius.circular(10)
                     ),
-                    child: Text("3"),
+                    child: Text(_count,
+                    style: TextStyle(color: Colors.white),
+                    ),
                   ),
                 )
               ]
             ),
 
-
-              // IconButton(
-              //   icon: Icon(Icons.add_shopping_cart),
-              //   iconSize: 30,
-              //   color: Colors.white,
-              //   onPressed: (){
-              //     Navigator.push(context, MaterialPageRoute(builder: (_)=>CartScreen(
-              //     )));
-              //   },                
-              //   // onPressed: (){},
-              // ),
 
 
               IconButton(

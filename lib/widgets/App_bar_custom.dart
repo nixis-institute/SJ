@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shopping_junction/common/commonFunction.dart';
 import 'package:shopping_junction/screens/cart/first_secreen.dart';
 
 
@@ -11,7 +12,19 @@ class CustomAppBar extends StatefulWidget{
 
 class _CustomAppBarState extends State<CustomAppBar>
 {
+  String _count="";
   @override
+  void initState()
+  {
+    super.initState();
+    getCartCount().then((c){
+      setState(() {
+      _count = c;
+      });
+    });
+  }
+  
+
   Widget build(BuildContext context)
   {
     return Positioned(
@@ -55,7 +68,9 @@ class _CustomAppBarState extends State<CustomAppBar>
                       color: Colors.red,
                       borderRadius: BorderRadius.circular(10)
                     ),
-                    child: Text("3"),
+                    child: Text(_count,
+                      style: TextStyle(color:Colors.white),
+                    ),
                   ),
                 )
               ]

@@ -9,8 +9,9 @@ class ProductCategory{
   String id;
   String name;
   String imageUrl;
+  List subCat;
   ProductCategory(
-    this.id,this.name,this.imageUrl
+    this.id,this.name,this.imageUrl,this.subCat
   );
   getId() => this.id;
   getImgUrl() => this.imageUrl;

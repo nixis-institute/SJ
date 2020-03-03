@@ -1,5 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:graphql_flutter/graphql_flutter.dart';
+import 'package:shopping_junction/GraphQL/Queries.dart';
+import 'package:shopping_junction/GraphQL/services.dart';
 import 'package:shopping_junction/models/cart.dart';
 import 'package:shopping_junction/screens/cart/second_screen.dart';
 import 'package:shopping_junction/widgets/cart/product.dart';
@@ -13,7 +16,57 @@ class CartScreen extends StatefulWidget{
 
 
 class _ChatScreenState extends State<CartScreen>   {
+  List<CartProductModel> cartList =[];
+  void fillCartProduct() async{
+     GraphQLClient _client = clientToQuery();
+    QueryResult result = await _client.query(
+      QueryOptions(
+        documentNode: gql(CartProductsQuery)
+      )
+    );
+
+    if(result.loading)
+    {
+      setState(() {
+        isLoading = true;
+      });
+    }
+    if(!result.hasException)
+    {
+      var data = result.data["cartProducts"]["edges"];
+      List<CartProductModel> l=[];
+      for(int i=0;i<data.length;i++)
+      {
+        var node = data[i]["node"];
+        l.add(
+          CartProductModel(
+            node["cartProducts"]["id"],
+            node["cartProducts"]["name"], 
+            node["cartProducts"]["imageLink"].split(",")[0], 
+            node["cartProducts"]["mrp"], 
+            node["cartProducts"]["listPrice"], 
+            node["size"], 
+            node["cartProducts"]["qty"],
+            )
+        );
+      }
+
+      setState(() {
+        cartList = l;
+        isLoading = false;
+      });
+
+    }
+  }
+
+
   @override
+  bool isLoading = true;
+  void initState()
+  {
+    super.initState();
+    fillCartProduct();
+  }
   var qty=2;
   Widget build(BuildContext context)
   {
@@ -42,12 +95,13 @@ class _ChatScreenState extends State<CartScreen>   {
           ),
         ],
       ),
-      body: Scaffold(
+      body: isLoading?Center(child: CircularProgressIndicator(),):
+      Scaffold(
         body: ListView(
           children: <Widget>[
 
 
-            CartProductWidget(),
+            CartProductWidget(listCart:cartList),
             Container(
               margin: EdgeInsets.only(top:50),
               // padding: EdgeInsets.only(top:50),
