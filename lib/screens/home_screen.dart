@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shopping_junction/GraphQL/services.dart';
+import 'package:shopping_junction/common/commonFunction.dart';
 import 'package:shopping_junction/models/category_model.dart';
 import 'package:shopping_junction/models/products.dart';
 import 'package:shopping_junction/models/top_sellings.dart';
@@ -57,7 +58,7 @@ List<ProductCategory> listCategory = List<ProductCategory>();
       SharedPreferences preferences = await SharedPreferences.getInstance();
       var len = _result.data["cartProducts"]["edges"];
       setState(() {
-        _count = len.length;
+        _count = len.length.toString();
       });
       preferences.setString("cartCount", len.length.toString());
     }
@@ -108,7 +109,7 @@ List<ProductCategory> listCategory = List<ProductCategory>();
   var isLoading = true;
   var isError = false;
   var Error = "";
-  var _count=0;
+  var _count="";
   void initState(){
     super.initState();
     // _loadUser();
@@ -117,6 +118,13 @@ List<ProductCategory> listCategory = List<ProductCategory>();
 
   
   Widget build (BuildContext context){
+    getCartCount().then((c){
+      setState(() {
+      _count = c;
+      });
+    });
+
+
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle(
             statusBarColor: Colors.transparent,
@@ -174,7 +182,7 @@ List<ProductCategory> listCategory = List<ProductCategory>();
                       ),
                       child: Text(
                         isLoading?"":
-                        _count.toString(),
+                        _count,
                         style: TextStyle(color:Colors.white),
                         ),
                     ),
@@ -207,7 +215,7 @@ List<ProductCategory> listCategory = List<ProductCategory>();
             ),
             // SizedBox(height: 20,),
             // Category(),
-            
+            isLoading?Container(height:120,color: Colors.white, child: Center(child:CircularProgressIndicator())):
             CAT.Category(productCategory:listCategory),
 
             // Container(

@@ -23,8 +23,52 @@ class DetailPage extends StatefulWidget{
 
 class _DetailPageState extends State<DetailPage>
 {
-  // var selectedSize = 'S';  //it works fine
+  void AddToCart() async{
+    
+    SharedPreferences preferences = await SharedPreferences.getInstance();    
+    GraphQLClient _client = clientToQuery();
+    QueryResult result = await _client.mutate(
+      MutationOptions(
+        documentNode: gql(UpdateInCart),
+        variables:{
+          "prdID":this.widget.product.id,
+          "qty":qty,
+          "size":selectedSize,
+          "userId":userID,
+          'isNew':true
+          }
+      )
+    );
 
+    if(result.loading)
+    {
+      setState(() {
+        cloading = true;
+      });
+    }
+    if(!result.hasException)
+    {
+      var data = result.data["updateCart"];
+      if(data["success"] == true)
+      {
+        setState(() {
+        cloading = false;
+        isInCart = true;  
+        // _count += ;
+        _count = (int.parse(_count)+1).toString(); 
+        });
+        // await preferences.setString("key", value)
+        preferences.setString("cartCount", _count);
+        // preferences.setString("cartCount", (int.parse(_count)).toString());
+      }
+    }
+
+  }
+  
+  void Empty()
+  {
+
+  }
   void XX() async
   {
     // print("print__");
@@ -37,9 +81,6 @@ class _DetailPageState extends State<DetailPage>
           }
       )
     );
-
-    // print("called");
-
     if(result.loading)
     {
       setState(() {
@@ -62,7 +103,6 @@ class _DetailPageState extends State<DetailPage>
           isInCart = false;
         });        
       }
-      
     }
 
   }
@@ -76,7 +116,9 @@ class _DetailPageState extends State<DetailPage>
   var qty = 1;
   var picheight = 300.0;  
   var _count = "";
+  var cloading = false;
   String _id;
+  String userID;
 
   
   @override
@@ -84,7 +126,6 @@ class _DetailPageState extends State<DetailPage>
   void initState()
   {
     super.initState();
-    // _count = xb();
     _id = this.widget.product.id;    
     XX();
     getCartCount().then((c){
@@ -93,6 +134,11 @@ class _DetailPageState extends State<DetailPage>
       });
     });
 
+    getUserId().then((c){
+      setState(() {
+      userID = c;
+      });
+    });
     
 
     selectedSize = widget.product.sizes[0];
@@ -118,9 +164,16 @@ class _DetailPageState extends State<DetailPage>
           
           
           InkWell(
-              onTap: (){
+            onTap: ()=>!isInCart?this.AddToCart():this.Empty(),
+            // isInCart?
+              // onTap: (){
+              //   isInCart?
+              //   this.AddToCart():
 
-              },
+              //   ;
+              // },
+
+
               child: Container(
               height: 50,
               child: Row(
@@ -128,8 +181,12 @@ class _DetailPageState extends State<DetailPage>
                 children: <Widget>[
                   
                   // isInCart==true?Text("Carted"):
+                  
+                  cloading?CircularProgressIndicator():
                   Text(
-                    isInCart==true?"Already In Cart":
+
+                    isInCart==true?"Check in Cart":
+                    
                     "ADD TO CART",
                     style: TextStyle(
                       color: Colors.white,

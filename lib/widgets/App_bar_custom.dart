@@ -27,6 +27,12 @@ class _CustomAppBarState extends State<CustomAppBar>
 
   Widget build(BuildContext context)
   {
+
+    getCartCount().then((c){
+      setState(() {
+      _count = c;
+      });
+    });    
     return Positioned(
         top: 10,
         width: MediaQuery.of(context).size.width*0.99,

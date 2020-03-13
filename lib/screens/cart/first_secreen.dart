@@ -1,9 +1,12 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shopping_junction/GraphQL/Queries.dart';
 import 'package:shopping_junction/GraphQL/services.dart';
+import 'package:shopping_junction/common/commonFunction.dart';
 import 'package:shopping_junction/models/cart.dart';
+import 'package:shopping_junction/screens/accounts/addressScreen.dart';
 import 'package:shopping_junction/screens/cart/second_screen.dart';
 import 'package:shopping_junction/widgets/cart/product.dart';
 
@@ -31,13 +34,21 @@ class _ChatScreenState extends State<CartScreen>   {
         isLoading = true;
       });
     }
+
     if(!result.hasException)
     {
       var data = result.data["cartProducts"]["edges"];
+      double p = 0;
       List<CartProductModel> l=[];
       for(int i=0;i<data.length;i++)
       {
+        
         var node = data[i]["node"];
+
+
+
+        p+=node["cartProducts"]["listPrice"] * node["qty"];
+        
         l.add(
           CartProductModel(
             node["cartProducts"]["id"],
@@ -46,31 +57,60 @@ class _ChatScreenState extends State<CartScreen>   {
             node["cartProducts"]["mrp"], 
             node["cartProducts"]["listPrice"], 
             node["size"], 
-            node["cartProducts"]["qty"],
+            node["qty"],
             )
         );
       }
 
       setState(() {
+        totalPrice = p;
         cartList = l;
         isLoading = false;
       });
-
+      setTotal(p.toString());
     }
   }
+  
+
+  callback(total) {
+    setState(() {
+    totalPrice = total;
+    setTotal(total.toString());
+    });
+    // updateSharePrefrence(total);
+}
+
 
 
   @override
   bool isLoading = true;
+  double totalPrice =0;
   void initState()
   {
     super.initState();
     fillCartProduct();
   }
   var qty=2;
+ 
+
+  
   Widget build(BuildContext context)
   {
+    // if(!isLoading)
+    // {
+    //   // cartList
+    //   double total;
+    //   for(int i=0;i<cartList.length;i++)
+    //   {
+    //     total += cartList[i].listPrice;
+    //   }
+    // }
+    // else{
+    //   double total=0;
+    // }
+
     return Scaffold(
+      
       appBar: AppBar(
         title: Text("CART"),
 
@@ -97,11 +137,18 @@ class _ChatScreenState extends State<CartScreen>   {
       ),
       body: isLoading?Center(child: CircularProgressIndicator(),):
       Scaffold(
-        body: ListView(
+        body: 
+        
+        cartList.length>0
+        
+        ?ListView(
           children: <Widget>[
 
 
-            CartProductWidget(listCart:cartList),
+            CartProductWidget(cartList,callback,totalPrice),
+            
+            
+            
             Container(
               margin: EdgeInsets.only(top:50),
               // padding: EdgeInsets.only(top:50),
@@ -133,7 +180,12 @@ class _ChatScreenState extends State<CartScreen>   {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: <Widget>[
                         Text("Big Total ",style: TextStyle(color: Colors.grey[500],fontSize: 17,fontWeight: FontWeight.w300),),
-                        Text("\$130",style: TextStyle(color: Colors.grey[700],fontSize: 17,fontWeight: FontWeight.w300),)
+                        Text("\u20B9"+
+                          totalPrice.toString() ,
+                          // total,
+                          // "\$130",
+                        
+                        style: TextStyle(color: Colors.grey[700],fontSize: 17,fontWeight: FontWeight.w300),)
                       ],
                     ),
                   ),
@@ -145,7 +197,7 @@ class _ChatScreenState extends State<CartScreen>   {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: <Widget>[
                         Text("Bag Discount",style: TextStyle(color: Colors.grey[500],fontSize: 17,fontWeight: FontWeight.w300),),
-                        Text("-\$30",style: TextStyle(color: Colors.green,fontSize: 17,fontWeight: FontWeight.w300),)
+                        Text("-\u20B90",style: TextStyle(color: Colors.green,fontSize: 17,fontWeight: FontWeight.w300),)
                       ],
                     ),
                   ),
@@ -157,7 +209,7 @@ class _ChatScreenState extends State<CartScreen>   {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: <Widget>[
                         Text("Sub Total ",style: TextStyle(color: Colors.grey[500],fontSize: 17,fontWeight: FontWeight.w300),),
-                        Text("\$100",style: TextStyle(color: Colors.grey[700],fontSize: 17,fontWeight: FontWeight.w300),)
+                        Text("\u20B9"+totalPrice.toString(),style: TextStyle(color: Colors.grey[700],fontSize: 17,fontWeight: FontWeight.w300),)
                       ],
                     ),
                   ),
@@ -169,7 +221,7 @@ class _ChatScreenState extends State<CartScreen>   {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: <Widget>[
                         Text("Coupon Discount ",style: TextStyle(color: Colors.grey[500],fontSize: 17,fontWeight: FontWeight.w300),),
-                        Text("\$0",style: TextStyle(color: Colors.green,fontSize: 17,fontWeight: FontWeight.w300),)
+                        Text("\u20B90",style: TextStyle(color: Colors.green,fontSize: 17,fontWeight: FontWeight.w300),)
                       ],
                     ),
                   ),
@@ -192,7 +244,7 @@ class _ChatScreenState extends State<CartScreen>   {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: <Widget>[
                         Text("Total Payable ",style: TextStyle(color: Colors.black,fontSize: 17,fontWeight: FontWeight.w300),),
-                        Text("\$130",style: TextStyle(color: Colors.grey[700],fontSize: 17,fontWeight: FontWeight.w600),)
+                        Text("\u20B9"+totalPrice.toString(), style: TextStyle(color: Colors.grey[700],fontSize: 17,fontWeight: FontWeight.w600),)
                       ],
                     ),
                   ),                                    
@@ -204,9 +256,26 @@ class _ChatScreenState extends State<CartScreen>   {
 
             // SizedBox(height: 100,)
           ],
-        ),
-          bottomNavigationBar: InkWell(
-            onTap:()=>Navigator.push(context, MaterialPageRoute(builder: (_)=>AddressScreen(
+        ):
+        
+        Center(
+          child: Text("Your Cart is Empty",
+            style: TextStyle(
+              fontSize: 20
+            ),
+
+          ),
+        )
+        
+        
+        ,
+
+
+          bottomNavigationBar: 
+          
+          cartList.length>0?
+          InkWell(
+            onTap:()=>Navigator.push(context, MaterialPageRoute(builder: (_)=>Addresses(
             ))),
             child: BottomAppBar(
             child: Container(
@@ -226,7 +295,7 @@ class _ChatScreenState extends State<CartScreen>   {
             color: Colors.green,
             
         ),
-          ),
+        ):null,
       ),
     );
   }

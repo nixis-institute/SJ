@@ -50,6 +50,12 @@ class ProductCategoryNode(DjangoObjectType):
         filter_fields = ()
         interfaces = (relay.Node,)
 
+class OrdersNode(DjangoObjectType):
+    class Meta:
+        model = ProductOrders
+        filter_fields = ()
+        interfaces = (relay.Node,)
+
 class SubCategoryNode(DjangoObjectType):
     class Meta:
         model = SubCategory
@@ -109,6 +115,74 @@ class UserType(DjangoObjectType):
     class Meta:
         model = get_user_model()
 
+
+class DeleteAddress(graphene.Mutation):
+    class Arguments:
+        id = graphene.ID(required=True)
+    success = graphene.Boolean()
+    def mutate(self,info,id):
+        id = from_global_id(id)[1]
+        Address.objects.get(id=id).delete()
+        return DeleteAddress(success=True)
+
+
+class UpdateAddress(graphene.Mutation):
+    class Arguments:
+        id = graphene.ID(required=True)
+        # user = graphene.Int(required=True)
+        house_no = graphene.String(required=True)
+        colony = graphene.String(required=True)
+        landmark = graphene.String(required=False)
+        city = graphene.String(required=True)
+        state = graphene.String(required=True)
+        person_name = graphene.String(required=True)
+        phone_number = graphene.String(required=True)
+        alternate_number = graphene.String(required=False)    
+    success = graphene.Boolean()
+    address = graphene.Field(AddressNode)
+    def mutate(self,info,id,house_no,colony,landmark,city,state,person_name,phone_number,alternate_number):
+        id = from_global_id(id)[1]
+        obj = Address.objects.get(id = id)
+        obj.house_no = house_no
+        obj.colony = colony
+        obj.landmark = landmark
+        obj.city = city
+        obj.state = state
+        obj.person_name = person_name
+        obj.phone_number = phone_number
+        obj.alternate_number = alternate_number
+
+
+        obj.save()
+        return UpdateAddress(success=True,address=obj)
+
+class AddAddress(graphene.Mutation):
+    class Arguments:
+        user = graphene.Int(required=True)
+        house_no = graphene.String(required=True)
+        colony = graphene.String(required=True)
+        landmark = graphene.String(required=False)
+        city = graphene.String(required=True)
+        state = graphene.String(required=True)
+        person_name = graphene.String(required=True)
+        phone_number = graphene.String(required=True)
+        alternate_number = graphene.String(required=False)
+    address = graphene.Field(AddressNode)
+    success = graphene.Boolean()
+    def mutate(self,info,user,house_no,colony,landmark,city,state,person_name,phone_number,alternate_number):
+        add = Address.objects.create(
+            user_id = user,
+            house_no = house_no,
+            colony = colony,
+            landmark = landmark,
+            city = city,
+            state = state,
+            person_name = person_name,
+            phone_number = phone_number,
+            alternate_number = alternate_number
+        )
+        return AddAddress(success = True,address = add)
+
 class CreateUser(graphene.Mutation):
     # user = graphene.Field(UserNode)
     class Arguments:
@@ -122,6 +196,49 @@ class CreateUser(graphene.Mutation):
         user.save()
         return CreateUser(user=user)
 
+class UpdateOrders(graphene.Mutation):
+    class Arguments:
+        id = graphene.Int()
+        paymentMode = graphene.String()
+    success = graphene.Boolean()
+    def mutate(self,info,id,paymentMode):
+        cart = Cart.objects.filter(user_id=id)
+        for i in cart:
+            ProductOrders.objects.create(
+                product_id = i.cart_products.id,
+                seller_id = id,
+                buyer_id = id,
+                qty = i.qty,
+                coupon = 0,
+                discount = 0,
+                payment_mode=paymentMode,
+                price = i.cart_products.list_price,
+                size = i.size
+            )
+
+        Cart.objects.filter(user_id=id).delete()
+        return UpdateOrders(success=True)
+
+
+
+class UpdateCart(graphene.Mutation):
+    class Arguments:
+        size = graphene.String(required=False)
+        qty = graphene.Int(required=False)
+        # prd_id = graphene.ID(required=True)
+        user = graphene.Int(required=True)
+        prd_id = graphene.ID(required=True)
+        is_new = graphene.Boolean(required=True)
+    success = graphene.Boolean()
+    def mutate(self,info,size,qty,prd_id,user,is_new):
+        prd_id = from_global_id(prd_id)[1]
+        if(is_new):
+            Cart.objects.create(size = size,qty = qty,cart_products_id = prd_id,user_id = user)
+        else:
+            # c = Cart.objects.get(cart_products_id=prd_id)
+            Cart.objects.get(cart_products_id=prd_id).delete()
+
+        return UpdateCart(success = True)
 
 
 class UpdateUser(graphene.Mutation):
@@ -185,6 +302,11 @@ class Mutation(graphene.ObjectType):
     create_user = CreateUser.Field()
     change_password = ChangePassword.Field()
     update_user = UpdateUser.Field()
+    update_cart = UpdateCart.Field()
+    add_address = AddAddress.Field()
+    update_address = UpdateAddress.Field()
+    delete_address = DeleteAddress.Field()
+    update_orders = UpdateOrders.Field()
 
 class Query(graphene.AbstractType):
     all_products = DjangoFilterConnectionField(ProductNode)
@@ -202,7 +324,8 @@ class Query(graphene.AbstractType):
     user = graphene.Field(UserNode,user_id = graphene.Int())
 
     product_by_id = graphene.Field(ProductNode,id = graphene.ID())
-
+    
+    orders = DjangoFilterConnectionField(OrdersNode, user_id=graphene.Int())
     
 
     is_user_existed = graphene.Field(UserNode,username = graphene.String())
@@ -236,6 +359,9 @@ class Query(graphene.AbstractType):
         print(info.context.user)
         # print(dir(info.context.user))
         return cart
+
+    def resolve_orders(self,info,user_id):
+        return ProductOrders.objects.filter(buyer_id = user_id).order_by("-date")
 
 
     def resolve_search_category(self,info, match):

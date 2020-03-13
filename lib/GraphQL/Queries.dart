@@ -111,7 +111,162 @@ mutation abc(\$id:ID!,\$old:String!,\$new:String!){
 }
 """;
 
+final updateOrdersQuery ="""
+mutation x(\$id:Int,\$mode:String!)
+{
+  updateOrders(id:\$id,paymentMode:\$mode)
+  {
+    success
+  }
+}
 
+""";
+
+
+final getOrdersQuery ="""
+query(\$userId:Int!){
+  orders(userId:\$userId)
+  {
+    edges{
+      node{
+        id
+        size
+        price
+        paymentMode				
+        date
+        qty
+        product{
+          id
+          name
+          imageLink
+        } 
+      }
+    }
+  }
+}
+""";
+
+
+final getAddress ="""
+query x(\$userId:Int){
+  user(userId:\$userId) {
+    addressSet {
+      edges {
+        node {
+          id
+          houseNo
+          colony
+          city
+          landmark
+          state
+          personName
+          phoneNumber
+          alternateNumber
+        }
+      }
+    }
+  }
+}
+
+
+""";
+
+final addAddressQuery ="""
+mutation ax(\$user:Int!,\$house_no:String!,\$colony:String!,\$landmark:String!,\$city:String!,\$state:String!,\$person_name:String!,\$phone_number:String!,\$alternate_number:String!)
+{
+ addAddress(
+  user:\$user, 
+  houseNo:\$house_no,
+  alternateNumber:\$alternate_number,
+  city:\$city,
+  colony:\$colony,
+  landmark:\$landmark,
+  state:\$state,
+  personName:\$person_name,
+  phoneNumber:\$phone_number
+  )
+  {
+  success 
+  address{
+    id
+    houseNo
+    colony
+    landmark
+    city
+    state
+    personName
+    phoneNumber
+    alternateNumber
+  }  
+  }
+
+}
+""";
+
+
+final deleteAddressQuery = """
+mutation x(\$id:ID!)
+{
+  deleteAddress(id:\$id)
+  {
+    success
+  }
+}
+
+""";
+
+final updateAddressQuery = """
+mutation ax(\$id:ID!,\$house_no:String!,\$colony:String!,\$landmark:String!,\$city:String!,\$state:String!,\$person_name:String!,\$phone_number:String!,\$alternate_number:String!)
+{
+ updateAddress(
+  id:\$id, 
+  houseNo:\$house_no,
+  alternateNumber:\$alternate_number,
+  city:\$city,
+  colony:\$colony,
+  landmark:\$landmark,
+  state:\$state,
+  personName:\$person_name,
+  phoneNumber:\$phone_number
+  )
+  {
+  success 
+  address{
+    id
+    houseNo
+    colony
+    landmark
+    city
+    state
+    personName
+    phoneNumber
+    alternateNumber
+  }  
+  }
+}
+""";
+
+
+// {
+  // "user": 1,
+  // "house_no": "l-453 Block j",
+  // "colony": "Jahangir puri",
+  // "landmark": "Hospital",
+  // "city": "Delhi",
+  // "state": "Delhi",
+  // "person_name": "Amit",
+  // "phone_number": "9898",
+  // "alternate_number": "9384"
+// }
+
+final UpdateInCart = """
+mutation(\$prdID:ID!,\$qty:Int!,\$size:String!,\$userId:Int!,\$isNew:Boolean!){
+  updateCart(prdId:\$prdID,qty:\$qty,size:\$size,user:\$userId,isNew:\$isNew)
+  {
+    success
+  }
+}
+""";
 final CartCartByID = """
 query getP(\$id:ID!){
 	cartProduct(id:\$id)
@@ -129,13 +284,13 @@ query {
       node{
         id
         size
+        qty
         cartProducts{
           id
           name
 					imageLink        
           mrp
           listPrice
-          qty
         }
       }
     }

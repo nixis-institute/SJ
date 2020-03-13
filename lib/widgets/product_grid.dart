@@ -33,11 +33,28 @@ class _ProductGridState extends State<ProductGrid>
         return Container(
           child: GestureDetector(
             // onTap: (){},
-                onTap: ()=>Navigator.push(context, MaterialPageRoute(builder: (_)=>DetailPage(
-                // category:category_model[index],
-                // slider: category_model[index].slider,
+              //   onTap: ()=>Navigator.push(context, MaterialPageRoute(builder: (_)=>DetailPage(
+              //   // category:category_model[index],
+              //   // slider: category_model[index].slider,
+              //   product: widget.product[index],
+              // ))),
+
+
+            // onTap: (){},
+              
+                onTap: ()=>Navigator.push(context, 
+                MaterialPageRoute(builder: (_)=>DetailPage(
                 product: widget.product[index],
               ))),
+
+            // onTap: (){
+            //   updateCartCo
+            // },
+
+
+              // .whenComplete(ProductGrid(product: ,)) ;,
+
+
                 
                 child: Card(
                 child: Column(

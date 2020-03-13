@@ -6,8 +6,10 @@ import 'package:shopping_junction/GraphQL/Queries.dart';
 import 'package:shopping_junction/GraphQL/services.dart';
 import 'package:shopping_junction/models/userModel.dart';
 import 'package:shopping_junction/screens/accounts/checkpassword.dart';
+import 'package:shopping_junction/screens/orders/order_list.dart';
 
 import '../profile.dart';
+import 'addressScreen.dart';
 // import 'package:shopping_junction/widgets/profile.dart';
 
 class ProfileScreen extends StatefulWidget{
@@ -177,7 +179,21 @@ _clear() async{
           Container(
             child: Column(children: <Widget>[
               // ListTile(trailing: Icon(Icons.info),)
-              ListTile(leading: Icon(Icons.shopping_cart), title: Text("My Orders",style: TextStyle(fontWeight: FontWeight.normal,fontSize: 18)),),
+              
+              ListTile(
+                onTap: (){
+
+                Navigator.push(context, MaterialPageRoute(builder: (_)=>OrderList(
+                )));  
+                  
+                  // OrderList();
+
+                },
+                leading: Icon(Icons.shopping_cart), 
+                title: Text("My Orders",style: TextStyle(fontWeight: FontWeight.normal,fontSize: 18)),
+                ),
+
+
               ListTile(
                 leading: Icon(Icons.person),
                 title: Text("My Info",style: TextStyle(fontWeight: FontWeight.normal,fontSize: 18)),
@@ -193,7 +209,16 @@ _clear() async{
 
                 },
                 ),
-              ListTile(leading: Icon(Icons.home),title: Text("My Address",style: TextStyle(fontWeight: FontWeight.normal,fontSize: 18),),),
+              ListTile(leading: Icon(Icons.home),
+              title: Text("My Address",style: TextStyle(fontWeight: FontWeight.normal,fontSize: 18),),
+              onTap: (){
+                Navigator.push(context, MaterialPageRoute(builder: (_)=>Addresses(
+                  address:user.address
+                  // id:user.id
+                  // uid:uid
+                )));                
+              },
+              ),
               ListTile(
                 leading: Icon(FontAwesomeIcons.redo),
                 title: Text("Change Password",style: TextStyle(fontSize: 18,fontWeight: FontWeight.normal),),

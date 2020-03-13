@@ -63,10 +63,10 @@ flutter:
    - assets/products/top_selling/
    - assets/products/tshirt/
    - assets/banner/
-   - assets/products/men/topwear/
-   - assets/products/men/bottomwear/
-   - assets/products/women/topwear/
-   - assets/products/women/bottomwear/   
+  #  - assets/products/men/topwear/
+  #  - assets/products/men/bottomwear/
+  #  - assets/products/women/topwear/
+  #  - assets/products/women/bottomwear/   
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.

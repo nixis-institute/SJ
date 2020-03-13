@@ -3,6 +3,9 @@ import 'package:flutter/rendering.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:shopping_junction/models/userModel.dart';
 import 'package:shopping_junction/screens/accounts/infoForm.dart';
+import 'package:shopping_junction/screens/cart/second_screen.dart';
+
+import 'accounts/addressScreen.dart';
 class MyInfo extends StatefulWidget{
   @override
   UserModel user;
@@ -115,7 +118,21 @@ class _MyInfoState extends State<MyInfo>
                     children: <Widget>[
                       Text("Address",
                       style: TextStyle(fontSize: 20,fontWeight: FontWeight.bold),),
-                      Icon(Icons.edit)
+                      
+                      IconButton(
+                        icon: Icon(Icons.edit), 
+                        onPressed: (){
+                          Navigator.push(context, MaterialPageRoute(
+                                builder: (context) => Addresses(
+                                  address:this.widget.user.address
+                                )
+                              ));                          
+                        }
+                        
+                        )
+                      // Icon(Icons.edit)
+
+
                     ],
                   ),
                 ),

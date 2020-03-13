@@ -211,6 +211,12 @@ void fillProductAndCateogry() async{
     // print(product[0].product);
     // print("-----------------------------");
 
+    getCartCount().then((c){
+      setState(() {
+      _count = c;
+      });
+    });
+
   // print(endCursor);
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle(

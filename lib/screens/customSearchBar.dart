@@ -238,7 +238,8 @@ class _CustomSearchBar extends State<CustomSearchBar>
         separatorBuilder: (context, index) => Divider(
         color: Colors.black,
         height: 2,
-        ),          
+        ),
+        
         shrinkWrap: true,
         physics: ScrollPhysics(),
         itemCount: plist.length>7?7:plist.length,

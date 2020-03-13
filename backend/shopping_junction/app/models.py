@@ -26,8 +26,8 @@ class Address(models.Model):
     city = models.CharField(max_length=100)
     state = models.CharField(max_length=100)
     person_name = models.CharField(max_length=50)
-    phone_number = models.IntegerField()
-    alternate_number = models.IntegerField(null=True,blank=True)
+    phone_number = models.CharField(max_length=13)
+    alternate_number = models.CharField(max_length=13,null=True,blank=True)
     def __str__(self):
         return self.house_no+" : "+self.colony
     
@@ -106,7 +106,7 @@ class WishList(models.Model):
     
 
 class Cart(models.Model):
-    size = models.IntegerField(null=True,blank=True)
+    size = models.CharField(max_length=5,null=True,blank=True)
     qty = models.IntegerField(null=True,blank=True)
     cart_products = models.ForeignKey(Product,on_delete=models.CASCADE,blank=True,null=True,related_name="cart_products")
     user = models.ForeignKey(User,on_delete=models.CASCADE,blank=True,null=True)
@@ -120,6 +120,8 @@ class ProductOrders(models.Model):
     product  = models.ForeignKey(Product,on_delete=models.CASCADE,related_name='product')
     seller = models.ForeignKey(User,on_delete=models.CASCADE,related_name='seller')
     buyer = models.ForeignKey(User,on_delete=models.CASCADE,related_name='buyer')
+    price = models.FloatField(null=True,blank=True)
+    size = models.CharField(max_length=10,null=True,blank=True)
     date = models.DateTimeField(default=datetime.now)
     qty = models.IntegerField()
     coupon = models.FloatField(null=True,blank=True)
