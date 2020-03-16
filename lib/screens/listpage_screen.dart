@@ -27,7 +27,7 @@ class ListPage extends StatefulWidget{
 
 
 
-class _ListPageState extends State<ListPage>
+class _ListPageState extends State<ListPage> with SingleTickerProviderStateMixin
 {
 List<TypeAndProduct> product = List<TypeAndProduct>();
 // List<Product> 
@@ -35,12 +35,14 @@ List<TypeAndProduct> product = List<TypeAndProduct>();
 
 void fillMoreProduct() async{
     GraphQLClient _client = clientToQuery();
-    // print(endCursor);
+    print(id);
+    print(endCursor);
+
     QueryResult result = await _client.query(
       QueryOptions(
-        documentNode: gql(GetSubListById),
+        documentNode: gql(getMoreProductBySubListId),
         variables:{
-          "Id":id,
+          "sublistId":id,
           "after":endCursor
           }
       )
@@ -55,56 +57,61 @@ void fillMoreProduct() async{
 
     if(!result.hasException)
     {
-      var prd = result.data["sublistById"]["productSet"];
+      var data = result.data["sublistById"]["productSet"];
       setState(() {
         isLoading = false;
-          endCursor = prd["endCursor"];
+          endCursor = data["pageInfo"]["endCursor"];
+          hasNextPage =  data["pageInfo"]["hasNextPage"];
           // endCursor = result.data["sublistBySubcategoryId"]["pageInfo"]["endCursor"];
       });
       
       
-      for(var i=0;i<result.data["sublistBySubcategoryId"]["edges"].length;i++)
+      for(var i=0;i<data["edges"].length;i++)
         {
-          List prd = result.data["sublistBySubcategoryId"]["edges"][i]["node"]["productSet"]["edges"];
+          // List prd = result.data["sublistBySubcategoryId"]["edges"][i]["node"]["productSet"]["edges"];
+          // List prd = data["edges"][i]["node"]["productSet"]["edges"];
+
+
           List<Product> prdList = [];
+          List im = data["edges"][i]["node"]["productimagesSet"]["edges"];
+          List<ProductImage> imgList = [];
 
 
-          for(var j = 0;j<prd.length;j++){
-            List im = prd[j]["node"]["productimagesSet"]["edges"];
-            List<ProductImage> imgList = [];
-
-
-            for(var k = 0;k<im.length;k++){
-              imgList.add(
-                ProductImage(im[k]["node"]["id"], im[k]["node"]["image"])
-              );
-            }
-
-            prdList.add(
-              Product(prd[j]["node"]["id"], 
-              prd[j]["node"]["name"], 
-              prd[j]["node"]["listPrice"],
-              prd[j]["node"]["mrp"],
-              imgList,
-              prd[j]["node"]["sizes"].split(","),
-              prd[j]["node"]["imageLink"].split(","),
-              )
+          for(var k = 0;k<im.length;k++){
+            imgList.add(
+              ProductImage(im[k]["node"]["id"], im[k]["node"]["image"])
             );
           }
 
-          setState(() {
-              if(prdList.length >0)
-              {
-                product.add(
-                  TypeAndProduct(
-                      result.data["sublistBySubcategoryId"]["edges"][i]["node"]["id"],
-                      result.data["sublistBySubcategoryId"]["edges"][i]["node"]["name"],
-                      prdList,
-                      result.data["sublistBySubcategoryId"]["edges"][i]["node"]["productSet"]["pageInfo"]["endCursor"],
-                  )
-                );
-              }
-          });
+          prdList.add(
+            Product(data["edges"][i]["node"]["id"], 
+            data["edges"][i]["node"]["name"], 
+            data["edges"][i]["node"]["listPrice"],
+            data["edges"][i]["node"]["mrp"],
+            imgList,
+            data["edges"][i]["node"]["sizes"].split(","),
+            data["edges"][i]["node"]["imageLink"].split(","),
+            )
+          );
+
+        product[_currentIndex].product.addAll(prdList);
+          
+
+          // setState(() {
+          //     if(prdList.length >0)
+          //     {
+          //       product.add(
+          //         TypeAndProduct(
+          //             result.data["sublistBySubcategoryId"]["edges"][i]["node"]["id"],
+          //             result.data["sublistBySubcategoryId"]["edges"][i]["node"]["name"],
+          //             prdList,
+          //             result.data["sublistBySubcategoryId"]["edges"][i]["node"]["productSet"]["pageInfo"]["endCursor"],
+          //         )
+          //       );
+          //     }
+          // });
+
+
         }
     }    
 }
@@ -113,6 +120,7 @@ void fillProductAndCateogry() async{
     GraphQLClient _client = clientToQuery();
     // print("cursor");
     // print(endCursor);
+    // print(id);
     QueryResult result = await _client.query(
       QueryOptions(
         documentNode: gql(GetSubListAndProductBySubCateogryId),
@@ -135,6 +143,7 @@ void fillProductAndCateogry() async{
       setState(() {
         isLoading = false;
           endCursor = result.data["sublistBySubcategoryId"]["pageInfo"]["endCursor"];
+          hasNextPage = result.data["sublistBySubcategoryId"]["pageInfo"]["hasNextPage"];
       });
       for(var i=0;i<result.data["sublistBySubcategoryId"]["edges"].length;i++)
         {
@@ -143,7 +152,9 @@ void fillProductAndCateogry() async{
 
 
           for(var j = 0;j<prd.length;j++){
+            
             // print(prd[j]["node"]["name"]);
+
             List im = prd[j]["node"]["productimagesSet"]["edges"];
             List<ProductImage> imgList = [];
 
@@ -180,20 +191,33 @@ void fillProductAndCateogry() async{
               }
           });
         }
-    }    
+    }
+    
+    tabController = TabController(vsync:this, length: product.length)
+     ..addListener(() {
+        setState(() {
+          _currentIndex = tabController.index;
+        });
+      });
 }
 
 
   // ScrollController _scrollController = new ScrollController();
+  TabController tabController;
   @override
   var nlist;
   var id;
   var isLoading = true;
   var endCursor = "";
   var _count ="";
+  // DefaultTabController _tabController;
+  // TabController _controller;
+  int _currentIndex = 0;
+  bool hasNextPage = false;
   void initState()
   {
     super.initState();
+
     id = widget.subCategory.id;
     fillProductAndCateogry();
     getCartCount().then((c){
@@ -201,21 +225,37 @@ void fillProductAndCateogry() async{
       _count = c;
       });
     });
+
+    print(product.length);
+
+    // tabController = TabController();
+
+
+    // _controller = TabController(vsync: this, length: 2);
+    // _controller.addListener(_handleTabSelection);    
+
+
     // nlist = widget.list;
   } 
 
+    // _handleTabSelection() {
+    //     setState(() {
+    //       _currentIndex = _controller.index;
+    //     });
+    // }
+
   Widget build(BuildContext context)
   {
-    
-    // print("-----------------------------");
-    // print(product[0].product);
-    // print("-----------------------------");
 
     getCartCount().then((c){
       setState(() {
       _count = c;
       });
     });
+
+    // print(_controller);
+    // if(product.length>0)
+      // print(product[0].name);
 
   // print(endCursor);
     return AnnotatedRegion<SystemUiOverlayStyle>(
@@ -225,14 +265,18 @@ void fillProductAndCateogry() async{
             systemNavigationBarIconBrightness: Brightness.light,      
             statusBarBrightness:Brightness.dark  
       ),
-          child: DefaultTabController(
-          
-          length: product.length,
-          
           child: Scaffold(
           appBar: AppBar(
             title: Text(this.widget.subCategory.name),
-                actions: <Widget>[
+            actions: <Widget>[
+
+
+
+                // Builder(builder: (context){
+                //   print(DefaultTabController.of(context).index);
+
+                // }),
+
                 IconButton(
                   icon: Icon(Icons.search),
                   iconSize: 25,
@@ -280,10 +324,26 @@ void fillProductAndCateogry() async{
               ),
             ],
 
-            bottom: TabBar(
+            bottom:isLoading?null: 
+            TabBar(
+              
+              
               isScrollable: true,
+              controller: tabController,
+              
+              onTap: (i){
+                // print("changed..");
+              setState(() {
+                id = product[i].id;
+                _currentIndex = i;                
+              });
+              },
+              
+              
+
               // unselectedLabelColor: Colors.grey,
               indicator: BoxDecoration(
+                
                 // color: Colors.grey
               ),
               tabs: List.generate(product.length, (index)=>
@@ -292,13 +352,16 @@ void fillProductAndCateogry() async{
                 ),
                )
             ,
+            // controller: tabController,
               labelColor: Colors.white,
               labelStyle: TextStyle(fontSize: 20),
               indicatorColor: Colors.black,
               unselectedLabelStyle: TextStyle(fontSize: 15),
               // unselectedLabelColor: ,
-
+              
+            
             ),
+            
             ),
           
 
@@ -309,17 +372,57 @@ void fillProductAndCateogry() async{
           //     )
           //    )
           // ),
+
+
+      floatingActionButton: FloatingActionButton(
+        
+        // onPressed: _incrementCounter,
+        onPressed: (){
+            fillMoreProduct();
+            // _addNewAddress();
+
+
+        },
+        tooltip: 'Add New Address',
+        child:Icon(
+          Icons.add,
+          color: Colors.white,
+          ),
+      ),
+
+
           body: isLoading
           ?Center(child: CircularProgressIndicator())
           :
-           TabBarView(
-            // controller:,
-            children: List.generate(product.length, (generator)=>
-              ProductGrid(
-                product: product[generator].product
-              )
-             )
-          )
+
+
+           Column(
+             children: <Widget>[
+               Expanded(
+                    child: TabBarView(
+                  // controller:,
+                  controller: tabController,
+                  children: List.generate(product.length, (index){
+                  // print(DefaultTabController.of(context).index); 
+                  return  ProductGrid(
+                      product: product[index].product
+
+                    );
+                    }
+                  )
+                ),
+               ),
+
+              //  Container(
+              //   // height:50,
+                
+              //   // child: Text("loading..."),
+
+              //  )
+
+
+             ],
+           )
           ,
           // body: Center(child: CircularProgressIndicator()),
           
@@ -363,7 +466,9 @@ void fillProductAndCateogry() async{
             
           ),
         ),
-      ),
+
+
+
     );
   }
 

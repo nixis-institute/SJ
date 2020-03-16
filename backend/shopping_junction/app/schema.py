@@ -409,6 +409,7 @@ class Query(graphene.AbstractType):
         ids = from_global_id(sublist_id)[1]
         return Product.objects.filter(sublist_id = ids)
 
+    # def resolve_sublist_by_id
 
     def resolve_sublist_by_subcategory_id(self,info,sub_category_id):
         ids = from_global_id(sub_category_id)[1]

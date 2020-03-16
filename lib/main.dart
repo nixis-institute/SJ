@@ -23,20 +23,23 @@ class MyApp extends StatelessWidget {
         // or simply save your changes to "hot reload" in a Flutter IDE).
         // Notice that the counter didn't reset back to zero; the application
         // is not restarted.
+        primaryColor: Colors.teal,
         
-        primarySwatch: MaterialColor(0xffc2d0b1,const{
-          50:Color.fromARGB(194, 208, 177, 1),
-          100:Color.fromARGB(194, 208, 177, 1),
-          200:Color.fromARGB(194, 208, 177, 1),
-          300:Color.fromARGB(194, 208, 177, 1),
-          400:Color.fromARGB(194, 208, 177, 1),
-          500:Color.fromARGB(194, 208, 177, 1),
-          600:Color.fromARGB(194, 208, 177, 1),
-          700:Color.fromARGB(194, 208, 177, 1),
-          800:Color.fromARGB(194, 208, 177, 1),
-          900:Color.fromARGB(194, 208, 177, 1),
+        // primarySwatch: MaterialColor(0xffc2d0b1,const{
+        //   50:Color.fromARGB(194, 208, 177, 1),
+        //   100:Color.fromARGB(194, 208, 177, 1),
+        //   200:Color.fromARGB(194, 208, 177, 1),
+        //   300:Color.fromARGB(194, 208, 177, 1),
+        //   400:Color.fromARGB(194, 208, 177, 1),
+        //   500:Color.fromARGB(194, 208, 177, 1),
+        //   600:Color.fromARGB(194, 208, 177, 1),
+        //   700:Color.fromARGB(194, 208, 177, 1),
+        //   800:Color.fromARGB(194, 208, 177, 1),
+        //   900:Color.fromARGB(194, 208, 177, 1),
 
-        })
+        // }
+        
+        
         
         
         ),

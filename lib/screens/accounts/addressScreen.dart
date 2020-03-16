@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:shopping_junction/GraphQL/Queries.dart';
 import 'package:shopping_junction/GraphQL/services.dart';
@@ -292,8 +293,18 @@ class _Addresses extends State<Addresses>
       
       Column(
         children: <Widget>[
+          // Container(
+          //   height:50,
+          //   color:Colors.white,
+          //   child: Text("You have 5 Address ",style: TextStyle(fontSize:25,fontWeight:FontWeight.w300),),
+          // ),
+
           Expanded(
-              child: ListView.builder(
+              child: ListView.separated(
+              separatorBuilder: (context, index) => Divider(
+              color: Colors.grey,
+              height: 1,
+              ),
               shrinkWrap: true,
               itemCount: this.widget.address.length,
               
@@ -303,8 +314,9 @@ class _Addresses extends State<Addresses>
                 //   title: Text(this.widget.address[index].houseNo),
                 // );
 
-              return Padding(
-                padding: const EdgeInsets.only(left:8.0,right:8.0,top:5),
+              return Container(
+                color:Colors.white,
+                padding: const EdgeInsets.only(left:15),
                 child: InkWell(
                   onTap: (){
                       setState(() {
@@ -319,13 +331,14 @@ class _Addresses extends State<Addresses>
                       },
 
 
-                      child: Card(
+                      child: Container(
+                      
                       color: 
                       !isAfterCart?Colors.white:
                       _character ==index?Colors.green:Colors.white,
                       
                       
-                      elevation: 1,
+                      // elevation: 1,
                       // borderOnForeground: false,
                       child: Container(
                       
@@ -365,8 +378,8 @@ class _Addresses extends State<Addresses>
                                       Text(
                                         this.widget.address[index].personName,
                                         style: TextStyle(
-                                          fontSize: 20,
-                                          fontWeight: FontWeight.w500
+                                          fontSize: 22,
+                                          fontWeight: FontWeight.w300
                                           // fontWeight: FontWeight.bold
                                         ),
                                       ),
@@ -375,21 +388,23 @@ class _Addresses extends State<Addresses>
                                       Text(
                                         this.widget.address[index].houseNo +" "+ this.widget.address[index].colony + " "+ this.widget.address[index].city +" "+ this.widget.address[index].state,
                                         style: TextStyle(
-                                          fontSize: 15
+                                          fontSize: 15,
+                                          color: Colors.black54
                                         ),
                                       ),
                                       SizedBox(height:10),
                                       Text(
                                         this.widget.address[index].phoneNumber + ", "+ this.widget.address[index].alternateNumber,
                                         style: TextStyle(
-                                          fontSize: 15
+                                          fontSize: 15,
+                                          color: Colors.black54
                                         ),
                                       ),
                                     ],
                                   ),
                                 ),
 
-                              isAfterCart?SizedBox():Divider(),
+                              // isAfterCart?SizedBox():Divider(),
                                 
                                 isAfterCart?SizedBox():
                                 Row(
@@ -403,7 +418,9 @@ class _Addresses extends State<Addresses>
                                           child: Container(
                                           padding: EdgeInsets.all(10),
                                           // child: Icon(Icons.edit),
-                                          child: Text("Edit",textAlign: TextAlign.center, style: TextStyle(color: Colors.black)),
+                                          child: Icon(Icons.edit,size: 20,color:Colors.grey),
+                                          // child: Text("Edit",textAlign: TextAlign.center, style: TextStyle(color: Colors.black)),
+                                          
                                           // color: Colors.grey,
                                           ),
                                       )
@@ -416,7 +433,8 @@ class _Addresses extends State<Addresses>
                                           child: Container(
                                           padding: EdgeInsets.all(10),
                                           // color: Colors.red,
-                                          child: Text("Remove",textAlign: TextAlign.center, style: TextStyle(color: Colors.black)),
+                                            child: Icon(Icons.delete_outline,size: 20,color:Colors.grey),
+                                          // child: Text("Remove",textAlign: TextAlign.center, style: TextStyle(color: Colors.black)),
                                           ),
                                       )
                                       )
@@ -468,7 +486,7 @@ class _Addresses extends State<Addresses>
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: <Widget>[
                         Text("Total Payable ",style: TextStyle(color: Colors.black,fontSize: 17,fontWeight: FontWeight.w300),),
-                        Text("\u20B9"+total, style: TextStyle(color: Colors.grey[700],fontSize: 17,fontWeight: FontWeight.w800),)
+                        Text("\u20B9 "+total, style: TextStyle(color: Colors.grey[700],fontSize: 21,fontWeight: FontWeight.w300),)
                       ],
                     ),
                   ),  

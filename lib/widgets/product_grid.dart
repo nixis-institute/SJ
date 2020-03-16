@@ -29,34 +29,20 @@ class _ProductGridState extends State<ProductGrid>
       scrollDirection: Axis.vertical,
       childAspectRatio: 2/3,
       children: List.generate(widget.product.length, (index){
-        // print(widget.product[index].name);
         return Container(
           child: GestureDetector(
-            // onTap: (){},
-              //   onTap: ()=>Navigator.push(context, MaterialPageRoute(builder: (_)=>DetailPage(
-              //   // category:category_model[index],
-              //   // slider: category_model[index].slider,
-              //   product: widget.product[index],
-              // ))),
-
-
-            // onTap: (){},
-              
                 onTap: ()=>Navigator.push(context, 
                 MaterialPageRoute(builder: (_)=>DetailPage(
                 product: widget.product[index],
               ))),
 
-            // onTap: (){
-            //   updateCartCo
-            // },
-
-
-              // .whenComplete(ProductGrid(product: ,)) ;,
-
-
-                
-                child: Card(
+                child: Container(
+                  // color:
+                decoration: BoxDecoration(
+                  color:Colors.white,
+                  border: Border.all(color:Colors.grey,width: 0.2)
+                ),
+                // color:Colors.white,
                 child: Column(
                   children: <Widget>[
                     Container(
@@ -66,32 +52,8 @@ class _ProductGridState extends State<ProductGrid>
                           imageUrl: widget.product[index].imageLink[0].toString(),
                           fit: BoxFit.fill,
                           placeholder: (context, url) =>Center(child: CircularProgressIndicator()),
-
-                          // placeholder: (context, url) => Container(height: 20,child:Container(child: CircularProgressIndicator(value: 0.2,))),
-                          // errorWidget: (context, url, error) => Icon(Icons.error),
                         ),
                     ),
-
-
-                    // Container(
-                    //   height: 230,
-                    //   // child: Image.network(server_url+"/media/"+widget.product[index].images[0].imgUrl ,fit:BoxFit.fill),
-                    //   // child: Image.network(widget.product[index].imageLink[0].toString() ,fit:BoxFit.fill),
-                    //   child: CachedNetworkImage(
-                    //     imageUrl: widget.product[index].imageLink[0].toString(),
-                    //     fit: BoxFit.fill,
-                    //     placeholder: (context, url) => Container(height: 20,width: 20, margin: EdgeInsets.all(5),child:CircularProgressIndicator(value: 0.2,)),
-                    //     // errorWidget: (context, url, error) => Icon(Icons.error),
-                    //   ),
-
-                    //   // child:CircleAvatar(
-                    //   //   radius: 0,
-                    //   //   backgroundImage: NetworkImage("http://10.0.2.2:8000/media/"+widget.product[index].images[0].imgUrl),
-                    //   // ) ,
-                    //   // child: Image.asset("http://10.0.2.2:80"+widget.product[index].images[0].imgUrl ,fit:BoxFit.fill),
-                    // ),
-
-
                     Container(
                       child: Padding(
                         // padding: const EdgeInsets.all(8.0),
@@ -106,14 +68,10 @@ class _ProductGridState extends State<ProductGrid>
                                 widget.product[index].name, 
                                 overflow: TextOverflow.ellipsis,
                                  style: TextStyle(fontSize: 18,fontWeight: FontWeight.w300,),)),
-                            // Text(top_sellings[index].name),
-
                             SizedBox(height: 5,),
                             Padding(
-                              // padding: const EdgeInsets.only(left: 10,right: 20),
                               padding: const EdgeInsets.all(0),
                               child: Row(
-                                // mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: <Widget>[
                                       Text("\u20B9",style: TextStyle(fontWeight: FontWeight.bold,fontSize: 14),),
                                       Text(widget.product[index].listPrice.toString(),style: TextStyle(fontWeight: FontWeight.bold,fontSize: 15),),
@@ -133,15 +91,9 @@ class _ProductGridState extends State<ProductGrid>
                                             fontSize: 10
                                           ),
                                       )
-                                      // Text("("+widget.product[index].discount.toInt().toString()+"% off)",style: TextStyle(fontWeight: FontWeight.w500,fontSize: 14,color: Colors.red),)
-                                   
-                                  
-
                                 ],
                               ),
                             )
-                            
-                            // Text(widget.product[index].count.toString()+" items"),
                           ],
                         ),
                       ),

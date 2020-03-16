@@ -149,14 +149,24 @@ class _OrderList extends State<OrderList>
                           children: <Widget>[
                             Text(order[index].productName,style: TextStyle(fontSize:18,fontWeight: FontWeight.w300),),
                             SizedBox(height:5),
-                            Text(order[index].paymentMode,style: TextStyle(color:Colors.green),),
+
+                            // Text(order[index].paymentMode,style: TextStyle(color:Colors.green),),
+                            // Text(order[index].date),
+                            Text(DateTime.parse(
+                              order[index].date).day.toString()+"-"+
+                              DateTime.parse(order[index].date).month.toString()+"-"+
+                              DateTime.parse(order[index].date).year.toString(),
+                              style: TextStyle(color:Colors.grey),
+                             ),
+                            // Text(timeago.format(DateTime.parse(mytimestring))
+
                             SizedBox(height:10),
                             
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: <Widget>[
                                 Text("\u20B9 "+(order[index].price*order[index].qty).toString() ,style: TextStyle(fontWeight: FontWeight.w600),),
-                                Text("Quantity:"+order[index].qty.toString(),style: TextStyle(fontWeight: FontWeight.w600),)
+                                Text("Items:"+order[index].qty.toString(),style: TextStyle(fontWeight: FontWeight.w300),)
                               ],
                             )
 

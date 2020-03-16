@@ -386,6 +386,7 @@ query xyz(\$Id:ID!,\$after:String!)
     productSet(first:10,after:\$after){
       pageInfo{
         endCursor
+        hasNextPage
       }
       edges{
         node{
@@ -424,7 +425,7 @@ query GetSubList(\$SubCateogryId:ID!,\$after:String!){
       {
         id
         name
-        productSet(first:5,after:\$after){
+        productSet(first:6,after:\$after){
           edges{
             node{
               id
@@ -465,7 +466,7 @@ query GetSubList(\$SubCateogryId:ID!){
       {
         id
         name
-        productSet(first:5){
+        productSet(first:6){
           pageInfo{
             endCursor
           }
@@ -509,6 +510,41 @@ query GetSubList(\$SubCateogryId:ID!){
     }
   }
 }
+""";
+
+final String getMoreProductBySubListId="""
+query x(\$sublistId:ID!,\$after:String!){
+  sublistById(id:\$sublistId)
+  {
+    name
+    productSet(first:6,after:\$after){
+      pageInfo{
+        endCursor
+        hasNextPage
+      }
+      edges{
+        node{
+        id
+        name
+        listPrice
+        mrp
+        sizes
+        colors
+        imageLink
+        productimagesSet{
+          edges{
+            node{
+              id
+              image
+            }
+          }
+        }           
+        }
+      }
+    }
+  }
+}
+
 """;
 
 final String GetProductBySubListId = """ 
