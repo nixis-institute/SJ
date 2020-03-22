@@ -14,34 +14,65 @@ from django.utils.dateparse import parse_date
 from graphene import relay
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import User
+import django_filters
 
 class ProductNode(DjangoObjectType):
+    
+    # class Arguments:
+    #     kind_in = graphene.List(graphene.String)
+    # sizes = django_filters.MultipleChoiceFilter(lookup_expr=["iexact"])
+    # sizes = django_filters.LookupChoiceFilter(
+    #     field_class=forms.CharField,
+    #     lookup_choices=[(
+    #         'exact',"Equals",
+    #     )]
+    # )
     class Meta:
         model = Product
-        filter_fields = ()
+        # filter_fields = ("sizes","parent")
+        filter_fields ={
+            "parent":["lte","gte","exact","isnull"],
+            "sizes":["in","icontains"],
+            "list_price":["lte","gte"],
+            "brand":["in"]
+        }
+        # filter_fields = {
+        #     size:
+        #     # "sizes":["exact","icontains","in"],
+        #     "name":["icontains"]
+        # }
+
+
         interfaces = (relay.Node,)
 
-class ProductList(DjangoObjectType):
-    # prd = graphene.ObjectType()
-    # cat = graphene.ObjectType(graphene.String)
-    # prd = graphene.ObjectType()
-    class Meta:
-        model = Product
-        filter_fields = ()
-        interfaces = (relay.Node,)        
-    # class Meta:
-    #     model = Product
-    #     filter_fields = ()
-    #     interfaces = (relay.Node,)
+
+# class ProductList(DjangoObjectType):
+#     # prd = graphene.ObjectType()
+#     # cat = graphene.ObjectType(graphene.String)
+#     # prd = graphene.ObjectType()
+#     kind_in = graphene.List(graphene.String)
+#     class Meta:
+#         model = Product
+#         # filter_fields = ("brand","colors","sizes","name")
+#         filter_fields={
+#             "sizes":["exact","icontains","in"],
+#             "name":["icontains"],
+#             # "brand":
+#         }
+#         interfaces = (relay.Node,)        
+#     # class Meta:
+#     #     model = Product
+#     #     filter_fields = ()
+#     #     interfaces = (relay.Node,)
 
 
-    # prd_list = graphene.List(graphene.String)
-    # catetory  =graphene.ObjectType()
-    # class Meta:
-    #     model = Product
-    # def resolve_product_list(self,info):
-    #     return [i.name for i in Product.objects.all()]
-    # appears_in = graphene.List(graphene.String)
+#     # prd_list = graphene.List(graphene.String)
+#     # catetory  =graphene.ObjectType()
+#     # class Meta:
+#     #     model = Product
+#     # def resolve_product_list(self,info):
+#     #     return [i.name for i in Product.objects.all()]
+#     # appears_in = graphene.List(graphene.String)
 
 
 class ProductCategoryNode(DjangoObjectType):
@@ -335,7 +366,12 @@ class Query(graphene.AbstractType):
     search_result = graphene.List(ProductNode,match = graphene.String())
     search_category = graphene.List(SubListNode,match = graphene.String())
     # s = graphene.ObjectType()
+    product_by_parent_id = DjangoFilterConnectionField(ProductNode,id=graphene.ID())
 
+
+    def resolve_product_by_parent_id(self,info,id):
+        id = from_global_id(id)[1]
+        return Product.objects.filter(parent=id)
 
     def resolve_cart_product(self,info,id):
         id_ = from_global_id(id)[1]
@@ -426,7 +462,7 @@ class Query(graphene.AbstractType):
         return SubCategory.objects.all()
 
     def resolve_all_product(self,info,**kwargs):
-        return Product.objects.all()
+        return Product.objects.exclude(parent=1)
 
     def resolve_all_category(self,info,**kwargs):
         return ProductCategory.objects.all()

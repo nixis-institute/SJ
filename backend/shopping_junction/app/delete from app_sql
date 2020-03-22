@@ -1,0 +1,17 @@
+delete from app_
+
+
+insert into app_product(name,brand,mrp,list_price,qty,instock,sizes,image_link,sublist_id,published,isFeatured) VALUES("ex","ex",45,34,65,1,"34","link",4,1,1)
+
+
+In [60]: f = open("dt.csv","r")                                                                                                              
+
+In [61]: rows = csv.reader(f)                                                                                                                
+
+In [62]: for i in rows: 
+    ...:     query = 'insert into app_product(name,brand,mrp,list_price,qty,instock,sizes,image_link,sublist_id,published,isFeatured) VALUES(
+    ...: "{}","{}",{},{},{},{},"{}","{}",{},1,1)'.format(i[1],i[2],i[7],i[8],10,1,i[13],i[15],i[16]) 
+    ...:     cur.execute(query) 
+    ...:                                                                                                                                     
+
+In [63]: con.commit()  

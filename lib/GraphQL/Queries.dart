@@ -329,6 +329,7 @@ query xyz(\$match:String!){
     sizes
     colors
     imageLink
+    parent
     productimagesSet{
       edges{
         node{
@@ -455,29 +456,33 @@ query GetSubList(\$SubCateogryId:ID!,\$after:String!){
 
 
 final String GetSubListAndProductBySubCateogryId = """ 
-query GetSubList(\$SubCateogryId:ID!){
+query GetSubList(\$SubCateogryId:ID!,\$brand: String!, \$sizes: String!){
   sublistBySubcategoryId(subCategoryId:\$SubCateogryId)
   {
   pageInfo{
       endCursor
+      hasNextPage
     }
     edges{
       node
       {
         id
         name
-        productSet(first:6){
+        productSet(first:6,brand_In: \$brand, sizes_In: \$sizes){
           pageInfo{
             endCursor
+            hasNextPage
           }
           edges{
             node{
               id
               name
+              brand
             	listPrice
               mrp
               sizes
               colors
+              parent
               imageLink
               productimagesSet{
                 edges{
@@ -495,6 +500,41 @@ query GetSubList(\$SubCateogryId:ID!){
   }
 }
 
+""";
+
+final String getProductByParentId ="""
+query x(\$id:ID!){
+  productByParentId(id:\$id){
+    edges{
+      node{
+          id
+          name
+          listPrice
+          mrp
+          sizes
+          colors
+          parent
+        	cartProducts{
+            edges{
+              node{
+                id
+                qty
+              }
+            }
+          }          
+          imageLink
+          productimagesSet{
+            edges{
+              node{
+                id
+                image
+              }
+            }
+          }
+      }
+    }
+  }
+}
 """;
 
 final String GetSubListBySubCategoryId = """ 

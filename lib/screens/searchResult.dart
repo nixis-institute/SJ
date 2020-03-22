@@ -84,6 +84,9 @@ class _SearchResultScreenState extends State<SearchResultScreen>
 
 
   }
+  callback(isNewData){
+    print(isNewData);
+  }
 
   @override
   String id;
@@ -123,7 +126,8 @@ class _SearchResultScreenState extends State<SearchResultScreen>
       ),
       body:isLoading?Center(child: CircularProgressIndicator(),):
       ProductGrid(
-        product: product,
+        product,
+        callback,
       )
       // GridView.count(
       //   shrinkWrap: true,

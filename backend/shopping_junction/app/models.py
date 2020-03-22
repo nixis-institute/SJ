@@ -70,6 +70,9 @@ class Product(models.Model):
     sizes = models.TextField(null=True,blank=True)
     features = models.TextField(null=True,blank=True)
     image_link = models.TextField(blank=True)
+    # parent = models.ForeignKey(Product)
+    parent = models.IntegerField(null=True,blank=True)
+
     sublist = models.ForeignKey(SubList,on_delete=models.CASCADE)
     def __str__(self):
         return self.name

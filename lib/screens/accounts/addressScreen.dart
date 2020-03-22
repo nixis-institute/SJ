@@ -316,7 +316,7 @@ class _Addresses extends State<Addresses>
 
               return Container(
                 color:Colors.white,
-                padding: const EdgeInsets.only(left:15),
+                padding: const EdgeInsets.only(left:0),
                 child: InkWell(
                   onTap: (){
                       setState(() {

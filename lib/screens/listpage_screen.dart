@@ -16,11 +16,8 @@ import 'package:shopping_junction/widgets/side_drawer.dart';
 
 class ListPage extends StatefulWidget{
   @override
-  // final List<Product> product;
-  // final SubList list;
   final ProductSubCategory subCategory;
   ListPage({this.subCategory});
-  // final FilterModel flter;
   _ListPageState createState() => _ListPageState();
 }
  
@@ -30,14 +27,9 @@ class ListPage extends StatefulWidget{
 class _ListPageState extends State<ListPage> with SingleTickerProviderStateMixin
 {
 List<TypeAndProduct> product = List<TypeAndProduct>();
-// List<Product> 
-
 
 void fillMoreProduct() async{
     GraphQLClient _client = clientToQuery();
-    print(id);
-    print(endCursor);
-
     QueryResult result = await _client.query(
       QueryOptions(
         documentNode: gql(getMoreProductBySubListId),
@@ -49,9 +41,8 @@ void fillMoreProduct() async{
     );
     if(result.loading)
     {
-      // print("loading..");
       setState(() {
-        isLoading = true;
+        loadMore = true;
       });
     }
 
@@ -59,18 +50,19 @@ void fillMoreProduct() async{
     {
       var data = result.data["sublistById"]["productSet"];
       setState(() {
-        isLoading = false;
+        loadMore = false;
           endCursor = data["pageInfo"]["endCursor"];
           hasNextPage =  data["pageInfo"]["hasNextPage"];
-          // endCursor = result.data["sublistBySubcategoryId"]["pageInfo"]["endCursor"];
       });
+
+      // List<String> brands=[];
+      // List<String> sizes =[];
+      // List<String> colors;
+      // List< 
       
       
       for(var i=0;i<data["edges"].length;i++)
         {
-          // List prd = result.data["sublistBySubcategoryId"]["edges"][i]["node"]["productSet"]["edges"];
-          // List prd = data["edges"][i]["node"]["productSet"]["edges"];
-
 
           List<Product> prdList = [];
           List im = data["edges"][i]["node"]["productimagesSet"]["edges"];
@@ -83,6 +75,9 @@ void fillMoreProduct() async{
             );
           }
 
+          // filter_list.add(Filter_Model("Br",""));
+          // brands.add(data["edges"][i]["node"]["brand"]);
+          // sizes.add(data["edges"][i]["node"]["sizes"]);
           prdList.add(
             Product(data["edges"][i]["node"]["id"], 
             data["edges"][i]["node"]["name"], 
@@ -95,43 +90,38 @@ void fillMoreProduct() async{
           );
 
         product[_currentIndex].product.addAll(prdList);
-          
-
-          // setState(() {
-          //     if(prdList.length >0)
-          //     {
-          //       product.add(
-          //         TypeAndProduct(
-          //             result.data["sublistBySubcategoryId"]["edges"][i]["node"]["id"],
-          //             result.data["sublistBySubcategoryId"]["edges"][i]["node"]["name"],
-          //             prdList,
-          //             result.data["sublistBySubcategoryId"]["edges"][i]["node"]["productSet"]["pageInfo"]["endCursor"],
-          //         )
-          //       );
-          //     }
-          // });
-
-
         }
+      // filter_list.add(Filter_Model("Brands",brands));
+      // filter_list.add(Filter_Model("Sizes",sizes));
+      tabController.addListener(() {
+        setState(() {
+          _currentIndex = tabController.index;
+          endCursor = product[_currentIndex].endCursor;
+          hasNextPage = product[_currentIndex].hasNextPage;
+          id = product[_currentIndex].id;
+        });
+      });
+
+
     }    
 }
 
 void fillProductAndCateogry() async{
+    print(brand);
+    print(size);
     GraphQLClient _client = clientToQuery();
-    // print("cursor");
-    // print(endCursor);
-    // print(id);
     QueryResult result = await _client.query(
       QueryOptions(
         documentNode: gql(GetSubListAndProductBySubCateogryId),
         variables:{
           "SubCateogryId":id,
+          "brand":brand,
+          "sizes":size
           }
       )
     );
     if(result.loading)
     {
-      // print("loading..");
       setState(() {
         isLoading = true;
       });
@@ -139,44 +129,63 @@ void fillProductAndCateogry() async{
 
     if(!result.hasException)
     {
+      filter_list.clear();
 
       setState(() {
         isLoading = false;
-          endCursor = result.data["sublistBySubcategoryId"]["pageInfo"]["endCursor"];
-          hasNextPage = result.data["sublistBySubcategoryId"]["pageInfo"]["hasNextPage"];
+        endCursor = result.data["sublistBySubcategoryId"]["edges"][0]["node"]["productSet"]["pageInfo"]["endCursor"];
+        hasNextPage = result.data["sublistBySubcategoryId"]["edges"][0]["node"]["productSet"]["pageInfo"]["hasNextPage"];
       });
+
+      List<String> brands=[];
+      List<String> sizes =[];
+      List<String> colors;
+      // product.clear();
+
       for(var i=0;i<result.data["sublistBySubcategoryId"]["edges"].length;i++)
         {
           List prd = result.data["sublistBySubcategoryId"]["edges"][i]["node"]["productSet"]["edges"];
           List<Product> prdList = [];
-
-
           for(var j = 0;j<prd.length;j++){
-            
-            // print(prd[j]["node"]["name"]);
-
             List im = prd[j]["node"]["productimagesSet"]["edges"];
             List<ProductImage> imgList = [];
-
-
             for(var k = 0;k<im.length;k++){
               imgList.add(
                 ProductImage(im[k]["node"]["id"], im[k]["node"]["image"])
               );
             }
 
-            prdList.add(
-              Product(prd[j]["node"]["id"], 
-              prd[j]["node"]["name"], 
-              prd[j]["node"]["listPrice"],
-              prd[j]["node"]["mrp"],
-              imgList,
-              prd[j]["node"]["sizes"].split(","),
-              prd[j]["node"]["imageLink"].split(","),
-              )
-            );
-          }
+            if(prd[j]["node"]["brand"].length>0)
+            {
+              // print(prd[j]["node"]["brand"]);
+              brands.add(prd[j]["node"]["brand"]);
 
+            }
+            
+            if(prd[j]["node"]["sizes"].length>0)
+              {
+                print(prd[j]["node"]["sizes"]);
+                
+                sizes.add(prd[j]["node"]["sizes"]);
+              }
+            if(prd[j]["node"]["parent"]==null)
+            {          
+              prdList.add(
+                Product(prd[j]["node"]["id"], 
+                prd[j]["node"]["name"], 
+                prd[j]["node"]["listPrice"],
+                prd[j]["node"]["mrp"],
+                imgList,
+                prd[j]["node"]["sizes"].split(","),
+                prd[j]["node"]["imageLink"].split(","),
+                )
+              );
+            }
+          }
+      // filter_list.add(Filter_Model("Brands",brands));
+      // filter_list.add(Filter_Model("Sizes",sizes));
+
+          // print(prdList.length);
           setState(() {
               if(prdList.length >0)
               {
@@ -185,35 +194,52 @@ void fillProductAndCateogry() async{
                       result.data["sublistBySubcategoryId"]["edges"][i]["node"]["id"],
                       result.data["sublistBySubcategoryId"]["edges"][i]["node"]["name"],
                       prdList,
-                      result.data["sublistBySubcategoryId"]["edges"][i]["node"]["productSet"]["pageInfo"]["endCursor"],                      
+                      result.data["sublistBySubcategoryId"]["edges"][i]["node"]["productSet"]["pageInfo"]["endCursor"],  
+                      result.data["sublistBySubcategoryId"]["edges"][i]["node"]["productSet"]["pageInfo"]["hasNextPage"],
                   )
                 );
               }
           });
         }
+
+      filter_list.add(Filter_Model("Brands",brands.toSet().toList()));
+      filter_list.add(Filter_Model("Sizes",sizes.toSet().toList()));        
+        // print(brands.toSet().toList() );
+        // print(sizes.toSet().toList());
+
     }
+    // print(product[0]);
     
-    tabController = TabController(vsync:this, length: product.length)
-     ..addListener(() {
-        setState(() {
-          _currentIndex = tabController.index;
-        });
-      });
+    // tabController
+    if(brand.length==0 && size.length==0)
+    {tabController = TabController(vsync:this, length: product.length);}
+    
+    // tabController.
+
+    setState(() {
+      // print("index");
+      // print(tabController.index);
+      _currentIndex = tabController.index;
+      endCursor = product[_currentIndex].endCursor;
+      hasNextPage = product[_currentIndex].hasNextPage;
+      id = product[_currentIndex].id;
+    });
 }
 
 
-  // ScrollController _scrollController = new ScrollController();
   TabController tabController;
   @override
   var nlist;
+  var items = {};
   var id;
   var isLoading = true;
   var endCursor = "";
   var _count ="";
-  // DefaultTabController _tabController;
-  // TabController _controller;
   int _currentIndex = 0;
+  bool loadMore = false;
   bool hasNextPage = false;
+  var brand="";
+  var size="";
   void initState()
   {
     super.initState();
@@ -226,23 +252,15 @@ void fillProductAndCateogry() async{
       });
     });
 
-    print(product.length);
-
-    // tabController = TabController();
-
-
-    // _controller = TabController(vsync: this, length: 2);
-    // _controller.addListener(_handleTabSelection);    
-
-
-    // nlist = widget.list;
   } 
-
-    // _handleTabSelection() {
-    //     setState(() {
-    //       _currentIndex = _controller.index;
-    //     });
-    // }
+  callback(isNewData){
+    if(hasNextPage){
+      setState(() {
+        loadMore = true;
+      });
+      fillMoreProduct();
+    }
+  }
 
   Widget build(BuildContext context)
   {
@@ -253,11 +271,7 @@ void fillProductAndCateogry() async{
       });
     });
 
-    // print(_controller);
-    // if(product.length>0)
-      // print(product[0].name);
 
-  // print(endCursor);
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle(
             statusBarColor: Colors.transparent,
@@ -269,14 +283,6 @@ void fillProductAndCateogry() async{
           appBar: AppBar(
             title: Text(this.widget.subCategory.name),
             actions: <Widget>[
-
-
-
-                // Builder(builder: (context){
-                //   print(DefaultTabController.of(context).index);
-
-                // }),
-
                 IconButton(
                   icon: Icon(Icons.search),
                   iconSize: 25,
@@ -332,19 +338,13 @@ void fillProductAndCateogry() async{
               controller: tabController,
               
               onTap: (i){
-                // print("changed..");
               setState(() {
                 id = product[i].id;
                 _currentIndex = i;                
               });
               },
               
-              
-
-              // unselectedLabelColor: Colors.grey,
               indicator: BoxDecoration(
-                
-                // color: Colors.grey
               ),
               tabs: List.generate(product.length, (index)=>
                 Tab(
@@ -357,38 +357,22 @@ void fillProductAndCateogry() async{
               labelStyle: TextStyle(fontSize: 20),
               indicatorColor: Colors.black,
               unselectedLabelStyle: TextStyle(fontSize: 15),
-              // unselectedLabelColor: ,
-              
-            
             ),
-            
             ),
-          
+      // floatingActionButton: FloatingActionButton(
+      //   onPressed: (){
+      //       if(hasNextPage)
+      //       {
+      //         fillMoreProduct();
+      //       }
 
-          // body: TabBarView(
-          //   children: List.generate(product.length, (generator)=>
-          //     ProductGrid(
-          //       product: product[generator].product
-          //     )
-          //    )
-          // ),
-
-
-      floatingActionButton: FloatingActionButton(
-        
-        // onPressed: _incrementCounter,
-        onPressed: (){
-            fillMoreProduct();
-            // _addNewAddress();
-
-
-        },
-        tooltip: 'Add New Address',
-        child:Icon(
-          Icons.add,
-          color: Colors.white,
-          ),
-      ),
+      //   },
+      //   tooltip: 'Add New Address',
+      //   child:Icon(
+      //     Icons.add,
+      //     color: Colors.white,
+      //     ),
+      // ),
 
 
           body: isLoading
@@ -405,20 +389,27 @@ void fillProductAndCateogry() async{
                   children: List.generate(product.length, (index){
                   // print(DefaultTabController.of(context).index); 
                   return  ProductGrid(
-                      product: product[index].product
-
+                      product[index].product,
+                      callback,
                     );
                     }
                   )
                 ),
                ),
 
-              //  Container(
-              //   // height:50,
+              !loadMore?SizedBox():
+               Container(
+                height:50,
                 
-              //   // child: Text("loading..."),
+                // child: Text("Loading...",style:TextStyle(fontSize:20)),
+                child:Center(
+                  child: Container(
+                    width: 20,
+                    height:20,
+                    child: CircularProgressIndicator(strokeWidth: 1,)),
+                )
 
-              //  )
+               )
 
 
              ],
@@ -438,8 +429,9 @@ void fillProductAndCateogry() async{
                 // Navigator.push(context,MaterialPageRoute(
                 //     builder:(context)=>SortAndFilter()
                 //    ));
-                // _navigateAndDisplay(context);
-                  fillProductAndCateogry();
+
+                _navigateAndDisplay(context);
+                  // fillProductAndCateogry();
 
                   },
                 child: Container(
@@ -476,13 +468,39 @@ void fillProductAndCateogry() async{
   _navigateAndDisplay(BuildContext context) async
   {
       final product = await Navigator.push(context, MaterialPageRoute(
-        builder: (context) => SortAndFilter()
+        builder: (context) => items.length>0?SortAndFilter(items: items,):SortAndFilter()
       ));
         if(product!=null)
         {
-          setState(() {
-              nlist = product;        
-          });
+          // print(product[""]);
+          // print(product["isClearAll"]);
+
+          // if(product["isClearAll"]==)
+          if(product["isClearAll"]==true)
+          {
+            fillProductAndCateogry();
+          }
+          // else if(product["items"]!=null)
+          else
+          {
+
+            setState(() {
+              items = product["items"];
+              brand = product["filter"]["brands"];
+              size = product["filter"]["sizes"]??"";
+              fillProductAndCateogry();
+
+            });
+            // setState(() {
+              // brand = product["brands"];
+              // size = product["sizes"];
+            // });
+            // print(product["filter"]);
+          
+          }
+          // setState(() {
+          //     nlist = product;        
+          // });
         }
 
         // else if(product == false)

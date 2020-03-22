@@ -42,13 +42,14 @@ class _FinalScreen extends State<FinalScreen>
       {
         if(result.data["updateOrders"]["success"]==true)
         {
-          print("order complese");
-            Navigator.push(context, MaterialPageRoute(builder: (_)=>SuccessScreen(
-            )));
+          // print("order complese");
+          await Navigator.push(context, MaterialPageRoute(builder: (_)=>SuccessScreen(
+          )));
         }
       }
 
-
+            // await Navigator.push(context, MaterialPageRoute(builder: (_)=>SuccessScreen(
+            // )));
     }
 
 

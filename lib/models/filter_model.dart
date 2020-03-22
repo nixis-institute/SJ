@@ -1,3 +1,12 @@
+class Filter_Model{
+  String type;
+  List<String> list;
+  Filter_Model(this.type,this.list);
+}
+
+// List<Filter_Model> =[];
+List<Filter_Model> filter_list =[];
+
 class FilterModel{
 
   // List<String> brand;

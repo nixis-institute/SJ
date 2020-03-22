@@ -109,17 +109,21 @@ class _CustomSearchBar extends State<CustomSearchBar>
       var data = result.data["searchResult"];
       for(int i=0;i<data.length;i++)
       {
-        l.add(
-              Product(
-              data[i]["id"], 
-              data[i]["name"], 
-              data[i]["listPrice"],
-              data[i]["mrp"],
-              imgList,
-              data[i]["sizes"].split(","),
-              data[i]["imageLink"].split(","),
-              )
-          );
+          if(data[i]["parent"]==null)
+          {
+            l.add(
+                  Product(
+                  data[i]["id"], 
+                  data[i]["name"], 
+                  data[i]["listPrice"],
+                  data[i]["mrp"],
+                  imgList,
+                  data[i]["sizes"].split(","),
+                  data[i]["imageLink"].split(","),
+                  )
+              );
+          }
+
       }
 
       setState(() {

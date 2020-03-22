@@ -7,6 +7,8 @@ import 'package:shopping_junction/screens/listpage_screen%20copy.dart';
 
 class SortAndFilter extends StatefulWidget{
   @override
+  var items ={};
+  SortAndFilter({this.items=null});
   _SortAndFilterState createState() => _SortAndFilterState();
 }
 
@@ -22,19 +24,32 @@ class _MapItem{
   _MapItem({this.filter,this.items});
 }
 
+
 class _SortAndFilterState extends State<SortAndFilter>
 {
+  void createFilterList(){
+        filter_list.forEach((f)=>{
+        items[f.type] = f.list.map((item)=>_ListItem(item,false)).toList()
+      });
+  }
+
+
     var selectedString;
-    var filters =["Brand","Colors","Size","Price"];
+    // var filters =["Brand","Colors","Size","Price"];
+
 
     var items = {};
     // var its={};
+    String brands="";
+    String sizes="";
+    bool isAllClear = true;
     
     @override
     void initState()
     {
       super.initState();
-      selectedString = filters[0];
+      // selectedString = filters[0];
+      selectedString = filter_list[0].type;
 
       // its = filter_models.prd.map((string,list)=>_MapItem(string,list));
 
@@ -48,27 +63,49 @@ class _SortAndFilterState extends State<SortAndFilter>
       // items = filter_models.prd[selectedString];
       // items = filter_models.prd.map((f)=>_ListItem(f,false))
 
-      // items = filter_models.prd[selectedString].map((item)=>_ListItem(item,false)).toList();
-      filter_models.prd.forEach((x,y){
-//         m[x] = {"value":y,"selected":false};
-      items[x] = y.map((item)=>_ListItem(item,false)).toList();
+//       items = filter_models.prd[selectedString].map((item)=>_ListItem(item,false)).toList();
+//       filter_models.prd.forEach((x,y){
+// //         m[x] = {"value":y,"selected":false};
+//       items[x] = y.map((item)=>_ListItem(item,false)).toList();
+//     },
+//     );
+
+      // filter_list.forEach((f)=>{
+      //   items[f.type] = f.list.map((item)=>_ListItem(item,false)).toList()
+      // });
+
+
+    if(this.widget.items==null)
+    {
+      createFilterList();
+      // filter_list.forEach((f)=>{
+      //   items[f.type] = f.list.map((item)=>_ListItem(item,false)).toList()
+      // });
     }
-    );      
+    else{
+      items = this.widget.items;
+    }
+
+
     }
     
 
     Widget build(BuildContext context)
     {
-      print("--------------------------------------");
-      items[selectedString].forEach((i)
-      {
-        if(i.checked==true)
-          print(i.value);
-          }
+      // print("--------------------------------------");
       
-      );
+      // items[selectedString].forEach((i)
+      // {
+
+      //   if(i.checked==true)
+      //     print(i.value);
+      //   }
+      //   // items[]
+      // );
+
+
       // print(items[selectedString][0].value);
-      print("--------------------------------------");
+      // print("--------------------------------------");
       // items.map((f)=>print(f.value));
 
       return Scaffold(
@@ -80,7 +117,13 @@ class _SortAndFilterState extends State<SortAndFilter>
           actions: <Widget>[
             Row(
               children: <Widget>[
-                Text("Clear All Filter",style: TextStyle(fontWeight: FontWeight.bold,fontSize: 15),),
+                InkWell(
+                  onTap: (){
+                    createFilterList();
+                    isAllClear = true;
+                    Navigator.pop(context,{"items":items,"isClearAll":isAllClear});
+                  },
+                  child: Text("Clear All Filter",style: TextStyle(fontWeight: FontWeight.bold,fontSize: 15),)),
                 SizedBox(width: 15,)
               ],
             )
@@ -99,17 +142,17 @@ class _SortAndFilterState extends State<SortAndFilter>
                   child: ListView.builder(
                     shrinkWrap: true,
                     scrollDirection: Axis.vertical,
-                    itemCount: filters.length,
+                    itemCount: filter_list.length,
 
                     itemBuilder: (context,index){
                       return Container(
-                        color:filters[index] == selectedString?
+                        color:filter_list[index].type == selectedString?
                         Colors.grey[100]:Colors.white,
                         child: ListTile(
                           title:Text(
-                            filters[index],
+                            filter_list[index].type,
                             style: TextStyle(
-                              color:filters[index] == selectedString?
+                              color:filter_list[index].type == selectedString?
                               Colors.blue:Colors.black,
                               ),
                             ),
@@ -118,8 +161,9 @@ class _SortAndFilterState extends State<SortAndFilter>
                           // onTap: () =>setState(()=> selectedString = filters[index]) 
                             onTap: (){
                               setState(() {
-                                selectedString = filters[index];
-                                
+                                selectedString = filter_list[index].type;
+
+                                // filter_list[index].list[]
                                 // items = filter_models.prd[selectedString].map((item)=>_ListItem(item,false)).toList();
 
                               });
@@ -188,12 +232,58 @@ class _SortAndFilterState extends State<SortAndFilter>
             ],
           ),
         ),
+        
 
           bottomNavigationBar: BottomAppBar(
             child: InkWell(
                 onTap: (){
+                    items.forEach((f,x)=>{
+                      items[f].forEach((i){
+                        if( f=="Brands" && i.checked==true)
+                        {
+                          brands+="${i.value},";
+                        }
+                        else if(f=="Sizes" && i.checked==true)
+                        {
+                          sizes+=i.value+",";
+                        }
+                      })
+                    });
+
+                    // print(brands);
+                    // print(sizes);
+                      // items[selectedString].forEach((i)
+                      // {
+                      //   if(i.checked==true)
+                      //     print(i.value);
+                      //     }
+                      
+                      // );                  
+                    // print(items.forEach((f)=>));
+
+                    items.forEach((f,x)=>{
+                      items[f].forEach((i){
+                        if(i.checked)
+                        {
+                          isAllClear = false;
+                          // break;
+                        }
+
+                        // if()
+                        // if( f=="Brands" && i.checked==true)
+                        // {
+                        //   brands+="${i.value},";
+                        // }
+                        // else if(f=="Sizes" && i.checked==true)
+                        // {
+                        //   sizes+=i.value+",";
+                        // }
+                      })
+                    });
                   
-                  Navigator.pop(context,sort_list[0]);                  
+                  // Navigator.pop(context,{items,filter_list}); 
+
+                  Navigator.pop(context,{"items":items,"isClearAll":isAllClear,"filter":{"brands":brands,"sizes":sizes}});
                   // Navigator.pop(context,MaterialPageRoute(
                   //   builder:(context)=>ListPage(
                   //     // product: products,
