@@ -169,6 +169,8 @@ class _CustomSearchBar extends State<CustomSearchBar>
             controller: _searchTerm,
             decoration: InputDecoration(
               hintText: "Search",
+              // helperStyle: TextStyle(color:Colors.white,fontWeight: FontWeight.w700 ),
+              hintStyle: TextStyle(color:Colors.white,fontWeight: FontWeight.w400 ),
               border: InputBorder.none
 
 
@@ -177,6 +179,7 @@ class _CustomSearchBar extends State<CustomSearchBar>
               // border: InputBorder(borderSide:BorderSide(width: 1,color: Colors.green),)
 
             ),
+            style:  TextStyle(color:Colors.white,fontWeight: FontWeight.w700 ),
             onChanged: (text){
               if(text.length>2)
               {

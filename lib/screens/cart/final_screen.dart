@@ -81,8 +81,10 @@ class _FinalScreen extends State<FinalScreen>
         l.add(
           CartProductModel(
             node["cartProducts"]["id"],
-            node["cartProducts"]["name"], 
-            node["cartProducts"]["imageLink"].split(",")[0], 
+
+            node["cartProducts"]["parent"]["name"], 
+            node["cartProducts"]["parent"]["imageLink"].split(",")[0], 
+
             node["cartProducts"]["mrp"], 
             node["cartProducts"]["listPrice"], 
             node["size"], 

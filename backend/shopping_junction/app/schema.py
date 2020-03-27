@@ -15,6 +15,37 @@ from graphene import relay
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import User
 import django_filters
+import json
+
+class InnerItem(graphene.ObjectType):
+    List = graphene.List(graphene.String)
+
+
+class Dictionary(graphene.ObjectType):
+    key = graphene.String()
+    value = graphene.List(graphene.String)
+    # value = graphene.Field(InnerItem)
+
+class FilterNode(graphene.ObjectType):
+    data = graphene.List(Dictionary)
+    # brand = graphene.List(graphene.String)
+    # size = graphene.List(graphene.String)
+    # dic = graphene.ObjectType()
+    class Meta:
+        description ="sdf"
+        # model = Product
+    def resolve_data(self,info):
+        br = [i.brand for i in Product.objects.all()]
+        size = [i.size for i in SubProduct.objects.all()]
+        color = [i.color for i in SubProduct.objects.all()]
+
+        # inner = InnerItem(br)
+        d = Dictionary("Brands",list(set(br)))
+        s = Dictionary("Sizes",list(set(size)))
+        c = Dictionary("Color",list(set(color)))
+
+        return [d,s,c]
+        # [i.brand for i in Product.objects.all()]
 
 class ProductNode(DjangoObjectType):
     
@@ -32,9 +63,10 @@ class ProductNode(DjangoObjectType):
         # filter_fields = ("sizes","parent")
         filter_fields ={
             "parent":["lte","gte","exact","isnull"],
-            "sizes":["in","icontains"],
+            "sizes":["in","icontains","exact","iexact"],
             "list_price":["lte","gte"],
             "brand":["in"]
+
         }
         # filter_fields = {
         #     size:
@@ -73,6 +105,24 @@ class ProductNode(DjangoObjectType):
 #     # def resolve_product_list(self,info):
 #     #     return [i.name for i in Product.objects.all()]
 #     # appears_in = graphene.List(graphene.String)
+
+class ProductSliderNode(DjangoObjectType):
+    class Meta:
+        model = ProductSlider
+        filter_fields = ()
+        interfaces = (graphene.Node,)
+
+class SubProductNode(DjangoObjectType):
+    class Meta:
+        model = SubProduct
+        filter_fields = {
+        # "parent":["lte","gte","exact","isnull"],
+        "size":["in","icontains","exact","iexact"],
+        "list_price":["lte","gte"],
+        # "brand":["in"]
+        "color":["in","icontains","exact","iexact"],
+        }
+        interfaces = (relay.Node,)
 
 
 class ProductCategoryNode(DjangoObjectType):
@@ -141,6 +191,13 @@ class CartNode(DjangoObjectType):
 #         model = Address
 #         filter_fields = ()
 #         interfaces = (relay.Node)
+# class GetFilter(DjangoObjectType):
+#     data = graphene.ObjectType()
+#     class Meta:
+#         model = Product
+
+    # def resolve_data(self,info):
+    #     return [i.brand for i in Product.objects.all()]
 
 class UserType(DjangoObjectType):
     class Meta:
@@ -344,9 +401,9 @@ class Query(graphene.AbstractType):
     all_category = DjangoFilterConnectionField(ProductCategoryNode)
     sub_category = DjangoFilterConnectionField(SubCategoryNode)
     cart_products = DjangoFilterConnectionField(CartNode)
-
+    filtering = graphene.List(FilterNode)
     cart_product = graphene.Field(CartNode,id = graphene.ID())
-    
+
     # subcateogry_by_category_id = graphene.List(SubCategoryNode, main_category_id=graphene.ID())
 
     subcateogry_by_category_id = DjangoFilterConnectionField(SubCategoryNode,main_category_id = graphene.ID())
@@ -366,12 +423,21 @@ class Query(graphene.AbstractType):
     search_result = graphene.List(ProductNode,match = graphene.String())
     search_category = graphene.List(SubListNode,match = graphene.String())
     # s = graphene.ObjectType()
-    product_by_parent_id = DjangoFilterConnectionField(ProductNode,id=graphene.ID())
+    product_by_parent_id = DjangoFilterConnectionField(SubProductNode,id=graphene.ID())
+    
+    # all_filter = graphene.List(GetFilter)``
+    # data = DjangoFilterConnectionField(GetFilter)
 
+    # def resolve_data(self,info):
+    #     return ["sdf","sdf"]
+
+    def resolve_filtering(self,info,**kwargs):
+        return [1]
+        # return [i.brand for i in Product.objects.all()]
 
     def resolve_product_by_parent_id(self,info,id):
         id = from_global_id(id)[1]
-        return Product.objects.filter(parent=id)
+        return SubProduct.objects.filter(parent_id=id)
 
     def resolve_cart_product(self,info,id):
         id_ = from_global_id(id)[1]

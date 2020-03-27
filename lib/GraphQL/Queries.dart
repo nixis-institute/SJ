@@ -6,9 +6,17 @@ final String Categories = """
         id
         name
         image
+        productsliderSet{
+          edges{
+            node{
+              image
+            }
+          }
+        }        
         subcategorySet{
           edges{
             node{
+              id
               name
             }
           }
@@ -137,8 +145,10 @@ query(\$userId:Int!){
         qty
         product{
           id
-          name
-          imageLink
+          parent{
+            name
+            imageLink
+          }
         } 
       }
     }
@@ -287,8 +297,10 @@ query {
         qty
         cartProducts{
           id
-          name
-					imageLink        
+          parent{
+            name
+            imageLink
+          }
           mrp
           listPrice
         }
@@ -343,6 +355,16 @@ query xyz(\$match:String!){
 
 """;
 
+final String getFilterQuery ="""
+{
+  filtering{
+    data{
+      key
+      value
+    }
+  }
+}
+""";
 final String getUser = """
 query GetUser(\$id:Int!){
   user(userId:\$id)
@@ -468,7 +490,7 @@ query GetSubList(\$SubCateogryId:ID!,\$brand: String!, \$sizes: String!){
       {
         id
         name
-        productSet(first:6,brand_In: \$brand, sizes_In: \$sizes){
+        productSet(first:6,brand_In: \$brand,){
           pageInfo{
             endCursor
             hasNextPage
@@ -478,12 +500,18 @@ query GetSubList(\$SubCateogryId:ID!,\$brand: String!, \$sizes: String!){
               id
               name
               brand
-            	listPrice
-              mrp
-              sizes
-              colors
-              parent
               imageLink
+              subproductSet(size_In:\$sizes){
+                edges{
+                  node{
+                    id
+                    listPrice
+                    size
+                    mrp
+                    color
+                  }
+                }
+              }
               productimagesSet{
                 edges{
                   node{
@@ -504,33 +532,24 @@ query GetSubList(\$SubCateogryId:ID!,\$brand: String!, \$sizes: String!){
 
 final String getProductByParentId ="""
 query x(\$id:ID!){
-  productByParentId(id:\$id){
+  productByParentId(id:\$id)
+  {
     edges{
       node{
-          id
-          name
-          listPrice
-          mrp
-          sizes
-          colors
-          parent
-        	cartProducts{
-            edges{
-              node{
-                id
-                qty
-              }
-            }
-          }          
-          imageLink
-          productimagesSet{
-            edges{
-              node{
-                id
-                image
-              }
+        id
+        listPrice
+        mrp
+        size
+        color
+        qty
+        
+        cartProducts{
+          edges{
+            node{
+              id
             }
           }
+        }     
       }
     }
   }

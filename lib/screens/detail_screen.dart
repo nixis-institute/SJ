@@ -31,11 +31,20 @@ class DetailPage extends StatefulWidget{
 //   DetailProduct(this.id,this.name,this.listPrice,this.mrp,this.images,this.sizes,this.imageLink);
 // }
 
+class SubProduct{
+  String id;
+  double listPrice;
+  double mrp;
+  int qty;
+  String size,color;
+  bool isInCart;
+  SubProduct(this.id,this.listPrice,this.mrp,this.size,this.color,this.qty,this.isInCart);
 
+}
 
 class _DetailPageState extends State<DetailPage>
 {
-  List<Product> subproduct=[];
+  List<SubProduct> subproduct=[];
   void getSubProduct() async{
     print(this.widget.product.id);
     GraphQLClient _client = clientToQuery();
@@ -44,6 +53,7 @@ class _DetailPageState extends State<DetailPage>
         documentNode: gql(getProductByParentId),
         variables:{
           "id":this.widget.product.id,
+
           }
       )
     );
@@ -54,29 +64,20 @@ class _DetailPageState extends State<DetailPage>
     }
     if(!result.hasException){
 
-      List<Product> l=[];
+      List<SubProduct> l=[];
       var data = result.data["productByParentId"]["edges"];
       for(int i=0;i<data.length;i++)
       {
         List<ProductImage> im =[];
-        
-        var img = data[i]["node"]["productimagesSet"]["edges"];
-        
-        for(var k = 0;k<img.length;k++){
-          im.add(
-            ProductImage(img[k]["node"]["id"], img[k]["node"]["image"])
-          );
-        }
-
         l.add(
-          Product(data[i]["node"]["id"], 
-          data[i]["node"]["name"], 
+          SubProduct(data[i]["node"]["id"], 
           data[i]["node"]["listPrice"],
           data[i]["node"]["mrp"],
-          im,
-          data[i]["node"]["sizes"].split(","),
-          data[i]["node"]["imageLink"].split(","),
-          isInCart: data[i]["node"]["cartProducts"]["edges"].length>0?true:false
+          data[i]["node"]["size"],
+          data[i]["node"]["color"],
+          data[i]["node"]["qty"],
+          data[i]["node"]["cartProducts"]["edges"].length>0?true:false
+          // isInCart: data[i]["node"]["cartProducts"]["edges"].length>0?true:false
           )
         );
       }
@@ -85,8 +86,10 @@ class _DetailPageState extends State<DetailPage>
 
         subproduct = l;
         loading = false;
-        this.widget.product = subproduct[0];
-        selectedSize = subproduct[0].sizes[0];        
+        this.widget.product.id = subproduct[0].id;
+        this.widget.product.isInCart = subproduct[0].isInCart;
+        // this.widget.product = subproduct[0];
+        selectedSize = subproduct[0].size;        
         _id = this.widget.product.id;
       });
 
@@ -94,7 +97,7 @@ class _DetailPageState extends State<DetailPage>
 
   }
   void AddToCart() async{
-    
+    // print("addtocart");
     SharedPreferences preferences = await SharedPreferences.getInstance();    
     GraphQLClient _client = clientToQuery();
     QueryResult result = await _client.mutate(
@@ -125,6 +128,10 @@ class _DetailPageState extends State<DetailPage>
         cloading = false;
         isInCart = true;  
         // _count += ;
+          
+          this.widget.product.isInCart=true;
+          // size_index
+          subproduct[size_index].isInCart = true;
         _count = (int.parse(_count)+1).toString(); 
         });
         // await preferences.setString("key", value)
@@ -181,6 +188,7 @@ class _DetailPageState extends State<DetailPage>
 
 
   var selectedSize = "";
+  var size_index =0;
   bool isLoading = true;
   bool loading = true;
   var selectedColor = '0xffb74093';
@@ -211,7 +219,7 @@ class _DetailPageState extends State<DetailPage>
     });
     
     getSubProduct();
-    XX();
+    // XX();
   }
 
   // selectSize(widget.product.sizes[0]);
@@ -222,13 +230,14 @@ class _DetailPageState extends State<DetailPage>
     // print(isInCart);
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle(
-            statusBarColor: Colors.transparent,
+            statusBarColor: Colors.black,
             statusBarIconBrightness: Brightness.dark,
-            systemNavigationBarIconBrightness: Brightness.light,      
+            systemNavigationBarIconBrightness: Brightness.dark,      
             statusBarBrightness:Brightness.dark  
       ),
           child: Scaffold(
-        // appBar: AppBar(title: Text("Detail Page"),),
+        // appBar: AppBar(backgroundColor: Colors.white,),
+
         bottomNavigationBar: BottomAppBar(
           child: 
           
@@ -275,10 +284,11 @@ class _DetailPageState extends State<DetailPage>
           
         ),
         // appBar: AppBar(title: Text("Details"),),
+        
         appBar: AppBar(
           elevation: 0,
           title: Text(this.widget.product.name),
-          backgroundColor: Colors.green,
+          // backgroundColor: Colors.green,
           
           
           actions: <Widget>[
@@ -331,6 +341,8 @@ class _DetailPageState extends State<DetailPage>
               )                            
           ],
         ),
+        
+        
         body: loading?Center(child: CircularProgressIndicator(),):
         ListView(
             children: <Widget>[
@@ -484,7 +496,7 @@ class _DetailPageState extends State<DetailPage>
                                 itemBuilder: (BuildContext context,int index){                                
                                     return Padding(
                                       padding: const EdgeInsets.only(right:10),
-                                      child: _size(subproduct[index].sizes[0], true,subproduct[index],index),
+                                      child: _size(subproduct[index].size, true,subproduct[index],index),
                                     );
                                 },
                               ),
@@ -589,11 +601,19 @@ class _DetailPageState extends State<DetailPage>
 
 
 
-  Widget _size(String size,bool selected,Product product,int index){
+  Widget _size(String size,bool selected,SubProduct product,int index){
     return InkWell(
           onTap: (){
             setState(() {
-              this.widget.product = product;
+              // this.widget.product.sizes[0] = product.size;
+              // this.widget.product.colors[0] = product.color;
+
+              // this.widget.product = product.color;
+              
+              // print(product.isInCart);
+              size_index = index;
+              this.widget.product.listPrice =  product.listPrice;
+              this.widget.product.mrp =  product.mrp;
               this.widget.product.isInCart = product.isInCart;
             });
             selectSize(size);

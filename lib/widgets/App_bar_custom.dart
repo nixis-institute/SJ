@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shopping_junction/common/commonFunction.dart';
 import 'package:shopping_junction/screens/cart/first_secreen.dart';
+import 'package:shopping_junction/screens/customSearchBar.dart';
 
 
 class CustomAppBar extends StatefulWidget{
@@ -43,12 +44,23 @@ class _CustomAppBarState extends State<CustomAppBar>
           
           
           actions: <Widget>[
-              IconButton(
-                icon: Icon(Icons.notifications),
-                iconSize: 30,
-                color: Colors.white,
-                onPressed: (){},
-              ),
+              // IconButton(
+              //   icon: Icon(Icons.notifications),
+              //   iconSize: 30,
+              //   color: Colors.white,
+              //   onPressed: (){},
+              // ),
+                IconButton(
+                  icon: Icon(Icons.search),
+                  iconSize: 25,
+                  color: Colors.white,
+                  onPressed: (){
+                    Navigator.push(context, MaterialPageRoute(builder: (_)=>CustomSearchBar(
+                    )));
+                    // FlappySearchBar()
+                    // showSearch(context: context, delegate:DataSearch());
+                  },
+                ),
 
               Stack(
                   children:<Widget>[
@@ -95,12 +107,12 @@ class _CustomAppBarState extends State<CustomAppBar>
               // ),
 
 
-              IconButton(
-                icon: Icon(Icons.more_vert),
-                iconSize: 30,
-                color: Colors.white,
-                onPressed: (){},
-              )                            
+              // IconButton(
+              //   icon: Icon(Icons.more_vert),
+              //   iconSize: 30,
+              //   color: Colors.white,
+              //   onPressed: (){},
+              // )                            
           ],
         ),
       );

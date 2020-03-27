@@ -96,6 +96,19 @@ class _ProductGridState extends State<ProductGrid>
               // }
 
               return Container(
+
+                // decoration: BoxDecoration(
+                //   color:Colors.white,
+                //       boxShadow: [BoxShadow(
+                //       offset: const Offset(3, 5.0),
+                //       color: Colors.grey[400],
+                //       blurRadius: 10.0,
+                //       // spreadRadius: 1.0,
+                      
+                //     ),],
+                //   borderRadius: BorderRadius.circular(20)
+                // ),
+
                 child: GestureDetector(
                       onTap: ()=>Navigator.push(context, 
                       MaterialPageRoute(builder: (_)=>DetailPage(
@@ -108,6 +121,19 @@ class _ProductGridState extends State<ProductGrid>
                         color:Colors.white,
                         border: Border.all(color:Colors.grey,width: 0.2)
                       ),
+                      // color:Colors.white,
+                // margin: EdgeInsets.all(10),
+                // decoration: BoxDecoration(
+                //   color:Colors.white,
+                //       boxShadow: [BoxShadow(
+                //       offset: const Offset(3, 5.0),
+                //       color: Colors.grey[400],
+                //       blurRadius: 10.0,
+                //       // spreadRadius: 1.0,
+                      
+                //     ),],
+                //   borderRadius: BorderRadius.circular(20)
+                // ),
                       // color:Colors.white,
                       child: Column(
                         children: <Widget>[

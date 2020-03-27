@@ -51,13 +51,13 @@ class _OrderList extends State<OrderList>
             Orders(
               data[i]["node"]["id"], 
               data[i]["node"]["product"]["id"],
-              data[i]["node"]["product"]["name"],
+              data[i]["node"]["product"]["parent"]["name"],
               data[i]["node"]["date"],
               data[i]["node"]["qty"],
-              data[i]["node"]["size"], 
+              data[i]["node"]["size"],
               data[i]["node"]["price"],
               data[i]["node"]["paymentMode"],
-              data[i]["node"]["product"]["imageLink"].split(",")[0],
+              data[i]["node"]["product"]["parent"]["imageLink"].split(",")[0],
               )
           );
         }
@@ -103,11 +103,11 @@ class _OrderList extends State<OrderList>
         Container(
           // padding: EdgeInsets.all(10),
           child:
-          ListView.separated (
-              separatorBuilder: (context, index) => Divider(
-              color: Colors.grey,
-              height: 1,
-              ),
+          ListView.builder (
+              // separatorBuilder: (context, index) => Divider(
+              // color: Colors.grey,
+              // height: 1,
+              // ),
 
             itemCount: order.length,
             itemBuilder:(context,index){
@@ -118,63 +118,93 @@ class _OrderList extends State<OrderList>
               // );
             
               Container(
-                color:Colors.white,
-                // color: Colors.grey[100],   
-                // margin: EdgeInsets.only(bottom:10),  
-                padding: EdgeInsets.all(10),
-                child: Row(
-                  children: <Widget>[
-                    Container(
-                      width: 100,
-                      child:
-                      CachedNetworkImage(
-                          height: 100,
-                          imageUrl: order[index].imgLink.toString(),
-                          fit: BoxFit.contain,
-                          placeholder: (context, url) =>Center(child: CircularProgressIndicator()),
-
-                          // placeholder: (context, url) => Container(height: 20,child:Container(child: CircularProgressIndicator(value: 0.2,))),
-                          // errorWidget: (context, url, error) => Icon(Icons.error),
-                        ),
-
-                    
-                    
+                margin:EdgeInsets.only(bottom:10,left:5,right:5),
+                child: Card(
+                    elevation: 8,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20)
                     ),
-                    
-                    Expanded(
-                        child: Container(
-                          padding: EdgeInsets.only(left:15),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                          children: <Widget>[
-                            Text(order[index].productName,style: TextStyle(fontSize:18,fontWeight: FontWeight.w300),),
-                            SizedBox(height:5),
+                    child: Container(
+                    // color:Colors.white,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(20)
+                    ),
 
-                            // Text(order[index].paymentMode,style: TextStyle(color:Colors.green),),
-                            // Text(order[index].date),
-                            Text(DateTime.parse(
-                              order[index].date).day.toString()+"-"+
-                              DateTime.parse(order[index].date).month.toString()+"-"+
-                              DateTime.parse(order[index].date).year.toString(),
-                              style: TextStyle(color:Colors.grey),
-                             ),
-                            // Text(timeago.format(DateTime.parse(mytimestring))
 
-                            SizedBox(height:10),
-                            
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+
+
+                    //.................radius and shadow.........
+                    // decoration: BoxDecoration(
+                    //   color:Colors.white,
+                    //       boxShadow: [BoxShadow(
+                    //       offset: const Offset(3, 5.0),
+                    //       color: Colors.grey[400],
+                    //       blurRadius: 10.0,
+                          
+                    //     ),],
+                    //   borderRadius: BorderRadius.circular(20)
+                    // ),
+
+
+                    // color: Colors.grey[100],   
+                    // margin: EdgeInsets.only(bottom:10),  
+                    padding: EdgeInsets.all(5),
+                    // margin:EdgeInsets.all(2),
+                    child: Row(
+                      children: <Widget>[
+                        Container(
+                          width: 100,
+                          child:
+                          CachedNetworkImage(
+                              height: 100,
+                              imageUrl: order[index].imgLink.toString(),
+                              fit: BoxFit.contain,
+                              placeholder: (context, url) =>Center(child: CircularProgressIndicator()),
+
+                              // placeholder: (context, url) => Container(height: 20,child:Container(child: CircularProgressIndicator(value: 0.2,))),
+                              // errorWidget: (context, url, error) => Icon(Icons.error),
+                            ),
+
+                        
+                        
+                        ),
+                        
+                        Expanded(
+                            child: Container(
+                              padding: EdgeInsets.only(left:10),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
                               children: <Widget>[
-                                Text("\u20B9 "+(order[index].price*order[index].qty).toString() ,style: TextStyle(fontWeight: FontWeight.w600),),
-                                Text("Items:"+order[index].qty.toString(),style: TextStyle(fontWeight: FontWeight.w300),)
-                              ],
-                            )
+                                Text(order[index].productName,style: TextStyle(fontSize:15,fontWeight: FontWeight.w800),),
+                                SizedBox(height:10),
 
-                          ],
-                      ),
+                                // Text(order[index].paymentMode,style: TextStyle(color:Colors.green),),
+                                // Text(order[index].date),
+                                Text(DateTime.parse(
+                                  order[index].date).day.toString()+"-"+
+                                  DateTime.parse(order[index].date).month.toString()+"-"+
+                                  DateTime.parse(order[index].date).year.toString(),
+                                  style: TextStyle(color:Colors.grey),
+                                 ),
+                                // Text(timeago.format(DateTime.parse(mytimestring))
+
+                                SizedBox(height:10),
+                                
+                                // Row(
+                                //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                //   children: <Widget>[
+                                //     Text("\u20B9 "+(order[index].price*order[index].qty).toString() ,style: TextStyle(fontWeight: FontWeight.w600),),
+                                //     Text("Items:"+order[index].qty.toString(),style: TextStyle(fontWeight: FontWeight.w300),)
+                                //   ],
+                                // )
+
+                              ],
+                          ),
+                            ),
                         ),
+                      ],
                     ),
-                  ],
+                  ),
                 ),
               );
               

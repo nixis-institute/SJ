@@ -61,7 +61,7 @@ class _SideDrawerState extends State<SideDrawer>
       elevation: 1,
       child: 
       Container(
-        color: Colors.green,
+        color: Colors.teal,
         child: ListView(        
           // shrinkWrap: true,
           // scrollDirection: Axis.vertical,
@@ -99,15 +99,15 @@ class _SideDrawerState extends State<SideDrawer>
                           return InkWell(
                                 onTap: (){
                                 Navigator.pop(context);
-                                // Navigator.push(context, MaterialPageRoute(builder: (_)=>ListPage(
-                                //   subCategory: category_model[index].list[i],
-                                //   // product: category_model[index].list[i].products,
-                                // ))); 
+                                Navigator.push(context, MaterialPageRoute(builder: (_)=>ListPage(
+                                  subCategory:this.widget.productCategory[index].subCat[i]
+                                  // product: category_model[index].list[i].products,
+                                ))); 
                                 },
                                 child: Padding(
                                 padding: EdgeInsets.only(left: 10),
                                 child: ListTile(
-                                title: Text(this.widget.productCategory[index].subCat[i].toUpperCase(),style: TextStyle(color: Colors.white,fontWeight: FontWeight.w400),),
+                                title: Text(this.widget.productCategory[index].subCat[i].name.toUpperCase(),style: TextStyle(color: Colors.white,fontWeight: FontWeight.w400),),
                                 ),
                             ),
                           );

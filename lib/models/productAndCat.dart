@@ -23,6 +23,7 @@ class Product{
   double listPrice;
   double mrp;
   List sizes;
+  List colors;
   bool isInCart;
   List imageLink;
   List<ProductImage> images;

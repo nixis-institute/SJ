@@ -64,7 +64,7 @@ void fillSubCategory() async{
 }
 
   var id ="";
-  var isLoading = true;
+  var isLoading = false;
   @override
   void initState()
   {
@@ -72,7 +72,7 @@ void fillSubCategory() async{
     setState(() {
       id = this.widget.category.id;
     });
-    fillSubCategory();
+    // fillSubCategory();
 
     // getCartCount().then((c){
     //   setState(() {
@@ -80,6 +80,8 @@ void fillSubCategory() async{
     //   });
     // });
   }
+
+  // var slider = PSlider("Default", "image")
 
 
   Widget build(BuildContext context)
@@ -102,12 +104,12 @@ void fillSubCategory() async{
               ),
 
               // height: this.widget.category.list.length*60.1+300,
-              height: this.subcategory.length*60.1+300,
+              height: this.widget.category.subCat.length*60.1+300,
               width: MediaQuery.of(context).size.width,
                 child: Stack(
                 overflow: Overflow.visible,
                 children:<Widget>[
-                  MainSlider(content: this.widget.slider),
+                  MainSlider(content: this.widget.category.slider),
                   CustomAppBar(name: this.widget.category.name),
                   Positioned(
                     top: 260,
@@ -135,34 +137,37 @@ void fillSubCategory() async{
                         physics: ClampingScrollPhysics(),
                         shrinkWrap: true,
                         scrollDirection: Axis.vertical,
-                        itemCount: this.subcategory.length,
+                        itemCount: this.widget.category.subCat.length,
                         itemBuilder: (BuildContext context,int index){
                           return Center(
-                            child: Card(
-                                elevation: 0,
-                                shape:RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(0),
-                                  side: BorderSide(
-                                    color: Colors.grey,
-                                    width: 0.5
-                                  )
-                                ) ,
-                                
-                                child: InkWell(
-                                
-                                onTap: ()=>Navigator.push(context, MaterialPageRoute(builder: (_)=>ListPage(
-                                  // product: this.widget.category.list[index].products,
-                                  subCategory: this.subcategory[index]
+                            child: Container(
+                              // margin:EdgeInsets.only(bottom:5),
+                              child: Card(
+                                  elevation: 8,
+                                  shape:RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(10),
+                                    side: BorderSide(
+                                      color: Colors.transparent,
+                                      width: 1
+                                    )
+                                  ),
+                                  
+                                  child: InkWell(
+                                  
+                                  onTap: ()=>Navigator.push(context, MaterialPageRoute(builder: (_)=>ListPage(
+                                    // product: this.widget.category.list[index].products,
+                                    subCategory: this.widget.category.subCat[index]
 
-                                ))),
+                                  ))),
 
-                                    child: Container(
-                                      // height: 70,
-                                      child: ListTile(
-                                      title: Text(this.subcategory[index].name,style: TextStyle(fontSize: 18,fontWeight: FontWeight.bold),),
-                                      trailing: Icon(Icons.keyboard_arrow_right,size:30,),
+                                      child: Container(
+                                        // height: 70,
+                                        child: ListTile(
+                                        title: Text(this.widget.category.subCat[index].name,style: TextStyle(fontSize: 18,fontWeight: FontWeight.bold),),
+                                        trailing: Icon(Icons.keyboard_arrow_right,size:30,),
+                                  ),
+                                      ),
                                 ),
-                                    ),
                               ),
                             ),
                           );

@@ -7,6 +7,7 @@ import 'package:shopping_junction/GraphQL/services.dart';
 import 'package:shopping_junction/common/commonFunction.dart';
 import 'package:shopping_junction/models/category_model.dart';
 import 'package:shopping_junction/models/products.dart';
+import 'package:shopping_junction/models/subcategory_model.dart';
 import 'package:shopping_junction/models/top_sellings.dart';
 import 'package:shopping_junction/screens/customSearchBar.dart';
 import 'package:shopping_junction/screens/flappySearchBar.dart';
@@ -86,10 +87,21 @@ List<ProductCategory> listCategory = List<ProductCategory>();
           // print("-->");
           // print(result.data["allCategory"]["edges"][i]["node"]["id"]);
           List sub = result.data["allCategory"]["edges"][i]["node"]["subcategorySet"]["edges"];
-          List temp=[];
+          List slider = result.data["allCategory"]["edges"][i]["node"]["productsliderSet"]["edges"];
+
+          List<ProductSubCategory> temp=[];
+          List<PSlider> sl=[];
           for(int j=0;j<sub.length;j++)
           {
-            temp.add(sub[j]["node"]["name"]);
+            temp.add(
+                ProductSubCategory(sub[j]["node"]["id"],sub[j]["node"]["name"])
+              );
+          }
+          for(int j=0;j<slider.length;j++)
+          {
+            sl.add(
+                PSlider(slider[j]["node"]["title"],slider[j]["node"]["image"])
+              );
           }
           setState(() {
             listCategory.add(
@@ -97,7 +109,8 @@ List<ProductCategory> listCategory = List<ProductCategory>();
                 result.data["allCategory"]["edges"][i]["node"]["id"],
                 result.data["allCategory"]["edges"][i]["node"]["name"],
                 result.data["allCategory"]["edges"][i]["node"]["image"],
-                temp
+                temp,
+                sl
               ),
             );
           });
@@ -135,6 +148,7 @@ List<ProductCategory> listCategory = List<ProductCategory>();
       
       child: Scaffold(
         appBar: AppBar(
+            elevation: 8,
             iconTheme: IconThemeData(color: Colors.white),
             title: Text("Shopping Junction",style: TextStyle(color: Colors.white),),
                 actions: <Widget>[
@@ -149,12 +163,12 @@ List<ProductCategory> listCategory = List<ProductCategory>();
                     // showSearch(context: context, delegate:DataSearch());
                   },
                 ),
-                IconButton(
-                  icon: Icon(Icons.notifications),
-                  iconSize: 25,
-                  color: Colors.white,
-                  onPressed: (){},
-                ),
+                // IconButton(
+                //   icon: Icon(Icons.notifications),
+                //   iconSize: 25,
+                //   color: Colors.white,
+                //   onPressed: (){},
+                // ),
 
                 Stack(
                     children:<Widget>[

@@ -14,6 +14,8 @@ import 'package:shopping_junction/screens/sort_and_filter.dart';
 import 'package:shopping_junction/widgets/product_grid.dart';
 import 'package:shopping_junction/widgets/side_drawer.dart';
 
+import 'customSearchBar.dart';
+
 class ListPage extends StatefulWidget{
   @override
   final ProductSubCategory subCategory;
@@ -107,8 +109,9 @@ void fillMoreProduct() async{
 }
 
 void fillProductAndCateogry() async{
-    print(brand);
-    print(size);
+    // print(this.widget.subCategory.id);
+    List<TypeAndProduct> _product = List<TypeAndProduct>();
+    // product.clear();
     GraphQLClient _client = clientToQuery();
     QueryResult result = await _client.query(
       QueryOptions(
@@ -116,7 +119,8 @@ void fillProductAndCateogry() async{
         variables:{
           "SubCateogryId":id,
           "brand":brand,
-          "sizes":size
+          "sizes":size,
+          "color":color,
           }
       )
     );
@@ -129,22 +133,19 @@ void fillProductAndCateogry() async{
 
     if(!result.hasException)
     {
-      filter_list.clear();
+      // filter_list.clear();
 
       setState(() {
         isLoading = false;
         endCursor = result.data["sublistBySubcategoryId"]["edges"][0]["node"]["productSet"]["pageInfo"]["endCursor"];
         hasNextPage = result.data["sublistBySubcategoryId"]["edges"][0]["node"]["productSet"]["pageInfo"]["hasNextPage"];
       });
-
-      List<String> brands=[];
-      List<String> sizes =[];
-      List<String> colors;
       // product.clear();
 
       for(var i=0;i<result.data["sublistBySubcategoryId"]["edges"].length;i++)
         {
           List prd = result.data["sublistBySubcategoryId"]["edges"][i]["node"]["productSet"]["edges"];
+          // print(prd);
           List<Product> prdList = [];
           for(var j = 0;j<prd.length;j++){
             List im = prd[j]["node"]["productimagesSet"]["edges"];
@@ -155,41 +156,33 @@ void fillProductAndCateogry() async{
               );
             }
 
-            if(prd[j]["node"]["brand"].length>0)
+            if(prd[j]["node"]["subproductSet"]["edges"].length>0)
             {
-              // print(prd[j]["node"]["brand"]);
-              brands.add(prd[j]["node"]["brand"]);
-
-            }
-            
-            if(prd[j]["node"]["sizes"].length>0)
-              {
-                print(prd[j]["node"]["sizes"]);
-                
-                sizes.add(prd[j]["node"]["sizes"]);
-              }
-            if(prd[j]["node"]["parent"]==null)
-            {          
+              var subprd = prd[j]["node"]["subproductSet"]["edges"];
               prdList.add(
                 Product(prd[j]["node"]["id"], 
                 prd[j]["node"]["name"], 
-                prd[j]["node"]["listPrice"],
-                prd[j]["node"]["mrp"],
+                // prd[j]["node"]["listPrice"],
+                subprd[0]["node"]["listPrice"],
+                subprd[0]["node"]["mrp"],
                 imgList,
-                prd[j]["node"]["sizes"].split(","),
+                [],
                 prd[j]["node"]["imageLink"].split(","),
                 )
               );
             }
+
+            
           }
       // filter_list.add(Filter_Model("Brands",brands));
       // filter_list.add(Filter_Model("Sizes",sizes));
 
           // print(prdList.length);
+          // print(result.data["sublistBySubcategoryId"]["edges"][i]["node"]["name"]);
           setState(() {
               if(prdList.length >0)
               {
-                product.add(
+                _product.add(
                   TypeAndProduct(
                       result.data["sublistBySubcategoryId"]["edges"][i]["node"]["id"],
                       result.data["sublistBySubcategoryId"]["edges"][i]["node"]["name"],
@@ -202,8 +195,8 @@ void fillProductAndCateogry() async{
           });
         }
 
-      filter_list.add(Filter_Model("Brands",brands.toSet().toList()));
-      filter_list.add(Filter_Model("Sizes",sizes.toSet().toList()));        
+      // filter_list.add(Filter_Model("Brands",brands.toSet().toList()));
+      // filter_list.add(Filter_Model("Sizes",sizes.toSet().toList()));        
         // print(brands.toSet().toList() );
         // print(sizes.toSet().toList());
 
@@ -211,8 +204,20 @@ void fillProductAndCateogry() async{
     // print(product[0]);
     
     // tabController
-    if(brand.length==0 && size.length==0)
-    {tabController = TabController(vsync:this, length: product.length);}
+    // print(brand);
+
+    
+      // print("length........");
+      // print(_product.length);
+      product = _product;
+      tabController = TabController(vsync:this, length: product.length);
+
+      // if(brand.length==0 && size.length==0){
+      //   tabController = TabController(vsync:this, length: product.length);
+      // }
+
+      
+    
     
     // tabController.
 
@@ -240,10 +245,12 @@ void fillProductAndCateogry() async{
   bool hasNextPage = false;
   var brand="";
   var size="";
+  var color="";
+
   void initState()
   {
     super.initState();
-
+  
     id = widget.subCategory.id;
     fillProductAndCateogry();
     getCartCount().then((c){
@@ -283,18 +290,24 @@ void fillProductAndCateogry() async{
           appBar: AppBar(
             title: Text(this.widget.subCategory.name),
             actions: <Widget>[
+                // IconButton(
+                //   icon: Icon(Icons.search),
+                //   iconSize: 25,
+                //   color: Colors.white,
+                //   onPressed: (){
+                //   },
+                // ),
+
                 IconButton(
                   icon: Icon(Icons.search),
                   iconSize: 25,
                   color: Colors.white,
                   onPressed: (){
+                    Navigator.push(context, MaterialPageRoute(builder: (_)=>CustomSearchBar(
+                    )));
+                    // FlappySearchBar()
+                    // showSearch(context: context, delegate:DataSearch());
                   },
-                ),
-                IconButton(
-                  icon: Icon(Icons.notifications),
-                  iconSize: 25,
-                  color: Colors.white,
-                  onPressed: (){},
                 ),
 
                 Stack(
@@ -468,7 +481,7 @@ void fillProductAndCateogry() async{
   _navigateAndDisplay(BuildContext context) async
   {
       final product = await Navigator.push(context, MaterialPageRoute(
-        builder: (context) => items.length>0?SortAndFilter(items: items,):SortAndFilter()
+        builder: (context) => items.length>0?SortAndFilter(items: items,list:filter_list):SortAndFilter()
       ));
         if(product!=null)
         {
@@ -478,16 +491,24 @@ void fillProductAndCateogry() async{
           // if(product["isClearAll"]==)
           if(product["isClearAll"]==true)
           {
-            fillProductAndCateogry();
+            setState(() {
+              brand="";
+              size="";
+              fillProductAndCateogry();              
+            });
           }
           // else if(product["items"]!=null)
           else
           {
-
             setState(() {
               items = product["items"];
-              brand = product["filter"]["brands"];
+              brand = product["filter"]["brands"]??"";
               size = product["filter"]["sizes"]??"";
+              filter_list = product["filter"]["filter_list"];
+              
+              // print(id);
+              id = this.widget.subCategory.id;
+              // print(filter_list);
               fillProductAndCateogry();
 
             });

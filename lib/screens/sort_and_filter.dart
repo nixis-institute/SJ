@@ -1,14 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:graphql_flutter/graphql_flutter.dart';
+import 'package:shopping_junction/GraphQL/services.dart';
 import 'package:shopping_junction/models/category_model.dart';
 import 'package:shopping_junction/models/filter_model.dart';
 import 'package:shopping_junction/models/products.dart';
 import 'package:shopping_junction/models/subcategory_model.dart';
 import 'package:shopping_junction/screens/listpage_screen%20copy.dart';
+import 'package:shopping_junction/GraphQL/Queries.dart';
 
 class SortAndFilter extends StatefulWidget{
   @override
   var items ={};
-  SortAndFilter({this.items=null});
+  final List<Filter_Model> list;
+  SortAndFilter({this.items=null,this.list=null});
   _SortAndFilterState createState() => _SortAndFilterState();
 }
 
@@ -33,6 +37,63 @@ class _SortAndFilterState extends State<SortAndFilter>
       });
   }
 
+  void getFilter() async{
+    filter_list.clear();
+     GraphQLClient _client = clientToQuery();
+    QueryResult result = await _client.query(
+      QueryOptions(
+        documentNode: gql(getFilterQuery)
+      )
+    );
+    if(result.loading)
+    {
+      setState(() {
+        loading = true;
+      });
+    }
+
+    if(!result.hasException){
+      List data = result.data["filtering"][0]["data"];
+      
+      for(int i=0;i<data.length;i++){
+        List<String> temp =[];
+        for(int j=0;j<data[i]["value"].length;j++)
+        {
+          temp.add(data[i]["value"][j].toString());
+        }
+        filter_list.add(Filter_Model(data[i]["key"], temp));
+      }
+
+      // data.forEach((f)=>{
+      //   setState(() {
+      //     filter_list.add(Filter_Model(f["key"], f["value"].forEach((v)=>v)));
+      //   })
+      // });
+      // data.map((e)=>{
+      //   print(e),
+      //   setState(() {
+      //     filter_list.add(Filter_Model(e.key,e.value));
+      //   })
+      // });
+
+      // print(filter_list.length);
+
+    // print(filter_list);
+
+      setState(() {
+        filter_list.forEach((f)=>{
+          items[f.type] = f.list.map((item)=>_ListItem(item,false)).toList()
+        });
+        selectedString = filter_list[0].type;
+        loading=false;
+      });
+    }
+
+    // print(items);
+
+  }
+
+
 
     var selectedString;
     // var filters =["Brand","Colors","Size","Price"];
@@ -43,13 +104,15 @@ class _SortAndFilterState extends State<SortAndFilter>
     String brands="";
     String sizes="";
     bool isAllClear = true;
+    bool loading = true;
     
     @override
     void initState()
     {
       super.initState();
+
       // selectedString = filters[0];
-      selectedString = filter_list[0].type;
+      // selectedString = filter_list[0].type;
 
       // its = filter_models.prd.map((string,list)=>_MapItem(string,list));
 
@@ -60,30 +123,29 @@ class _SortAndFilterState extends State<SortAndFilter>
         // });
 
 
-      // items = filter_models.prd[selectedString];
-      // items = filter_models.prd.map((f)=>_ListItem(f,false))
 
-//       items = filter_models.prd[selectedString].map((item)=>_ListItem(item,false)).toList();
-//       filter_models.prd.forEach((x,y){
-// //         m[x] = {"value":y,"selected":false};
-//       items[x] = y.map((item)=>_ListItem(item,false)).toList();
-//     },
-//     );
 
-      // filter_list.forEach((f)=>{
-      //   items[f.type] = f.list.map((item)=>_ListItem(item,false)).toList()
-      // });
+
+
+
 
 
     if(this.widget.items==null)
     {
+      getFilter();
       createFilterList();
-      // filter_list.forEach((f)=>{
-      //   items[f.type] = f.list.map((item)=>_ListItem(item,false)).toList()
-      // });
     }
     else{
-      items = this.widget.items;
+      
+      // print(this.widget.items);
+      // print(this.widget.list);
+      setState(() {
+        loading = false;
+        items = this.widget.items;
+        filter_list = this.widget.list;
+        selectedString = filter_list[0].type;
+      });
+
     }
 
 
@@ -92,25 +154,7 @@ class _SortAndFilterState extends State<SortAndFilter>
 
     Widget build(BuildContext context)
     {
-      // print("--------------------------------------");
-      
-      // items[selectedString].forEach((i)
-      // {
-
-      //   if(i.checked==true)
-      //     print(i.value);
-      //   }
-      //   // items[]
-      // );
-
-
-      // print(items[selectedString][0].value);
-      // print("--------------------------------------");
-      // items.map((f)=>print(f.value));
-
       return Scaffold(
-      
-        // backgroundColor: Colors.white.withOpacity(0.5),
         backgroundColor: Colors.white,
         appBar: AppBar(
           title: Text("Filters"),
@@ -131,7 +175,8 @@ class _SortAndFilterState extends State<SortAndFilter>
 
 
         ),
-        body: Container(
+        body: loading?Center(child:CircularProgressIndicator()):
+        Container(
           width: MediaQuery.of(context).size.width,
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -283,7 +328,7 @@ class _SortAndFilterState extends State<SortAndFilter>
                   
                   // Navigator.pop(context,{items,filter_list}); 
 
-                  Navigator.pop(context,{"items":items,"isClearAll":isAllClear,"filter":{"brands":brands,"sizes":sizes}});
+                  Navigator.pop(context,{"items":items,"isClearAll":isAllClear,"filter":{"brands":brands,"sizes":sizes,"filter_list":filter_list}});
                   // Navigator.pop(context,MaterialPageRoute(
                   //   builder:(context)=>ListPage(
                   //     // product: products,

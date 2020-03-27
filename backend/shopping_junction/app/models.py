@@ -54,6 +54,10 @@ class SubList(models.Model):
     def __str__(self):
         return self.name+" : "+ self.sub_category.name +" : " +self.sub_category.main_category.name
 
+
+    # instock = models.BooleanField(default=0)
+
+
 class Product(models.Model):
     name = models.CharField(max_length=200)
     brand = models.CharField(max_length=100,blank=True,null=True)
@@ -61,10 +65,10 @@ class Product(models.Model):
     isFeatured = models.BooleanField(default=True)
     shortDescription = models.TextField(null=True,blank=True)
     description = models.TextField(null=True,blank=True)
-    mrp = models.FloatField()
-    list_price = models.FloatField()
+    mrp = models.FloatField(null=True,blank=True)
+    list_price = models.FloatField(null=True,blank=True)
     discount = models.FloatField(null=True,blank=True)
-    qty = models.IntegerField()
+    qty = models.IntegerField(null=True,blank=True)
     instock = models.BooleanField(default=0)
     colors = models.TextField(null=True,blank=True)
     sizes = models.TextField(null=True,blank=True)
@@ -76,6 +80,24 @@ class Product(models.Model):
     sublist = models.ForeignKey(SubList,on_delete=models.CASCADE)
     def __str__(self):
         return self.name
+
+class SubProduct(models.Model):
+    mrp = models.FloatField(null=True,blank=True)
+    list_price = models.FloatField(null=True,blank=True)
+    qty = models.IntegerField(null=True,blank=True)
+    color = models.TextField(null=True,blank=True)
+    size = models.TextField(null=True,blank=True)
+    instock = models.BooleanField(default=0)
+    parent = models.ForeignKey(Product,on_delete=Product)
+    def __str__(self):
+        return self.parent.name + " : "+str(self.list_price)
+
+class ProductSlider(models.Model):
+    title = models.CharField(max_length=20,null=True,blank=True)
+    image = models.ImageField(upload_to='slider/')
+    product = models.ForeignKey(ProductCategory,on_delete=models.CASCADE)
+    def __str__(self):
+        return self.title+" : "+self.product.name
 
 class ProductImages(models.Model):
     image = models.ImageField(upload_to='product/')
@@ -111,16 +133,16 @@ class WishList(models.Model):
 class Cart(models.Model):
     size = models.CharField(max_length=5,null=True,blank=True)
     qty = models.IntegerField(null=True,blank=True)
-    cart_products = models.ForeignKey(Product,on_delete=models.CASCADE,blank=True,null=True,related_name="cart_products")
+    cart_products = models.ForeignKey(SubProduct,on_delete=models.CASCADE,blank=True,null=True,related_name="cart_products")
     user = models.ForeignKey(User,on_delete=models.CASCADE,blank=True,null=True)
     def __str__(self):
-        return self.cart_products.name    
+        return self.cart_products.parent.name
 
 
 
 
 class ProductOrders(models.Model):
-    product  = models.ForeignKey(Product,on_delete=models.CASCADE,related_name='product')
+    product  = models.ForeignKey(SubProduct,on_delete=models.CASCADE,related_name='OrderProduct')
     seller = models.ForeignKey(User,on_delete=models.CASCADE,related_name='seller')
     buyer = models.ForeignKey(User,on_delete=models.CASCADE,related_name='buyer')
     price = models.FloatField(null=True,blank=True)

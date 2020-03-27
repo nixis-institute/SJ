@@ -13,4 +13,8 @@ admin.site.register(Cart)
 admin.site.register(ProductOrders)
 admin.site.register(Profile)
 admin.site.register(Address)
+admin.site.register(SubProduct)
+admin.site.register(ProductSlider)
+
+admin.site.site_header = 'Shopping Junction Admin'
 

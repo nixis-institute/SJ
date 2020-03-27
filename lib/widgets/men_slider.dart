@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:shopping_junction/GraphQL/services.dart';
+import 'package:shopping_junction/models/category_model.dart';
 import 'package:shopping_junction/models/slide_content.dart';
 // import 'package:shopping_junction/models/slider_images.dart';
 
 class MainSlider extends StatefulWidget{
-  final List<SlideContent> content;
+  final List<PSlider> content;
   @override
   
   MainSlider({this.content});
@@ -15,15 +17,40 @@ class MainSlider extends StatefulWidget{
 
 class _MainSliderState extends State<MainSlider>
 {
+
+
+  List<PSlider> slider=[];
+  
+  void selectSlider(){
+    if(this.widget.content.length>0)
+    {
+      setState(() {
+        slider = this.widget.content;
+      });
+    }
+    else{
+      setState(() {
+        slider.add(PSlider(null, null));
+      });
+    }
+  }
   @override
+  
+  void initState()
+  {
+    super.initState();
+    selectSlider();
+  }
+  
   Widget build(BuildContext context){
+    
     // print(this.widget.content);
     return CarouselSlider(
         height: 300,
         aspectRatio: 16/9,
         autoPlay: true,
         viewportFraction: 1.0,
-        items : this.widget.content.map((f){
+        items : slider.map((f){
           return new Builder(
             builder : (BuildContext context){
               return new Container(
@@ -32,7 +59,9 @@ class _MainSliderState extends State<MainSlider>
                 decoration: new BoxDecoration(
                   color: Colors.black,
                   image: DecorationImage(
-                    image: AssetImage(f.imageUrl),
+                    image: f.image!=null?
+                      NetworkImage(server_url+"/media/"+f.image):
+                      AssetImage("assets/banner/1.jpeg"),
                     fit: BoxFit.cover
                   )
                 ),
@@ -52,7 +81,7 @@ class _MainSliderState extends State<MainSlider>
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: <Widget>[
-                        Text(f.name,style: TextStyle(fontSize: 29,fontWeight: FontWeight.w800,color: Colors.white),),
+                        Text(f.title??"",style: TextStyle(fontSize: 29,fontWeight: FontWeight.w800,color: Colors.white),),
                         Padding(
                           padding: const EdgeInsets.only(top:50.0),
                           child: Row(

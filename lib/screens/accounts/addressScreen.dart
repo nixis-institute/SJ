@@ -300,11 +300,14 @@ class _Addresses extends State<Addresses>
           // ),
 
           Expanded(
-              child: ListView.separated(
-              separatorBuilder: (context, index) => Divider(
-              color: Colors.grey,
-              height: 1,
-              ),
+              child: ListView.builder(
+
+              // separatorBuilder: (context, index) => Divider(
+              // color: Colors.grey,
+              // height: 1,
+              // ),
+
+
               shrinkWrap: true,
               itemCount: this.widget.address.length,
               
@@ -315,8 +318,21 @@ class _Addresses extends State<Addresses>
                 // );
 
               return Container(
-                color:Colors.white,
+                // decoration: BoxDecoration(
+                //   color:Colors.white,
+                //       boxShadow: [BoxShadow(
+                //       offset: const Offset(3, 5.0),
+                //       color: Colors.grey[400],
+                //       blurRadius: 10.0,
+                //       // spreadRadius: 1.0,
+                      
+                //     ),],
+                //   borderRadius: BorderRadius.circular(20),
+                //   // border: BorderRadius.circular(radius)
+                // ),                
+                // color:Colors.white,
                 padding: const EdgeInsets.only(left:0),
+                margin:const EdgeInsets.only(bottom:10,left:5,right:5),
                 child: InkWell(
                   onTap: (){
                       setState(() {
@@ -331,141 +347,171 @@ class _Addresses extends State<Addresses>
                       },
 
 
-                      child: Container(
-                      
-                      color: 
-                      !isAfterCart?Colors.white:
-                      _character ==index?Colors.green:Colors.white,
-                      
-                      
-                      // elevation: 1,
-                      // borderOnForeground: false,
-                      child: Container(
-                      
-                      // width: MediaQuery.of(context).size.width*.8,
-                      // padding: EdgeInsets.all(1),
-                      child: Row(
-                        children: <Widget>[
-                          isAfterCart?
-                          Container(
-                            width: 30,
-                            child: Radio(
-                            groupValue: _character,
-                            value:index,
-                            
-                            onChanged: (val){
-                              setState(() {
-                                _character = val;
-                              });
-                            },
-                          ),
-                        ):SizedBox(height: 0.01,),
+                      child: Card(
+                  elevation: 8,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20)
+                    ),                  
+                  
+                  child: Container(
+                        
 
-                          Expanded(
-                            child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                              // mainAxisAlignment: MainAxisAlignment.start,
-                              children: <Widget>[
-                                Container(
-                            margin: EdgeInsets.all(5),
-                            // padding:EdgeInsets.all(10),                 
-                                  padding: EdgeInsets.all(5),
-                                  alignment: Alignment.centerLeft,
-                                  child: Column(
-                                    // mainAxisAlignment: MainAxisAlignment.start,
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: <Widget>[
-                                      Text(
-                                        this.widget.address[index].personName,
-                                        style: TextStyle(
-                                          fontSize: 22,
-                                          fontWeight: FontWeight.w300
-                                          // fontWeight: FontWeight.bold
-                                        ),
-                                      ),
-                                      SizedBox(height:5),
+                  decoration: BoxDecoration(
+                  // color:Colors.white,
+                  color: 
+                  !isAfterCart?Colors.white:
+                  _character ==index?Colors.green:Colors.white,                      
+                        
+                    //   boxShadow: [BoxShadow(
+                    //   offset: const Offset(3, 5.0),
+                    //   color: Colors.grey[400],
 
-                                      Text(
-                                        this.widget.address[index].houseNo +" "+ this.widget.address[index].colony + " "+ this.widget.address[index].city +" "+ this.widget.address[index].state,
-                                        style: TextStyle(
-                                          fontSize: 15,
-                                          color: Colors.black54
-                                        ),
-                                      ),
-                                      SizedBox(height:10),
-                                      Text(
-                                        this.widget.address[index].phoneNumber + ", "+ this.widget.address[index].alternateNumber,
-                                        style: TextStyle(
-                                          fontSize: 15,
-                                          color: Colors.black54
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
 
-                              // isAfterCart?SizedBox():Divider(),
-                                
-                                isAfterCart?SizedBox():
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                                  children: <Widget>[
-                                    Expanded(
-                                      child: InkWell(
-                                      onTap: (){
-                                        _updateAddress(this.widget.address[index],index);
-                                      },                           
-                                          child: Container(
-                                          padding: EdgeInsets.all(10),
-                                          // child: Icon(Icons.edit),
-                                          child: Icon(Icons.edit,size: 20,color:Colors.grey),
-                                          // child: Text("Edit",textAlign: TextAlign.center, style: TextStyle(color: Colors.black)),
-                                          
-                                          // color: Colors.grey,
-                                          ),
-                                      )
-                                      ),
-                                    Expanded(
-                                      child: InkWell(
-                                          onTap: (){
-                                            _showDialog(this.widget.address[index].id,index);
-                                          },
-                                          child: Container(
-                                          padding: EdgeInsets.all(10),
-                                          // color: Colors.red,
-                                            child: Icon(Icons.delete_outline,size: 20,color:Colors.grey),
-                                          // child: Text("Remove",textAlign: TextAlign.center, style: TextStyle(color: Colors.black)),
-                                          ),
-                                      )
-                                      )
+                    //   blurRadius: 10.0,
+                    //   // spreadRadius: 1.0,
+                        
+                    // ),],
 
-                                  ],
-                                )
 
-                              ],
+
+
+                  borderRadius: BorderRadius.circular(20),
+                  // border: BorderRadius.circular(radius)
+                ),   
+                  // color: 
+                  // !isAfterCart?Colors.white:
+                  // _character ==index?Colors.green:Colors.white,
+                        
+                        
+                        // elevation: 1,
+                        // borderOnForeground: false,
+                        child: Container(
+                        
+                        // width: MediaQuery.of(context).size.width*.8,
+                        // padding: EdgeInsets.all(1),
+                        child: Row(
+                          children: <Widget>[
+                            isAfterCart?
+                            Container(
+                              width: 30,
+                              child: Radio(
+                              groupValue: _character,
+                              value:index,
+                              
+                              onChanged: (val){
+                                setState(() {
+                                  _character = val;
+                                });
+                              },
                             ),
-                          ),
+                          ):SizedBox(height: 0.01,),
 
-                        isAfterCart?
-                        
-                        IconButton(
-                          icon:Icon(Icons.edit,color:Colors.black),
-                          onPressed: (){
-                            _updateAddress(this.widget.address[index],index);
-                          },
+                            Expanded(
+                              child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                                // mainAxisAlignment: MainAxisAlignment.start,
+                                children: <Widget>[
+                                  Container(
+                              margin: EdgeInsets.all(5),
+                              // padding:EdgeInsets.all(10),                 
+                                    padding: EdgeInsets.all(5),
+                                    alignment: Alignment.centerLeft,
+                                    child: Column(
+                                      // mainAxisAlignment: MainAxisAlignment.start,
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: <Widget>[
+                                        Text(
+                                          this.widget.address[index].personName,
+                                          style: TextStyle(
+                                            fontSize: 20,
+                                            fontWeight: FontWeight.w900
+                                            // fontWeight: FontWeight.bold
+                                          ),
+                                        ),
+                                        SizedBox(height:5),
+
+                                        Text(
+                                          this.widget.address[index].houseNo +" "+ this.widget.address[index].colony + " "+ this.widget.address[index].city +" "+ this.widget.address[index].state,
+                                          style: TextStyle(
+                                            fontSize: 15,
+                                            color: Colors.black54
+                                          ),
+                                        ),
+                                        SizedBox(height:10),
+                                        Text(
+                                          this.widget.address[index].phoneNumber + ", "+ this.widget.address[index].alternateNumber,
+                                          style: TextStyle(
+                                            fontSize: 15,
+                                            color: Colors.black54
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+
+                                // isAfterCart?SizedBox():Divider(),
+                                  
+                                  isAfterCart?SizedBox():
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                                    children: <Widget>[
+                                      Expanded(
+                                        child: InkWell(
+                                        onTap: (){
+                                          _updateAddress(this.widget.address[index],index);
+                                        },                           
+                                            child: Container(
+                                            padding: EdgeInsets.all(10),
+                                            // child: Icon(Icons.edit),
+                                            child: Icon(Icons.edit,size: 20,color:Colors.green),
+                                            // child: Text("Edit",textAlign: TextAlign.center, style: TextStyle(color: Colors.black)),
+                                            
+                                            // color: Colors.grey,
+                                            ),
+                                        )
+                                        ),
+                                      Expanded(
+                                        child: InkWell(
+                                            onTap: (){
+                                              _showDialog(this.widget.address[index].id,index);
+                                            },
+                                            child: Container(
+                                            padding: EdgeInsets.all(10),
+                                            // color: Colors.red,
+                                              child: Icon(Icons.delete_outline,size: 20,color:Colors.red),
+                                            // child: Text("Remove",textAlign: TextAlign.center, style: TextStyle(color: Colors.black)),
+                                            ),
+                                        )
+                                        )
+
+                                    ],
+                                  )
+
+                                ],
+                              ),
+                            ),
+
+                          isAfterCart?
                           
-                          ):
-                        
-                        SizedBox()
+                          IconButton(
+                            icon:Icon(Icons.edit,color:Colors.black),
+                            onPressed: (){
+                              _updateAddress(this.widget.address[index],index);
+                            },
+                            
+                            ):
+                          
+                          SizedBox()
 
 
 
 
 
-                        ],
-                      ),
+                          ],
+                        ),
                     ),
                   ),
+                      ),
                 ),
               );
               }

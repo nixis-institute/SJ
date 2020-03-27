@@ -4,14 +4,20 @@ import 'package:shopping_junction/models/slide_content.dart';
 import 'package:shopping_junction/models/subcategory.dart';
 import 'package:shopping_junction/models/subcategory_model.dart';
 
+class PSlider{
+  String title;
+  String image;
+  PSlider(this.title,this.image);
+}
 
 class ProductCategory{
   String id;
   String name;
   String imageUrl;
-  List subCat;
+  List<ProductSubCategory> subCat;
+  List<PSlider> slider;
   ProductCategory(
-    this.id,this.name,this.imageUrl,this.subCat
+    this.id,this.name,this.imageUrl,this.subCat,this.slider
   );
   getId() => this.id;
   getImgUrl() => this.imageUrl;
