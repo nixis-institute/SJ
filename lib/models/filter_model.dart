@@ -16,28 +16,28 @@ class FilterModel{
   FilterModel({this.prd});
 }
 
-final filter_models = FilterModel(
-prd: {
-  "Brand":[
-    "Addidas",
-    "Rebook",
-    "Nike",
-    "Acis"
-  ],
+// final filter_models = FilterModel(
+// prd: {
+//   "Brand":[
+//     "Addidas",
+//     "Rebook",
+//     "Nike",
+//     "Acis"
+//   ],
 
-  "Colors":[
-    "Red",
-    "Black",
-    "Blue",
-    "Pink"
-  ],
-  "Size":[
-    "S",
-    "M","L","XL","XLL"
-  ],
-  "Price":[
-    "1000",
-    "2000"
-  ]
-}
-);
+//   "Colors":[
+//     "Red",
+//     "Black",
+//     "Blue",
+//     "Pink"
+//   ],
+//   "Size":[
+//     "S",
+//     "M","L","XL","XLL"
+//   ],
+//   "Price":[
+//     "1000",
+//     "2000"
+//   ]
+// }
+// );

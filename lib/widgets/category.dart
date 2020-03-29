@@ -61,7 +61,7 @@ class _CategoryState extends State<Category>{
                 onTap: ()=>Navigator.push(context, MaterialPageRoute(builder: (_)=>CategoryScreen(
                   // category:category_model[index],
                   category: this.widget.productCategory[index],
-                  slider: category_model[index].slider,
+                  // slider: category_model[index].slider,
                 ))),
 
 

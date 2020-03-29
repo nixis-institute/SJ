@@ -14,8 +14,8 @@ import 'package:shopping_junction/widgets/men_slider.dart';
 class CategoryScreen extends StatefulWidget{
   // final category_model category;
   final ProductCategory category;
-  final List<SlideContent> slider;
-  CategoryScreen({this.category,this.slider});
+  // final List<SlideContent> slider;
+  CategoryScreen({this.category});
   @override
   _CategoryScreenState createState() => _CategoryScreenState();
 }

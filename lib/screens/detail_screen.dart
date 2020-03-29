@@ -261,8 +261,8 @@ class _DetailPageState extends State<DetailPage>
       value: SystemUiOverlayStyle(
             statusBarColor: Colors.black,
             statusBarIconBrightness: Brightness.dark,
-            systemNavigationBarIconBrightness: Brightness.dark,      
-            statusBarBrightness:Brightness.dark  
+            systemNavigationBarIconBrightness: Brightness.light,
+            statusBarBrightness:Brightness.dark
       ),
           child: Scaffold(
         // appBar: AppBar(backgroundColor: Colors.white,),
