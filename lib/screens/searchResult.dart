@@ -55,7 +55,13 @@ class _SearchResultScreenState extends State<SearchResultScreen>
         
         for(var k = 0;k<img.length;k++){
           im.add(
-            ProductImage(img[k]["node"]["id"], img[k]["node"]["image"])
+            ProductImage(
+              // img[k]["node"]["id"], img[k]["node"]["image"]
+                  img[k]["node"]["id"],
+                  img[k]["node"]["largeImage"], 
+                  img[k]["node"]["normalImage"],
+                  img[k]["node"]["thumbnailImage"]
+              )
           );
         }
 
@@ -124,7 +130,8 @@ class _SearchResultScreenState extends State<SearchResultScreen>
         ),          
         ],
       ),
-      body:isLoading?Center(child: CircularProgressIndicator(),):
+      body:
+      isLoading?Center(child: CircularProgressIndicator(),):
       ProductGrid(
         product,
         callback,

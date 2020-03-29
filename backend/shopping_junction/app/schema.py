@@ -26,25 +26,34 @@ class Dictionary(graphene.ObjectType):
     value = graphene.List(graphene.String)
     # value = graphene.Field(InnerItem)
 
-class FilterNode(graphene.ObjectType):
-    data = graphene.List(Dictionary)
+class FilterNode(DjangoObjectType):
+    # data = graphene.List(Dictionary)
     # brand = graphene.List(graphene.String)
     # size = graphene.List(graphene.String)
     # dic = graphene.ObjectType()
     class Meta:
-        description ="sdf"
+        model = Product
+        filter_fields=()
+        # description ="sdf"
         # model = Product
-    def resolve_data(self,info):
-        br = [i.brand for i in Product.objects.all()]
-        size = [i.size for i in SubProduct.objects.all()]
-        color = [i.color for i in SubProduct.objects.all()]
+        
+        interfaces = (graphene.Node,)
 
-        # inner = InnerItem(br)
-        d = Dictionary("Brands",list(set(br)))
-        s = Dictionary("Sizes",list(set(size)))
-        c = Dictionary("Color",list(set(color)))
+    # def resolve_data(self,info):
+    #     # print(id)
+    #     print(info.variable_values)
+    #     print(info.context.GET)
+    #     # print(dir(info.context.POST.values))
+    #     br = [i.brand for i in Product.objects.all()]
+    #     size = [i.size for i in SubProduct.objects.all()]
+    #     color = [i.color for i in SubProduct.objects.all()]
 
-        return [d,s,c]
+    #     # inner = InnerItem(br)
+    #     d = Dictionary("Brands",list(set(br)))
+    #     s = Dictionary("Sizes",list(set(size)))
+    #     c = Dictionary("Color",list(set(color)))
+
+    #     return [d,s,c]
         # [i.brand for i in Product.objects.all()]
 
 class ProductNode(DjangoObjectType):
@@ -144,10 +153,13 @@ class SubCategoryNode(DjangoObjectType):
         interfaces = (relay.Node,)
 
 class SubListNode(DjangoObjectType):
+    data = graphene.List(graphene.String)
     class Meta:
         model = SubList
         filter_fields = ()
         interfaces = (relay.Node,)
+    def resolve_data(self,info):
+        return ["4","6","9"]
 
 class AddressNode(DjangoObjectType):
     class Meta:
@@ -401,7 +413,8 @@ class Query(graphene.AbstractType):
     all_category = DjangoFilterConnectionField(ProductCategoryNode)
     sub_category = DjangoFilterConnectionField(SubCategoryNode)
     cart_products = DjangoFilterConnectionField(CartNode)
-    filtering = graphene.List(FilterNode)
+    # filtering = graphene.List(FilterNode)
+    filter_by_id = graphene.List(FilterNode,id=graphene.ID())
     cart_product = graphene.Field(CartNode,id = graphene.ID())
 
     # subcateogry_by_category_id = graphene.List(SubCategoryNode, main_category_id=graphene.ID())
@@ -430,10 +443,23 @@ class Query(graphene.AbstractType):
 
     # def resolve_data(self,info):
     #     return ["sdf","sdf"]
+    def resolve_filter_by_id(self,info,id):
+        id = from_global_id(id)[1]
+        print(id)
+        # s = SubList.objects.filter(sub_category_id=id)
+        # print(s)
+        data = Product.objects.filter(sublist_id__in=[i.id for i in SubList.objects.filter(sub_category_id=id)])
+        # data = Product.objects.filter(sub_category_id=id)
 
-    def resolve_filtering(self,info,**kwargs):
-        return [1]
-        # return [i.brand for i in Product.objects.all()]
+        # print(data)
+        return data
+
+
+    # def resolve_filtering(self,info,**kwargs):
+    #     # return [1]
+    #     # print()
+    #     # return {"sdf":["sdf","SDf"]}
+    #     return [i.brand for i in Product.objects.all()]
 
     def resolve_product_by_parent_id(self,info,id):
         id = from_global_id(id)[1]

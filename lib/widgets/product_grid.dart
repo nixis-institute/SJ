@@ -141,7 +141,10 @@ class _ProductGridState extends State<ProductGrid>
                               height: 230,
                               child: CachedNetworkImage(
                                 height: 230,
-                                imageUrl: widget.product[index].imageLink[0].toString(),
+                                imageUrl: 
+                                server_url+"/media/"+widget.product[index].images[0].normalImage.toString(),
+                                // widget.product[index].imageLink[0].toString(),
+                                
                                 fit: BoxFit.fill,
                                 placeholder: (context, url) =>Center(child: CircularProgressIndicator()),
                               ),

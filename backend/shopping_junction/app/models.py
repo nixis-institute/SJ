@@ -1,6 +1,10 @@
 from django.db import models
 from django.contrib.auth.models import User
 from datetime import datetime
+from PIL import Image
+from io import BytesIO
+from django.core.files.uploadedfile import InMemoryUploadedFile
+import sys
 
 # Create your models here.
 
@@ -100,10 +104,54 @@ class ProductSlider(models.Model):
         return self.title+" : "+self.product.name
 
 class ProductImages(models.Model):
-    image = models.ImageField(upload_to='product/')
-    product = models.ForeignKey(Product,on_delete=models.CASCADE)
+    large_image = models.ImageField(upload_to='product/large',null=True,blank=True)
+    normal_image = models.ImageField(upload_to='product/normal',null=True,blank=True)
+    thumbnail_image = models.ImageField(upload_to='product/thumbnail',null=True,blank=True)
+    product = models.ForeignKey(SubProduct,on_delete=models.CASCADE,null=True,blank=True)
+    parent = models.ForeignKey(Product,on_delete=models.CASCADE,null=True,blank=True)
+    # product_image = models.ForeignKey(Product,on_delete=models.CASCADE,null=True,blank=True)
     def __str__(self):
-        return self.product.name
+        # name = len(self.product.parent.name) if self.product.parent.name else self.parent.name
+        if(self.product):
+            name =  self.product.parent.name
+        else:
+            name =  self.parent.name
+        return name
+
+    def save(self,force_insert=False,force_update=False, using=None):
+        #super(Photos,self).save()
+        im = Image.open(self.large_image)
+        output = BytesIO()
+        #basewidth = 600
+        if im.size[0]<=700:
+            basewidth = im.size[0]
+        else:
+            basewidth = 600   
+
+        #img = Image.open('somepic.jpg')
+        wpercent = (basewidth/float(im.size[0]))
+        hsize = int((float(im.size[1])*float(wpercent)))
+        im = im.resize((basewidth,hsize), Image.ANTIALIAS)      
+        im = im.convert("RGB")
+        self.height = im.height
+        self.width = im.width
+        im.save(output, format='JPEG', quality=70)
+        
+        self.normal_image = InMemoryUploadedFile(output,'ImageField', "%s.jpg" %self.large_image.name.split('.')[0], 'image/jpeg', sys.getsizeof(output), None)
+        weight,height=im.size
+        if weight > height:
+            r=(weight-height)/2
+            imc=im.crop((r,0,height+r,height))
+        else:
+            r=(height-weight)/2
+            imc=im.crop((0,r,weight,height-r))
+        imc = imc.convert("RGB")      
+        imc=imc.resize((300,300),Image.ANTIALIAS)
+        output = BytesIO()
+        imc.save(output, format='JPEG', quality=70)
+        output.seek(0)
+        self.thumbnail_image = InMemoryUploadedFile(output,'ImageField', "%s.jpg" %self.large_image.name.split('.')[0], 'image/jpeg', sys.getsizeof(output), None)
+        super(ProductImages,self).save()        
 
 
 class ProductImages2(models.Model):
@@ -142,6 +190,7 @@ class Cart(models.Model):
 
 
 class ProductOrders(models.Model):
+    status = models.CharField(max_length=20,null=True,blank=True)
     product  = models.ForeignKey(SubProduct,on_delete=models.CASCADE,related_name='OrderProduct')
     seller = models.ForeignKey(User,on_delete=models.CASCADE,related_name='seller')
     buyer = models.ForeignKey(User,on_delete=models.CASCADE,related_name='buyer')
@@ -153,5 +202,5 @@ class ProductOrders(models.Model):
     discount = models.FloatField(null=True,blank=True)
     payment_mode = models.CharField(max_length=200)
     def __str__(self):
-        return self.product.name
+        return self.product.parent.name
     

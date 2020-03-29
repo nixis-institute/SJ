@@ -26,7 +26,7 @@ class ListPage extends StatefulWidget{
 
 
 
-class _ListPageState extends State<ListPage> with SingleTickerProviderStateMixin
+class _ListPageState extends State<ListPage> with TickerProviderStateMixin
 {
 List<TypeAndProduct> product = List<TypeAndProduct>();
 
@@ -73,7 +73,13 @@ void fillMoreProduct() async{
 
           for(var k = 0;k<im.length;k++){
             imgList.add(
-              ProductImage(im[k]["node"]["id"], im[k]["node"]["image"])
+              ProductImage(
+                // im[k]["node"]["id"], im[k]["node"]["image"]
+                  im[k]["node"]["id"],
+                  im[k]["node"]["largeImage"], 
+                  im[k]["node"]["normalImage"],
+                  im[k]["node"]["thumbnailImage"]                
+                )
             );
           }
 
@@ -109,7 +115,7 @@ void fillMoreProduct() async{
 }
 
 void fillProductAndCateogry() async{
-    // print(this.widget.subCategory.id);
+    // print(id);
     List<TypeAndProduct> _product = List<TypeAndProduct>();
     // product.clear();
     GraphQLClient _client = clientToQuery();
@@ -152,7 +158,12 @@ void fillProductAndCateogry() async{
             List<ProductImage> imgList = [];
             for(var k = 0;k<im.length;k++){
               imgList.add(
-                ProductImage(im[k]["node"]["id"], im[k]["node"]["image"])
+                ProductImage(
+                  im[k]["node"]["id"],
+                  im[k]["node"]["largeImage"], 
+                  im[k]["node"]["normalImage"],
+                  im[k]["node"]["thumbnailImage"]
+                  )
               );
             }
 
@@ -210,6 +221,7 @@ void fillProductAndCateogry() async{
       // print("length........");
       // print(_product.length);
       product = _product;
+      // print(product.length);
       tabController = TabController(vsync:this, length: product.length);
 
       // if(brand.length==0 && size.length==0){
@@ -251,7 +263,7 @@ void fillProductAndCateogry() async{
   {
     super.initState();
   
-    id = widget.subCategory.id;
+    id = this.widget.subCategory.id;
     fillProductAndCateogry();
     getCartCount().then((c){
       setState(() {
@@ -272,11 +284,11 @@ void fillProductAndCateogry() async{
   Widget build(BuildContext context)
   {
 
-    getCartCount().then((c){
-      setState(() {
-      _count = c;
-      });
-    });
+    // getCartCount().then((c){
+    //   setState(() {
+    //   _count = c;
+    //   });
+    // });
 
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
@@ -481,7 +493,7 @@ void fillProductAndCateogry() async{
   _navigateAndDisplay(BuildContext context) async
   {
       final product = await Navigator.push(context, MaterialPageRoute(
-        builder: (context) => items.length>0?SortAndFilter(items: items,list:filter_list):SortAndFilter()
+        builder: (context) => items.length>0?SortAndFilter(items: items,list:filter_list,id: this.widget.subCategory.id,):SortAndFilter(id: this.widget.subCategory.id)
       ));
         if(product!=null)
         {
@@ -494,8 +506,13 @@ void fillProductAndCateogry() async{
             setState(() {
               brand="";
               size="";
-              fillProductAndCateogry();              
+              items.clear();
+              filter_list.clear();
+              isLoading = true;
+              id = this.widget.subCategory.id;
             });
+            // print("clearAll...........");
+              fillProductAndCateogry();
           }
           // else if(product["items"]!=null)
           else
@@ -503,15 +520,17 @@ void fillProductAndCateogry() async{
             setState(() {
               items = product["items"];
               brand = product["filter"]["brands"]??"";
-              size = product["filter"]["sizes"]??"";
+              size = product["filter"]["size"]??"";
               filter_list = product["filter"]["filter_list"];
-              
-              // print(id);
+              isLoading = true;              
+
               id = this.widget.subCategory.id;
               // print(filter_list);
-              fillProductAndCateogry();
-
             });
+              // print(size);
+              // print(brand);
+
+            fillProductAndCateogry();
             // setState(() {
               // brand = product["brands"];
               // size = product["sizes"];

@@ -11,8 +11,9 @@ import 'package:shopping_junction/GraphQL/Queries.dart';
 class SortAndFilter extends StatefulWidget{
   @override
   var items ={};
+  String id;
   final List<Filter_Model> list;
-  SortAndFilter({this.items=null,this.list=null});
+  SortAndFilter({this.items=null,this.list=null,this.id});
   _SortAndFilterState createState() => _SortAndFilterState();
 }
 
@@ -39,10 +40,14 @@ class _SortAndFilterState extends State<SortAndFilter>
 
   void getFilter() async{
     filter_list.clear();
+    // print(this.widget.id);
      GraphQLClient _client = clientToQuery();
     QueryResult result = await _client.query(
       QueryOptions(
-        documentNode: gql(getFilterQuery)
+        documentNode: gql(getFilterQuery),
+        variables:{
+          "id":this.widget.id
+        }
       )
     );
     if(result.loading)
@@ -53,32 +58,50 @@ class _SortAndFilterState extends State<SortAndFilter>
     }
 
     if(!result.hasException){
-      List data = result.data["filtering"][0]["data"];
+
+
       
-      for(int i=0;i<data.length;i++){
-        List<String> temp =[];
-        for(int j=0;j<data[i]["value"].length;j++)
-        {
-          temp.add(data[i]["value"][j].toString());
-        }
-        filter_list.add(Filter_Model(data[i]["key"], temp));
+      // List data = result.data["filtering"][0]["data"];
+      // for(int i=0;i<data.length;i++){
+      //   List<String> temp =[];
+      //   for(int j=0;j<data[i]["value"].length;j++)
+      //   {
+      //     temp.add(data[i]["value"][j].toString());
+      //   }
+      //   filter_list.add(Filter_Model(data[i]["key"], temp));
+      // }
+
+      List data = result.data["filterById"];
+      List<String> size =[];
+      List<String> color =[];
+      List<String> brand =[];
+
+      for(int i=0;i<data.length;i++)
+      {
+          if(!brand.contains(data[i]["brand"]))
+          brand.add(data[i]["brand"]);
+
+          for(int j=0;j<data[i]["subproductSet"]["edges"].length;j++)
+          {
+            if(!size.contains(data[i]["subproductSet"]["edges"][j]["node"]["size"]))
+            {size.add(data[i]["subproductSet"]["edges"][j]["node"]["size"]);}
+
+            if(!color.contains(data[i]["subproductSet"]["edges"][j]["node"]["color"]))
+            {color.add(data[i]["subproductSet"]["edges"][j]["node"]["color"]);}
+          }
       }
+      filter_list.add(Filter_Model("Brands", brand));
+      filter_list.add(Filter_Model("Size", size));
+      filter_list.add(Filter_Model("Color", color));
+      // filter_list.add("Brands","")
 
-      // data.forEach((f)=>{
-      //   setState(() {
-      //     filter_list.add(Filter_Model(f["key"], f["value"].forEach((v)=>v)));
-      //   })
-      // });
-      // data.map((e)=>{
-      //   print(e),
-      //   setState(() {
-      //     filter_list.add(Filter_Model(e.key,e.value));
-      //   })
-      // });
+      // size = size.toSet().toList();
+      // size = size.toSet().toList();
+      // size = size.toSet().toList();
+      
 
-      // print(filter_list.length);
 
-    // print(filter_list);
+
 
       setState(() {
         filter_list.forEach((f)=>{
@@ -96,7 +119,6 @@ class _SortAndFilterState extends State<SortAndFilter>
 
 
     var selectedString;
-    // var filters =["Brand","Colors","Size","Price"];
 
 
     var items = {};
@@ -111,24 +133,6 @@ class _SortAndFilterState extends State<SortAndFilter>
     {
       super.initState();
 
-      // selectedString = filters[0];
-      // selectedString = filter_list[0].type;
-
-      // its = filter_models.prd.map((string,list)=>_MapItem(string,list));
-
-        // filter_models.prd.map((string,list)=>{
-
-        //    its.update(string,list)
-
-        // });
-
-
-
-
-
-
-
-
 
     if(this.widget.items==null)
     {
@@ -136,9 +140,7 @@ class _SortAndFilterState extends State<SortAndFilter>
       createFilterList();
     }
     else{
-      
-      // print(this.widget.items);
-      // print(this.widget.list);
+
       setState(() {
         loading = false;
         items = this.widget.items;
@@ -288,23 +290,13 @@ class _SortAndFilterState extends State<SortAndFilter>
                         {
                           brands+="${i.value},";
                         }
-                        else if(f=="Sizes" && i.checked==true)
+                        else if(f=="Size" && i.checked==true)
                         {
                           sizes+=i.value+",";
                         }
                       })
                     });
 
-                    // print(brands);
-                    // print(sizes);
-                      // items[selectedString].forEach((i)
-                      // {
-                      //   if(i.checked==true)
-                      //     print(i.value);
-                      //     }
-                      
-                      // );                  
-                    // print(items.forEach((f)=>));
 
                     items.forEach((f,x)=>{
                       items[f].forEach((i){
@@ -314,28 +306,12 @@ class _SortAndFilterState extends State<SortAndFilter>
                           // break;
                         }
 
-                        // if()
-                        // if( f=="Brands" && i.checked==true)
-                        // {
-                        //   brands+="${i.value},";
-                        // }
-                        // else if(f=="Sizes" && i.checked==true)
-                        // {
-                        //   sizes+=i.value+",";
-                        // }
                       })
                     });
                   
                   // Navigator.pop(context,{items,filter_list}); 
 
-                  Navigator.pop(context,{"items":items,"isClearAll":isAllClear,"filter":{"brands":brands,"sizes":sizes,"filter_list":filter_list}});
-                  // Navigator.pop(context,MaterialPageRoute(
-                  //   builder:(context)=>ListPage(
-                  //     // product: products,
-                  //     list: sort_list[0],
-                  //   )
-                  //  ));
-
+                  Navigator.pop(context,{"items":items,"isClearAll":isAllClear,"filter":{"brands":brands,"size":sizes,"filter_list":filter_list}});
 
                   },
                 child: Container(

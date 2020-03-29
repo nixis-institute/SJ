@@ -198,6 +198,16 @@ class _CustomSearchBar extends State<CustomSearchBar>
             },
           ),
           actions: <Widget>[
+            isLoading?Row(
+              children: <Widget>[
+                Container(
+                  width: 20,
+                  height:20,
+                  child:CircularProgressIndicator(strokeWidth: 2,valueColor: AlwaysStoppedAnimation<Color>(Colors.white)),
+                ),
+                SizedBox(width: 12,)
+              ],
+            ):
             IconButton(
               icon: Icon(Icons.clear),
               onPressed: (){
@@ -210,7 +220,8 @@ class _CustomSearchBar extends State<CustomSearchBar>
         ),
 
 
-    body:isLoading?Center(child: CircularProgressIndicator(),): 
+    body:
+    // isLoading?Center(child: CircularProgressIndicator(),): 
     isFound?Center(child: Text("not found"),)
     :ListView(
       children: <Widget>[
@@ -224,7 +235,10 @@ class _CustomSearchBar extends State<CustomSearchBar>
           physics: ScrollPhysics(),
           itemCount: clist.length,
           itemBuilder: (context,index){
-            return ListTile(
+            return 
+            
+            ListTile(
+              
               title: Text(clist[index].name),
               subtitle: Text("Category"),
               onTap: (){
@@ -244,7 +258,7 @@ class _CustomSearchBar extends State<CustomSearchBar>
         child: ListView.separated(
         separatorBuilder: (context, index) => Divider(
         color: Colors.black,
-        height: 2,
+        height: 0,
         ),
         
         shrinkWrap: true,

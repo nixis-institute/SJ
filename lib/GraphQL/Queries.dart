@@ -143,6 +143,7 @@ query(\$userId:Int!){
         paymentMode				
         date
         qty
+        status
         product{
           id
           parent{
@@ -299,7 +300,13 @@ query {
           id
           parent{
             name
-            imageLink
+          }          
+					productimagesSet{
+            edges{
+              node{
+                thumbnailImage
+              }
+            }
           }
           mrp
           listPrice
@@ -346,7 +353,9 @@ query xyz(\$match:String!){
       edges{
         node{
           id
-          image
+          largeImage
+          normalImage
+          thumbnailImage
         }
       }
     }
@@ -356,15 +365,23 @@ query xyz(\$match:String!){
 """;
 
 final String getFilterQuery ="""
-{
-  filtering{
-    data{
-      key
-      value
+query x(\$id:ID!){
+  filterById(id:\$id)
+  {
+    brand
+    subproductSet{
+      edges{
+        node{
+          size
+          color
+        }
+      }
     }
   }
 }
 """;
+
+
 final String getUser = """
 query GetUser(\$id:Int!){
   user(userId:\$id)
@@ -424,7 +441,9 @@ query xyz(\$Id:ID!,\$after:String!)
             edges{
               node{
                 id
-                image
+                largeImage
+                normalImage
+                thumbnailImage
               }
             }
           }
@@ -462,7 +481,9 @@ query GetSubList(\$SubCateogryId:ID!,\$after:String!){
                 edges{
                   node{
                     id
-                    image
+                    largeImage
+                    normalImage
+                    thumbnailImage
                   }
                 }
               }
@@ -516,7 +537,9 @@ query GetSubList(\$SubCateogryId:ID!,\$brand: String!, \$sizes: String!){
                 edges{
                   node{
                     id
-                    image
+                    largeImage
+                    normalImage
+                    thumbnailImage
                   }
                 }
               }
@@ -542,7 +565,16 @@ query x(\$id:ID!){
         size
         color
         qty
-        
+        productimagesSet{
+          edges{
+            node{
+              id
+              largeImage
+              normalImage
+              thumbnailImage
+            }
+          }
+        }        
         cartProducts{
           edges{
             node{
@@ -594,7 +626,9 @@ query x(\$sublistId:ID!,\$after:String!){
           edges{
             node{
               id
-              image
+              largeImage
+              normalImage
+              thumbnailImage
             }
           }
         }           
@@ -624,7 +658,9 @@ productBySublistId(sublistId:\$SubListId)
           edges{
             node{
               id
-              image
+              largeImage
+              normalImage
+              thumbnailImage
             }
           }
         }        

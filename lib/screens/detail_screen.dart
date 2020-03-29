@@ -38,7 +38,8 @@ class SubProduct{
   int qty;
   String size,color;
   bool isInCart;
-  SubProduct(this.id,this.listPrice,this.mrp,this.size,this.color,this.qty,this.isInCart);
+  List<ProductImage> images;
+  SubProduct(this.id,this.listPrice,this.mrp,this.size,this.color,this.qty,this.isInCart,this.images);
 
 }
 
@@ -69,6 +70,19 @@ class _DetailPageState extends State<DetailPage>
       for(int i=0;i<data.length;i++)
       {
         List<ProductImage> im =[];
+
+        for(int j=0;j<data[i]["node"]["productimagesSet"]["edges"].length;j++)
+        {
+          im.add(
+            ProductImage(
+            data[i]["node"]["productimagesSet"]["edges"][j]["node"]["id"],
+            data[i]["node"]["productimagesSet"]["edges"][j]["node"]["largeImage"],
+            data[i]["node"]["productimagesSet"]["edges"][j]["node"]["normalImage"],
+            data[i]["node"]["productimagesSet"]["edges"][j]["node"]["thumbIimage"],
+            )
+          );
+        }
+
         l.add(
           SubProduct(data[i]["node"]["id"], 
           data[i]["node"]["listPrice"],
@@ -76,7 +90,8 @@ class _DetailPageState extends State<DetailPage>
           data[i]["node"]["size"],
           data[i]["node"]["color"],
           data[i]["node"]["qty"],
-          data[i]["node"]["cartProducts"]["edges"].length>0?true:false
+          data[i]["node"]["cartProducts"]["edges"].length>0?true:false,
+          im
           // isInCart: data[i]["node"]["cartProducts"]["edges"].length>0?true:false
           )
         );
@@ -87,9 +102,10 @@ class _DetailPageState extends State<DetailPage>
         subproduct = l;
         loading = false;
         this.widget.product.id = subproduct[0].id;
+        prdId = subproduct[0].id;
         this.widget.product.isInCart = subproduct[0].isInCart;
         // this.widget.product = subproduct[0];
-        selectedSize = subproduct[0].size;        
+        selectedSize = subproduct[0].size;
         _id = this.widget.product.id;
       });
 
@@ -98,13 +114,15 @@ class _DetailPageState extends State<DetailPage>
   }
   void AddToCart() async{
     // print("addtocart");
+  // print(this.widget.product.id);
+
     SharedPreferences preferences = await SharedPreferences.getInstance();    
     GraphQLClient _client = clientToQuery();
     QueryResult result = await _client.mutate(
       MutationOptions(
         documentNode: gql(UpdateInCart),
         variables:{
-          "prdID":this.widget.product.id,
+          "prdID":prdId,
           "qty":qty,
           "size":selectedSize,
           "userId":userID,
@@ -112,13 +130,18 @@ class _DetailPageState extends State<DetailPage>
           }
       )
     );
+    setState(() {
+      cloading = true;
+    });
 
-    if(result.loading)
-    {
-      setState(() {
-        cloading = true;
-      });
-    }
+    // if(result.loading)
+    // {
+    //   print("loading...");
+    //   setState(() {
+    //     cloading = true;
+    //   });
+    // }
+    
     if(!result.hasException)
     {
       var data = result.data["updateCart"];
@@ -128,7 +151,6 @@ class _DetailPageState extends State<DetailPage>
         cloading = false;
         isInCart = true;  
         // _count += ;
-          
           this.widget.product.isInCart=true;
           // size_index
           subproduct[size_index].isInCart = true;
@@ -198,6 +220,7 @@ class _DetailPageState extends State<DetailPage>
   var cloading = false;
   String _id;
   String userID;
+  String prdId;
 
   
   @override
@@ -226,6 +249,12 @@ class _DetailPageState extends State<DetailPage>
 
   Widget build(BuildContext context)
   {
+  getCartCount().then((c){
+    setState(() {
+      _count = c;
+      });
+    });
+
     // print(_count);
     // print(isInCart);
     return AnnotatedRegion<SystemUiOverlayStyle>(
@@ -243,7 +272,7 @@ class _DetailPageState extends State<DetailPage>
           
           
           InkWell(
-            onTap: ()=>!this.widget.product.isInCart?this.AddToCart():this.Empty(),
+            onTap: ()=> cloading?this.Empty():!this.widget.product.isInCart?this.AddToCart():this.Empty(),
             // isInCart?
               // onTap: (){
               //   isInCart?
@@ -261,7 +290,7 @@ class _DetailPageState extends State<DetailPage>
                   
                   // isInCart==true?Text("Carted"):
                   
-                  cloading?CircularProgressIndicator():
+                  cloading?CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(Colors.white)):
                   Text(
 
                     // isInCart
@@ -279,32 +308,36 @@ class _DetailPageState extends State<DetailPage>
               ),
             ),
           ),
-          color: this.widget.product.isInCart==true?Colors.grey:
+          color: this.widget.product.isInCart|cloading==true?Colors.grey:
           Colors.green,
           
         ),
         // appBar: AppBar(title: Text("Details"),),
-        
+        backgroundColor: Colors.white,
+        extendBodyBehindAppBar: true,
         appBar: AppBar(
           elevation: 0,
-          title: Text(this.widget.product.name),
+          backgroundColor: Colors.transparent,
+          // textTheme: TextTheme(color:Colors.black),
+          iconTheme: IconThemeData(color:Colors.black),
+          // title: Text(this.widget.product.name,style: TextStyle(color:Colors.black),),
           // backgroundColor: Colors.green,
           
           
           actions: <Widget>[
-              IconButton(
-                icon: Icon(Icons.notifications),
-                iconSize: 30,
-                color: Colors.white,
-                onPressed: (){},
-              ),
+              // IconButton(
+              //   icon: Icon(Icons.notifications),
+              //   iconSize: 30,
+              //   // color: Colors.white,
+              //   onPressed: (){},
+              // ),
 
               Stack(
                   children:<Widget>[
                     IconButton(
                     icon: Icon(Icons.add_shopping_cart),
                     iconSize: 30,
-                    color: Colors.white,
+                    // color: Colors.white,
                     
                     onPressed: (){
                       Navigator.push(context, MaterialPageRoute(builder: (_)=>CartScreen(
@@ -333,12 +366,12 @@ class _DetailPageState extends State<DetailPage>
 
 
 
-              IconButton(
-                icon: Icon(Icons.more_vert),
-                iconSize: 30,
-                color: Colors.white,
-                onPressed: (){},
-              )                            
+              // IconButton(
+              //   icon: Icon(Icons.more_vert),
+              //   iconSize: 30,
+              //   // color: Colors.white,
+              //   onPressed: (){},
+              // )
           ],
         ),
         
@@ -357,7 +390,10 @@ class _DetailPageState extends State<DetailPage>
                   height: picheight,
                   child: CachedNetworkImage(
                     height: 230,
-                    imageUrl: widget.product.imageLink[0].toString(),
+                    imageUrl: 
+                    server_url+"/media/"+widget.product.images[0].normalImage.toString(),
+                    // widget.product.imageLink[0].toString(),
+                    
                     fit: BoxFit.cover,
                     alignment: Alignment.topCenter,
                     placeholder: (context, url) =>Center(child: CircularProgressIndicator()),
@@ -412,10 +448,10 @@ class _DetailPageState extends State<DetailPage>
                                       widget.product.name,
                                       overflow: TextOverflow.visible,
                                       textAlign: TextAlign.left, 
-                                      style: TextStyle(fontSize: 20,fontWeight: FontWeight.w300,),
+                                      style: TextStyle(fontSize: 23,fontWeight: FontWeight.w800,),
                                     ),
                                   // Text("Exclusive Jacket"),
-                                  SizedBox(height: 5,),
+                                  SizedBox(height:10,),
                                   
                                   Padding(
                                     padding: const EdgeInsets.only(left:0),
@@ -480,8 +516,8 @@ class _DetailPageState extends State<DetailPage>
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: <Widget>[
-                            Text("Size",textAlign: TextAlign.left,),
-                            SizedBox(height: 4,),
+                            Text("Select a Size",textAlign: TextAlign.left,style: TextStyle(fontWeight:FontWeight.w700),),
+                            SizedBox(height: 10,),
                             Container(
                               // width: 300,
                               width: MediaQuery.of(context).size.width,
@@ -517,8 +553,8 @@ class _DetailPageState extends State<DetailPage>
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: <Widget>[
-                          Text("Color"),
-                          SizedBox(height: 4,),
+                          Text("Color",style: TextStyle(fontWeight:FontWeight.w700)),
+                          SizedBox(height: 10,),
                           Row(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: <Widget>[
@@ -544,7 +580,7 @@ class _DetailPageState extends State<DetailPage>
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: <Widget>[
-                          Text("Quantity"),
+                          Text("Quantity",style:TextStyle(fontWeight:FontWeight.w700),),
                           Row(
                             children: <Widget>[
                               InkWell(
@@ -615,6 +651,8 @@ class _DetailPageState extends State<DetailPage>
               this.widget.product.listPrice =  product.listPrice;
               this.widget.product.mrp =  product.mrp;
               this.widget.product.isInCart = product.isInCart;
+              this.widget.product.images = product.images;
+              prdId = product.id;
             });
             selectSize(size);
           },

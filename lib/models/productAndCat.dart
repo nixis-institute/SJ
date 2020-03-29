@@ -2,8 +2,10 @@ import 'dart:ffi';
 
 class ProductImage{
   String id;
-  String imgUrl;
-  ProductImage(this.id,this.imgUrl);
+  String largeImage;
+  String normalImage;
+  String thumImage;
+  ProductImage(this.id,this.largeImage,this.normalImage,this.thumImage);
 }
 
 class SubProduct{

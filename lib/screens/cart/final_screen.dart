@@ -30,13 +30,16 @@ class _FinalScreen extends State<FinalScreen>
         )
       );
 
-      if(result.loading)
-      {
-        setState(() {
-          isOrdering = true;          
-        });
+      // if(result.loading)
+      // {
+      //   setState(() {
+      //     isOrdering = true;          
+      //   });
 
-      }
+      // }
+      setState(() {
+        isOrdering = true;          
+      });
 
       if(!result.hasException)
       {
@@ -160,9 +163,10 @@ class _FinalScreen extends State<FinalScreen>
             // onTap:()=>Navigator.push(context, MaterialPageRoute(builder: (_)=>FinalScreen(
             // ))),
 
-            onTap: (){
-              postOrder();
-            },
+            // onTap: (){
+            //   postOrder();
+            // },
+            onTap:()=> !isOrdering?postOrder():{},
 
             child: BottomAppBar(
             child: Container(
@@ -170,6 +174,8 @@ class _FinalScreen extends State<FinalScreen>
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
+                  
+                  isOrdering?CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(Colors.white)):
                   Text(
                     isOrdering?
                     "wait...."
@@ -182,7 +188,7 @@ class _FinalScreen extends State<FinalScreen>
                 ],
               ),
             ),
-            color: Colors.green,      
+            color:isOrdering?Colors.grey:Colors.green,
         ),
       ),
 

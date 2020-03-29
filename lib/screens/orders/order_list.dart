@@ -50,6 +50,7 @@ class _OrderList extends State<OrderList>
           orders.add(
             Orders(
               data[i]["node"]["id"], 
+              data[i]["node"]["status"], 
               data[i]["node"]["product"]["id"],
               data[i]["node"]["product"]["parent"]["name"],
               data[i]["node"]["date"],
@@ -101,6 +102,7 @@ class _OrderList extends State<OrderList>
         
         
         Container(
+          
           // padding: EdgeInsets.all(10),
           child:
           ListView.builder (
@@ -122,12 +124,12 @@ class _OrderList extends State<OrderList>
                 child: Card(
                     elevation: 8,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20)
+                      borderRadius: BorderRadius.circular(10)
                     ),
                     child: Container(
                     // color:Colors.white,
                     decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(20)
+                      borderRadius: BorderRadius.circular(10)
                     ),
 
 
@@ -175,10 +177,15 @@ class _OrderList extends State<OrderList>
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                               children: <Widget>[
-                                Text(order[index].productName,style: TextStyle(fontSize:15,fontWeight: FontWeight.w800),),
+                                Text(order[index].productName,style: 
+                                TextStyle(fontSize:15,fontWeight: FontWeight.w800,color:
+                                order[index].status=="Cancel"?Colors.grey:Colors.black,
+                                ),),
+                                
+                                
                                 SizedBox(height:10),
 
-                                // Text(order[index].paymentMode,style: TextStyle(color:Colors.green),),
+                                
                                 // Text(order[index].date),
                                 Text(DateTime.parse(
                                   order[index].date).day.toString()+"-"+
@@ -189,7 +196,11 @@ class _OrderList extends State<OrderList>
                                 // Text(timeago.format(DateTime.parse(mytimestring))
 
                                 SizedBox(height:10),
-                                
+                                Text(order[index].status,style: 
+                                TextStyle(
+                                  color:order[index].status=="Delivered"?Colors.green:
+                                  order[index].status=="Cancel"?Colors.red:Colors.black,
+                                  fontWeight: FontWeight.w600),),                                
                                 // Row(
                                 //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 //   children: <Widget>[

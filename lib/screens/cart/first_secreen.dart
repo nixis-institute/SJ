@@ -53,7 +53,7 @@ class _ChatScreenState extends State<CartScreen>   {
           CartProductModel(
             node["cartProducts"]["id"],
             node["cartProducts"]["parent"]["name"], 
-            node["cartProducts"]["parent"]["imageLink"].split(",")[0], 
+            node["cartProducts"]["productimagesSet"]["edges"][0]["node"]["thumbnailImage"], 
             node["cartProducts"]["mrp"], 
             node["cartProducts"]["listPrice"], 
             node["size"], 
