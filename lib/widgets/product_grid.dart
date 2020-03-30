@@ -96,6 +96,10 @@ class _ProductGridState extends State<ProductGrid>
               // }
 
               return Container(
+                // elevation: 0,
+              //   shape: RoundedRectangleBorder(
+              //   // borderRadius: BorderRadius.circular(10)
+              // ),  
 
                 // decoration: BoxDecoration(
                 //   color:Colors.white,
@@ -112,13 +116,15 @@ class _ProductGridState extends State<ProductGrid>
                 child: GestureDetector(
                       onTap: ()=>Navigator.push(context, 
                       MaterialPageRoute(builder: (_)=>DetailPage(
-                      product: widget.product[index],
+                      widget.product[index].id,
+                      widget.product[index].name,
                     ))),
 
                       child: Container(
                         // color:
                       decoration: BoxDecoration(
                         color:Colors.white,
+                          // borderRadius: BorderRadius.circular(5),
                         border: Border.all(color:Colors.grey,width: 0.2)
                       ),
                       // color:Colors.white,
@@ -152,7 +158,7 @@ class _ProductGridState extends State<ProductGrid>
                           Container(
                             child: Padding(
                               // padding: const EdgeInsets.all(8.0),
-                              padding: const EdgeInsets.only(left: 10,right: 20),
+                              padding: const EdgeInsets.only(left: 10,right: 5),
                               child: Column(
 
                                 children: <Widget>[
@@ -162,29 +168,32 @@ class _ProductGridState extends State<ProductGrid>
                                     child: Text(
                                       widget.product[index].name, 
                                       overflow: TextOverflow.ellipsis,
-                                       style: TextStyle(fontSize: 18,fontWeight: FontWeight.w300,),)),
+                                       style: TextStyle(fontSize: 18,fontWeight: FontWeight.w400,),)),
                                   SizedBox(height: 5,),
                                   Padding(
                                     padding: const EdgeInsets.all(0),
                                     child: Row(
                                       children: <Widget>[
-                                            Text("\u20B9",style: TextStyle(fontWeight: FontWeight.bold,fontSize: 14),),
-                                            Text(widget.product[index].listPrice.toString(),style: TextStyle(fontWeight: FontWeight.bold,fontSize: 15),),
+                                            // Text("\u20B9",style: TextStyle(fontWeight: FontWeight.bold,fontSize: 14),),
+                                            Text("\u20B9"+widget.product[index].listPrice.toString(),style: TextStyle(fontWeight: FontWeight.bold,fontSize: 15),),
                                             SizedBox(width: 10,),
-                                            Text("\u20B9",style: TextStyle(fontWeight: FontWeight.w500,fontSize: 12,color: Colors.red),),
-                                            Text(widget.product[index].mrp.toString(),style: TextStyle(fontWeight: FontWeight.w500,fontSize: 12,color: Colors.red),),
+                                            // Text("\u20B9",style: TextStyle(fontWeight: FontWeight.w500,fontSize: 12,color: Colors.red),),
+                                            Text("\u20B9 "+ widget.product[index].mrp.toString(),style: TextStyle(fontWeight: FontWeight.w500,fontSize: 12,color: Colors.red),),
                                             SizedBox(width: 6,),
                                             
                                             // double d = widget.product[index].mrp;
-                                            Text(
-                                                "("+
-                                              ((widget.product[index].mrp - widget.product[index].listPrice)*100 / widget.product[index].mrp ).toInt().toString()
-                                                +"% off)",
-                                                style: TextStyle(
-                                                  color: Colors.red,
-                                                  fontWeight: FontWeight.w400,
-                                                  fontSize: 10
-                                                ),
+                                            
+                                            Expanded(
+                                                 child: Text(
+                                                  "("+
+                                                ((widget.product[index].mrp - widget.product[index].listPrice)*100 / widget.product[index].mrp ).toInt().toString()
+                                                  +"% off)",
+                                                  style: TextStyle(
+                                                    color: Colors.red,
+                                                    fontWeight: FontWeight.w400,
+                                                    fontSize: 10
+                                                  ),
+                                              ),
                                             )
                                       ],
                                     ),

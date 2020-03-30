@@ -338,20 +338,25 @@ query xyz(\$match:String!){
 
 
 final String searchProductQuery = """
-query xyz(\$match:String!){
-  searchResult(match:\$match)
-  {
+query xyz(\$match: String!) {
+  searchResult(match: \$match) {
     id
     name
-    listPrice
-    mrp
-    sizes
-    colors
-    imageLink
-    parent
-    productimagesSet{
-      edges{
-        node{
+    brand
+    subproductSet {
+      edges {
+        node {
+          id
+          listPrice
+          size
+          mrp
+          color
+        }
+      }
+    }
+    productimagesSet(first:1) {
+      edges {
+        node {
           id
           largeImage
           normalImage
@@ -604,34 +609,41 @@ query GetSubList(\$SubCateogryId:ID!){
 """;
 
 final String getMoreProductBySubListId="""
-query x(\$sublistId:ID!,\$after:String!){
-  sublistById(id:\$sublistId)
-  {
+query x(\$sublistId: ID!, \$after: String!, \$brand: String!, \$sizes: String!) {
+  sublistById(id: \$sublistId) {
     name
-    productSet(first:6,after:\$after){
-      pageInfo{
+    productSet(first: 6, after: \$after, brand_In: \$brand) {
+      pageInfo {
         endCursor
         hasNextPage
       }
-      edges{
-        node{
-        id
-        name
-        listPrice
-        mrp
-        sizes
-        colors
-        imageLink
-        productimagesSet{
-          edges{
-            node{
-              id
-              largeImage
-              normalImage
-              thumbnailImage
+      edges {
+        node {
+          id
+          name
+          brand
+          imageLink
+          subproductSet(size_In: \$sizes) {
+            edges {
+              node {
+                id
+                listPrice
+                size
+                mrp
+                color
+              }
             }
           }
-        }           
+          productimagesSet {
+            edges {
+              node {
+                id
+                largeImage
+                normalImage
+                thumbnailImage
+              }
+            }
+          }
         }
       }
     }
@@ -644,28 +656,35 @@ final String GetProductBySubListId = """
 query xyz(\$SubListId:ID!){
 productBySublistId(sublistId:\$SubListId)
   {
-    edges{
-      node
-      {
-        id
-        name
-        listPrice
-        mrp
-        sizes
-        colors
-        imageLink
-        productimagesSet{
-          edges{
-            node{
-              id
-              largeImage
-              normalImage
-              thumbnailImage
+      edges {
+        node {
+          id
+          name
+          brand
+          imageLink
+          subproductSet{
+            edges {
+              node {
+                id
+                listPrice
+                size
+                mrp
+                color
+              }
             }
           }
-        }        
+          productimagesSet {
+            edges {
+              node {
+                id
+                largeImage
+                normalImage
+                thumbnailImage
+              }
+            }
+          }
+        }
       }
-    }
   }
 }
 """;

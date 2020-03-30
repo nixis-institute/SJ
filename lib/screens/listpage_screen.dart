@@ -37,7 +37,9 @@ void fillMoreProduct() async{
         documentNode: gql(getMoreProductBySubListId),
         variables:{
           "sublistId":id,
-          "after":endCursor
+          "after":endCursor,
+          "sizes":size,
+          "brand":brand
           }
       )
     );
@@ -115,7 +117,7 @@ void fillMoreProduct() async{
 }
 
 void fillProductAndCateogry() async{
-    // print(id);
+    print(id);
     List<TypeAndProduct> _product = List<TypeAndProduct>();
     // product.clear();
     GraphQLClient _client = clientToQuery();

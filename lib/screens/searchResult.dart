@@ -44,41 +44,45 @@ class _SearchResultScreenState extends State<SearchResultScreen>
     if(!result.hasException)
     {
       // print("result.");
-      List<Product> l=[];
-      var data = result.data["productBySublistId"]["edges"];
+      List<Product> prdList=[];
+      var prd = result.data["productBySublistId"]["edges"];
       // print(data);
-      for(int i=0;i<data.length;i++)
+      for(int j=0;j<prd.length;j++)
       {
-        List<ProductImage> im =[];
-        
-        var img = data[i]["node"]["productimagesSet"]["edges"];
-        
-        for(var k = 0;k<img.length;k++){
-          im.add(
-            ProductImage(
-              // img[k]["node"]["id"], img[k]["node"]["image"]
-                  img[k]["node"]["id"],
-                  img[k]["node"]["largeImage"], 
-                  img[k]["node"]["normalImage"],
-                  img[k]["node"]["thumbnailImage"]
-              )
-          );
-        }
 
-        l.add(
-          Product(data[i]["node"]["id"], 
-          data[i]["node"]["name"], 
-          data[i]["node"]["listPrice"],
-          data[i]["node"]["mrp"],
-          im,
-          data[i]["node"]["sizes"].split(","),
-          data[i]["node"]["imageLink"].split(","),
-          ) 
-        );
+            List im = prd[j]["node"]["productimagesSet"]["edges"];
+            List<ProductImage> imgList = [];
+            for(var k = 0;k<im.length;k++){
+              imgList.add(
+                ProductImage(
+                  im[k]["node"]["id"],
+                  im[k]["node"]["largeImage"], 
+                  im[k]["node"]["normalImage"],
+                  im[k]["node"]["thumbnailImage"]
+                  )
+              );
+            }
+
+            if(prd[j]["node"]["subproductSet"]["edges"].length>0)
+            {
+              var subprd = prd[j]["node"]["subproductSet"]["edges"];
+              prdList.add(
+                Product(prd[j]["node"]["id"], 
+                prd[j]["node"]["name"], 
+                // prd[j]["listPrice"],
+                subprd[0]["node"]["listPrice"],
+                subprd[0]["node"]["mrp"],
+                imgList,
+                [],
+                []
+                // prd[j]["node"]["imageLink"].split(","),
+                )
+              );
+            }
       }
 
       setState(() {
-        product = l;
+        product = prdList;
         isLoading = false;
       });
     

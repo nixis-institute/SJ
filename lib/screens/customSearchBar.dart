@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:shopping_junction/GraphQL/Queries.dart';
@@ -106,31 +107,49 @@ class _CustomSearchBar extends State<CustomSearchBar>
     {
       List<Product> l = [];
       List<ProductImage> imgList = [];
-      var data = result.data["searchResult"];
-      for(int i=0;i<data.length;i++)
+
+      var prd = result.data["searchResult"];
+      List<Product> prdList = [];
+      
+      for(int j=0;j<prd.length;j++)
       {
-          if(data[i]["parent"]==null)
-          {
-            l.add(
-                  Product(
-                  data[i]["id"], 
-                  data[i]["name"], 
-                  data[i]["listPrice"],
-                  data[i]["mrp"],
-                  imgList,
-                  data[i]["sizes"].split(","),
-                  data[i]["imageLink"].split(","),
+
+            List im = prd[j]["productimagesSet"]["edges"];
+            List<ProductImage> imgList = [];
+            for(var k = 0;k<im.length;k++){
+              imgList.add(
+                ProductImage(
+                  im[k]["node"]["id"],
+                  im[k]["node"]["largeImage"], 
+                  im[k]["node"]["normalImage"],
+                  im[k]["node"]["thumbnailImage"]
                   )
               );
-          }
+            }
 
+            if(prd[j]["subproductSet"]["edges"].length>0)
+            {
+              var subprd = prd[j]["subproductSet"]["edges"];
+              prdList.add(
+                Product(prd[j]["id"], 
+                prd[j]["name"], 
+                // prd[j]["listPrice"],
+                subprd[0]["node"]["listPrice"],
+                subprd[0]["node"]["mrp"],
+                imgList,
+                [],
+                []
+                // prd[j]["node"]["imageLink"].split(","),
+                )
+              );
+            }
       }
 
       setState(() {
         isLoading =false;
-        if(l.length<1)
+        if(prdList.length<1)
         isFound = true;
-        plist = l;
+        plist = prdList;
         
       });
 
@@ -267,20 +286,44 @@ class _CustomSearchBar extends State<CustomSearchBar>
         itemBuilder: (context,index){
           return Container(
             decoration: BoxDecoration(
+              color: Colors.white,
               borderRadius: BorderRadius.circular(10)
             ),
             padding: EdgeInsets.only(bottom:5),
+            // margin:EdgeInsets.only(bottom:5),
             child: ListTile(
               onTap: (){
                   Navigator.push(context, MaterialPageRoute(builder: (_)=>DetailPage(
-                  product:plist[index],
+                  plist[index].id,
+                  plist[index].name,
                 )));
               },
-              isThreeLine: false,
-              trailing: Text("\$ "+plist[index].listPrice.toString(),style: TextStyle(fontSize: 15,fontWeight: FontWeight.bold )),
-              leading: Icon(Icons.shopping_basket),
+              // isThreeLine: false,
+              // trailing: Text("\$ "+plist[index].listPrice.toString(),style: TextStyle(fontSize: 15,fontWeight: FontWeight.bold )),
+              
+              leading: 
+              
+              Container(
+                height: 70,
+                width: 50,
+                child: CachedNetworkImage(
+                      height: 50,
+                      imageUrl: 
+                      server_url+"/media/"+plist[index].images[0].thumImage.toString(),
+                      // widget.product.imageLink[0].toString(),
+                      
+                      fit: BoxFit.cover,
+                      alignment: Alignment.topCenter,
+                      placeholder: (context, url) =>Center(child: CircularProgressIndicator()),
+                      // placeholder: (context, url) => Container(height: 20,child:Container(child: CircularProgressIndicator(value: 0.2,))),
+                      // errorWidget: (context, url, error) => Icon(Icons.error),
+                    ),
+              ),
+              
+              // leading: Icon(Icons.shopping_basket),
 
-              title: Text(plist[index].name),
+              title: Text(plist[index].name,style: TextStyle(fontWeight: FontWeight.w700),),
+              subtitle: Text("\u20B9 "+plist[index].listPrice.toString(),style: TextStyle(color:Colors.green),),
             ),
           );        
         }

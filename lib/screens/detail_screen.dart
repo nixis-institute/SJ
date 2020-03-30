@@ -13,10 +13,11 @@ import 'cart/first_secreen.dart';
 
 class DetailPage extends StatefulWidget{
   @override
-  Product product;
-  DetailPage({this.product});
-  _DetailPageState createState() => _DetailPageState();
+  // final Product product;
+  final String pId,pName;
+  DetailPage(this.pId,this.pName);
 
+  _DetailPageState createState() => _DetailPageState();
 }
 // class DetailProduct{
 //   String id;
@@ -47,14 +48,14 @@ class _DetailPageState extends State<DetailPage>
 {
   List<SubProduct> subproduct=[];
   void getSubProduct() async{
-    print(this.widget.product.id);
+    print(this.widget.pId);
+    // cproduct = this.widget.product; 
     GraphQLClient _client = clientToQuery();
     QueryResult result = await _client.query(
       QueryOptions(
         documentNode: gql(getProductByParentId),
         variables:{
-          "id":this.widget.product.id,
-
+          "id":this.widget.pId,
           }
       )
     );
@@ -100,14 +101,21 @@ class _DetailPageState extends State<DetailPage>
       setState(() {
 
         subproduct = l;
+        // cproduct = subproduct[0];
+        cproduct = Product(subproduct[0].id, this.widget.pName, subproduct[0].listPrice, subproduct[0].mrp, subproduct[0].images, [subproduct[0].size], subproduct[0].images);
+        // cproduct = Product(id, name, listPrice, mrp, images, sizes, imageLink,)
         loading = false;
-        this.widget.product.id = subproduct[0].id;
+        // cproduct.id = subproduct[0].id;
         prdId = subproduct[0].id;
-        this.widget.product.isInCart = subproduct[0].isInCart;
-        // this.widget.product = subproduct[0];
+        cproduct.images = subproduct[0].images;
+        cproduct.isInCart = subproduct[0].isInCart;
         selectedSize = subproduct[0].size;
-        _id = this.widget.product.id;
+        _id = cproduct.id;
+
       });
+
+
+      print("is in cart..."+cproduct.isInCart.toString());
 
     }
 
@@ -115,7 +123,9 @@ class _DetailPageState extends State<DetailPage>
   void AddToCart() async{
     // print("addtocart");
   // print(this.widget.product.id);
-
+    setState(() {
+      cloading = true;
+    });
     SharedPreferences preferences = await SharedPreferences.getInstance();    
     GraphQLClient _client = clientToQuery();
     QueryResult result = await _client.mutate(
@@ -130,9 +140,7 @@ class _DetailPageState extends State<DetailPage>
           }
       )
     );
-    setState(() {
-      cloading = true;
-    });
+
 
     // if(result.loading)
     // {
@@ -151,7 +159,7 @@ class _DetailPageState extends State<DetailPage>
         cloading = false;
         isInCart = true;  
         // _count += ;
-          this.widget.product.isInCart=true;
+          cproduct.isInCart=true;
           // size_index
           subproduct[size_index].isInCart = true;
         _count = (int.parse(_count)+1).toString(); 
@@ -207,7 +215,13 @@ class _DetailPageState extends State<DetailPage>
 
   }
 
-
+  // void mapData(){
+  //   cproduct.id = this.widget.product.id;
+  //   cproduct.mrp = this.widget.product.mrp;
+  //   cproduct.listPrice = this.widget.product.listPrice;
+  //   cproduct.images = this.widget.product.images;
+  //   cproduct.isInCart = this.widget.product.isInCart;
+  // }
 
   var selectedSize = "";
   var size_index =0;
@@ -221,13 +235,20 @@ class _DetailPageState extends State<DetailPage>
   String _id;
   String userID;
   String prdId;
-
+  
   
   @override
   bool isInCart = false; 
+  Product cproduct;
+
   void initState()
   {
+    // this.widget.product.id="";
     super.initState();
+    // mapData();
+    // print("prdId..."+this.widget.pId);
+    // cproduct.id = this.widget.pId??"";
+    // cproduct.name = this.widget.pName??"";
 
     getCartCount().then((c){
       setState(() {
@@ -249,6 +270,7 @@ class _DetailPageState extends State<DetailPage>
 
   Widget build(BuildContext context)
   {
+  // print(this.widget.product.listPrice);
   getCartCount().then((c){
     setState(() {
       _count = c;
@@ -267,12 +289,14 @@ class _DetailPageState extends State<DetailPage>
           child: Scaffold(
         // appBar: AppBar(backgroundColor: Colors.white,),
 
-        bottomNavigationBar: BottomAppBar(
+        bottomNavigationBar: 
+        !loading?
+        BottomAppBar(
           child: 
           
           
           InkWell(
-            onTap: ()=> cloading?this.Empty():!this.widget.product.isInCart?this.AddToCart():this.Empty(),
+            onTap: ()=> cloading?this.Empty():!cproduct.isInCart?this.AddToCart():this.Empty(),
             // isInCart?
               // onTap: (){
               //   isInCart?
@@ -284,7 +308,8 @@ class _DetailPageState extends State<DetailPage>
 
               child: Container(
               height: 50,
-              child: Row(
+              child: 
+              Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
                   
@@ -294,7 +319,7 @@ class _DetailPageState extends State<DetailPage>
                   Text(
 
                     // isInCart
-                    this.widget.product.isInCart
+                    cproduct.isInCart
                     ==true?"Check in Cart":
                     
                     "ADD TO CART",
@@ -308,10 +333,10 @@ class _DetailPageState extends State<DetailPage>
               ),
             ),
           ),
-          color: this.widget.product.isInCart|cloading==true?Colors.grey:
+          color: cproduct.isInCart|cloading==true?Colors.grey:
           Colors.green,
           
-        ),
+        ):null,
         // appBar: AppBar(title: Text("Details"),),
         backgroundColor: Colors.white,
         extendBodyBehindAppBar: true,
@@ -376,7 +401,9 @@ class _DetailPageState extends State<DetailPage>
         ),
         
         
-        body: loading?Center(child: CircularProgressIndicator(),):
+        body: 
+        loading?
+        Center(child: CircularProgressIndicator()):
         ListView(
             children: <Widget>[
               // CustomAppBar(name: this.widget.category.name),
@@ -391,7 +418,7 @@ class _DetailPageState extends State<DetailPage>
                   child: CachedNetworkImage(
                     height: 230,
                     imageUrl: 
-                    server_url+"/media/"+widget.product.images[0].normalImage.toString(),
+                    server_url+"/media/"+cproduct.images[0].normalImage.toString(),
                     // widget.product.imageLink[0].toString(),
                     
                     fit: BoxFit.cover,
@@ -445,7 +472,7 @@ class _DetailPageState extends State<DetailPage>
                                 children: <Widget>[
                                   // Text("sdfdsf",textAlign: ),
                                   Text(
-                                      widget.product.name,
+                                      cproduct.name,
                                       overflow: TextOverflow.visible,
                                       textAlign: TextAlign.left, 
                                       style: TextStyle(fontSize: 23,fontWeight: FontWeight.w800,),
@@ -458,16 +485,16 @@ class _DetailPageState extends State<DetailPage>
                                     child: Row(
                                       children: <Widget>[
                                             Text("\u20B9",style: TextStyle(fontWeight: FontWeight.bold,fontSize: 20),),
-                                            Text(widget.product.listPrice.toString(),style: TextStyle(fontWeight: FontWeight.bold,fontSize: 20),),
+                                            Text(cproduct.listPrice.toString(),style: TextStyle(fontWeight: FontWeight.bold,fontSize: 20),),
                                             SizedBox(width: 10,),
                                             Text("\u20B9",style: TextStyle(fontWeight: FontWeight.w500,fontSize: 15,color: Colors.red),),
-                                            Text(widget.product.mrp.toString(),style: TextStyle(fontWeight: FontWeight.w500,fontSize: 15,color: Colors.red,decoration: TextDecoration.lineThrough),),
+                                            Text(cproduct.mrp.toString(),style: TextStyle(fontWeight: FontWeight.w500,fontSize: 15,color: Colors.red,decoration: TextDecoration.lineThrough),),
                                             SizedBox(width: 6,),
                                             
-                                            // double d = widget.product.mrp;
+                                            // double d = cproduct.mrp;
                                             Text(
                                                 "("+
-                                              ((widget.product.mrp - widget.product.listPrice)*100 / widget.product.mrp ).toInt().toString()
+                                              ((cproduct.mrp - cproduct.listPrice)*100 / cproduct.mrp ).toInt().toString()
                                                 +"% off)",
                                                 style: TextStyle(
                                                   color: Colors.red,
@@ -475,7 +502,7 @@ class _DetailPageState extends State<DetailPage>
                                                   fontSize: 12
                                                 ),
                                             )
-                                            // Text("("+widget.product[index].discount.toInt().toString()+"% off)",style: TextStyle(fontWeight: FontWeight.w500,fontSize: 14,color: Colors.red),)
+                                            // Text("("+cproduct[index].discount.toInt().toString()+"% off)",style: TextStyle(fontWeight: FontWeight.w500,fontSize: 14,color: Colors.red),)
                                           
                                         
 
@@ -510,7 +537,8 @@ class _DetailPageState extends State<DetailPage>
                       height: 2,
                       color: Colors.grey,
                     ),
-
+                    
+                    // loading?Center(child: CircularProgressIndicator(),):
                     Padding(
                       padding: const EdgeInsets.only(top:10,bottom: 15),
                       child: Column(
@@ -518,6 +546,7 @@ class _DetailPageState extends State<DetailPage>
                         children: <Widget>[
                             Text("Select a Size",textAlign: TextAlign.left,style: TextStyle(fontWeight:FontWeight.w700),),
                             SizedBox(height: 10,),
+                            loading?Center(child: CircularProgressIndicator(),):
                             Container(
                               // width: 300,
                               width: MediaQuery.of(context).size.width,
@@ -555,6 +584,7 @@ class _DetailPageState extends State<DetailPage>
                         children: <Widget>[
                           Text("Color",style: TextStyle(fontWeight:FontWeight.w700)),
                           SizedBox(height: 10,),
+                          loading?Center(child: CircularProgressIndicator(),):
                           Row(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: <Widget>[
@@ -640,20 +670,28 @@ class _DetailPageState extends State<DetailPage>
   Widget _size(String size,bool selected,SubProduct product,int index){
     return InkWell(
           onTap: (){
-            setState(() {
-              // this.widget.product.sizes[0] = product.size;
-              // this.widget.product.colors[0] = product.color;
-
-              // this.widget.product = product.color;
-              
-              // print(product.isInCart);
               size_index = index;
-              this.widget.product.listPrice =  product.listPrice;
-              this.widget.product.mrp =  product.mrp;
-              this.widget.product.isInCart = product.isInCart;
-              this.widget.product.images = product.images;
+              cproduct.listPrice =  product.listPrice;
+              cproduct.mrp =  product.mrp;
+              cproduct.isInCart = product.isInCart;
+              cproduct.images = product.images;
               prdId = product.id;
-            });
+
+            // setState(() {
+            //   // this.cproduct.sizes[0] = product.size;
+            //   // this.cproduct.colors[0] = product.color;
+
+            //   // this.cproduct = product.color;
+              
+            //   // print(product.isInCart);
+            //   // this.widget.product;
+            //   size_index = index;
+            //   cproduct.listPrice =  product.listPrice;
+            //   cproduct.mrp =  product.mrp;
+            //   cproduct.isInCart = product.isInCart;
+            //   cproduct.images = product.images;
+            //   prdId = product.id;
+            // });
             selectSize(size);
           },
           child: AnimatedContainer(
