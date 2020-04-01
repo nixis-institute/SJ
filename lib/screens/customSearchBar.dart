@@ -75,15 +75,21 @@ class _CustomSearchBar extends State<CustomSearchBar>
     {
       var data = resultcat.data["searchCategory"];
       List<CategoryName> catData=[];
-      for(int i=0;i<data.length;i++)
-      {
-        catData.add(
-          CategoryName(data[i]["id"], data[i]["name"]+" in "+data[i]["subCategory"]["mainCategory"]["name"])
-        );
 
-        // data[i]["name"]+" in "+data[i]["subCategory"]["mainCategory"]
-        // data[i]["id"]
-      }
+      // print(data["name"]);
+      // if(data["productSet"]["edges"].length>0)
+      // {
+        for(int i=0;i<data.length;i++)
+        {
+          if(data[i]["productSet"]["edges"].length>0)
+          {
+            catData.add(
+              CategoryName(data[i]["id"], data[i]["name"]+" in "+data[i]["subCategory"]["mainCategory"]["name"])
+            );
+          }
+        }
+      
+
 
       // setState(() {
       //   clist = catData;

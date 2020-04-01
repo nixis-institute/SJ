@@ -483,7 +483,7 @@ class Query(graphene.AbstractType):
         return Product.objects.get(id = id)
 
     def resolve_cart_products(self,info):
-        cart = Cart.objects.all()
+        cart = Cart.objects.all().order_by('-id')
         print(info.context.user)
         # print(dir(info.context.user))
         return cart
@@ -497,7 +497,7 @@ class Query(graphene.AbstractType):
         return cat
 
     def resolve_search_result(self,info,match):
-        prd = Product.objects.filter(name__icontains=match)
+        prd = Product.objects.filter(name__icontains=match).order_by('-id')
         # cat = SubList.objects.filter(name__icontains=match)
         # prd =["45345","435"]
         # cat=["sdf","pdk"]

@@ -323,6 +323,13 @@ query xyz(\$match:String!){
 	searchCategory(match:\$match){
     id
     name
+    productSet{
+      edges{
+        node{
+          id
+        }
+      }
+    }    
     subCategory{
       id
       name

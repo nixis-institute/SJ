@@ -116,7 +116,7 @@ class _CartProductState extends State<CartProductWidget>{
             // // border: Border.all(color: Colors.green)
             // ),
             child: Card(
-              elevation: 8,
+              elevation: 1,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(5)
               ),              

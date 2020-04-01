@@ -450,14 +450,14 @@ void fillProductAndCateogry() async{
           
 
           bottomNavigationBar: BottomAppBar(
-            child: InkWell(
+            child: GestureDetector(
                 onTap: (){
 
                 // Navigator.push(context,MaterialPageRoute(
                 //     builder:(context)=>SortAndFilter()
                 //    ));
 
-                _navigateAndDisplay(context);
+                // _navigateAndDisplay(context);
                   // fillProductAndCateogry();
 
                   },
@@ -466,17 +466,59 @@ void fillProductAndCateogry() async{
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: <Widget>[
-                    Icon(Icons.sort,
-                    color: Colors.white,
-                    size: 22,
+                    // Icon(Icons.sort,
+                    // color: Colors.white,
+                    // size: 22,
+                    // ),
+                    // SizedBox(width: 10,),
+
+                    Expanded(
+                        child: InkWell(
+                            onTap: (){
+                               _navigateAndDisplay(context);
+                            },
+                            // _navigateAndDisplay(context)
+                            child: Container(
+                            // alignment: Alignment.center,
+                            // color: Colors.green,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: <Widget>[
+                                Icon(Icons.filter_list,color: Colors.white),
+                                SizedBox(width: 5),
+                                Text("Filter",
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                  fontSize: 17
+                                ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
                     ),
-                    SizedBox(width: 10,),
-                    Text("Sort & Filter",
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 17
+                    // Divider(height: 2,color: Colors.white,),
+                    Expanded(
+                        child: Container(
+                          // alignment: Alignment.center,
+                          // color: Colors.green,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: <Widget>[
+                              Icon(Icons.sort,color: Colors.white),
+                              SizedBox(width: 5),                              
+                              Text("Sort",
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                                fontSize: 17
+                              ),
                       ),
-                    )
+                            ],
+                          ),
+                        ),
+                    )                    
                   ],
                 ),
               ),
