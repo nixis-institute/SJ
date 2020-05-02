@@ -16,6 +16,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.models import User
 import django_filters
 import json
+import graphql_jwt
 
 class InnerItem(graphene.ObjectType):
     List = graphene.List(graphene.String)
@@ -67,6 +68,9 @@ class ProductNode(DjangoObjectType):
     #         'exact',"Equals",
     #     )]
     # )
+    productSize = graphene.Int()
+    sizes = graphene.List(graphene.String)
+    color = graphene.List(graphene.String)
     class Meta:
         model = Product
         # filter_fields = ("sizes","parent")
@@ -85,7 +89,12 @@ class ProductNode(DjangoObjectType):
 
 
         interfaces = (relay.Node,)
-
+    def resolve_productSize(self,info):
+        return len([i for i in SubProduct.objects.filter(parent_id=self.id)])
+    def resolve_sizes(self,info):
+        return [i.size for i in SubProduct.objects.filter(parent_id=self.id)]
+    def resolve_color(self,info):
+        return [i.color for i in SubProduct.objects.filter(parent_id=self.id)]        
 
 # class ProductList(DjangoObjectType):
 #     # prd = graphene.ObjectType()
@@ -135,10 +144,13 @@ class SubProductNode(DjangoObjectType):
 
 
 class ProductCategoryNode(DjangoObjectType):
+    productSize = graphene.Int()
     class Meta:
         model = ProductCategory
         filter_fields = ()
         interfaces = (relay.Node,)
+    def resolve_productSize(self,info):
+        return len(Product.objects.filter(sublist_id__in=[i.id for i in SubList.objects.filter(sub_category_id__in=[i.id for i in ProductCategory.objects.get(id=self.id).subcategory_set.all()])]))
 
 class OrdersNode(DjangoObjectType):
     class Meta:
@@ -147,19 +159,25 @@ class OrdersNode(DjangoObjectType):
         interfaces = (relay.Node,)
 
 class SubCategoryNode(DjangoObjectType):
+    productSize = graphene.Int()
     class Meta:
         model = SubCategory
         filter_fields = ()
         interfaces = (relay.Node,)
+    def resolve_productSize(self,info):
+        return len(Product.objects.filter(sublist_id__in=[i.id for i in SubList.objects.filter(sub_category_id=self.id)]))
 
 class SubListNode(DjangoObjectType):
     data = graphene.List(graphene.String)
+    productSize = graphene.Int()
     class Meta:
         model = SubList
         filter_fields = ()
         interfaces = (relay.Node,)
     def resolve_data(self,info):
         return ["4","6","9"]
+    def resolve_productSize(self,info):
+        return len(Product.objects.filter(sublist_id = self.id))
 
 class AddressNode(DjangoObjectType):
     class Meta:
@@ -368,6 +386,25 @@ class UpdateUser(graphene.Mutation):
         return UpdateUser(user = u)
 
 
+class CreateParentProduct(graphene.Mutation):
+    class Arguments:
+        type_id = graphene.ID(required=True)
+        prd_name = graphene.String(required=True)
+        brand = graphene.String(required=True)
+        short_desc = graphene.String(required=False)
+        long_desc = graphene.String(required=False)
+    prd_id = graphene.Int()
+    def mutate(self,info,type_id,prd_name,brand,short_desc,long_desc):
+        type_id = from_global_id(type_id)[1]
+
+        prd = Product.objects.create(
+            name=prd_name,
+            brand=brand,
+            shortDescription=short_desc,
+            description=long_desc,
+            sublist_id=type_id
+            )
+        return CreateParentProduct(prd_id=prd.id)
 
 
 class ChangePassword(graphene.Mutation):
@@ -396,9 +433,14 @@ class ChangePassword(graphene.Mutation):
             return ChangePassword(success=False)
         
         
-
+#eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VybmFtZSI6ImFkbWluIiwiZXhwIjoxNTg2MDg4MTY0LCJvcmlnSWF0IjoxNTg2MDg3ODY0fQ.5g0iEgS8EFi294JNXHm5TlcXLqr2qGmeRMMedr3pJBI
 
 class Mutation(graphene.ObjectType):
+    
+    # buyer
+    token_auth = graphql_jwt.ObtainJSONWebToken.Field()
+    verify_token = graphql_jwt.Verify.Field()
+    refresh_token = graphql_jwt.Refresh.Field()    
     create_user = CreateUser.Field()
     change_password = ChangePassword.Field()
     update_user = UpdateUser.Field()
@@ -407,6 +449,13 @@ class Mutation(graphene.ObjectType):
     update_address = UpdateAddress.Field()
     delete_address = DeleteAddress.Field()
     update_orders = UpdateOrders.Field()
+
+    # seller
+
+    create_parent_product = CreateParentProduct.Field()
+
+
+
 
 class Query(graphene.AbstractType):
     all_products = DjangoFilterConnectionField(ProductNode)
@@ -483,8 +532,11 @@ class Query(graphene.AbstractType):
         return Product.objects.get(id = id)
 
     def resolve_cart_products(self,info):
-        cart = Cart.objects.all().order_by('-id')
-        print(info.context.user)
+        
+        # cart = Cart.objects.all().order_by('-id')
+
+        cart  = Cart.objects.filter(user_id=info.context.user.id)
+        # print(info.context.user.id)
         # print(dir(info.context.user))
         return cart
 
@@ -553,8 +605,11 @@ class Query(graphene.AbstractType):
     def resolve_sub_category(self,info,**kwargs):
         return SubCategory.objects.all()
 
-    def resolve_all_product(self,info,**kwargs):
-        return Product.objects.exclude(parent=1)
+    def resolve_all_products(self,info,**kwargs):
+        # return Product.objects.exclude(parent=1)
+        user = info.context.user
+        print(user.is_authenticated)
+        return Product.objects.all()
 
     def resolve_all_category(self,info,**kwargs):
         return ProductCategory.objects.all()

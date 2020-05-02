@@ -3,7 +3,7 @@ import app.schema
 #from django.contrib.
 #from django.contrib.auth.mixins import LoginRequiredMixin
 from graphene_django.views import GraphQLView
-
+# import users.schema
 
 #class PrivateGraphQLView(LoginRequiredMixin, GraphQLView):
 #    pass

@@ -39,15 +39,20 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'graphene_django',
     'rest_framework',
+    'graphql_auth',
     'app',
 ]
 JWT_VERIFY_EXPIRATION = False
 
 GRAPHENE = {
-    'SCHEMA': 'schema.schema' # Where your Graphene schema lives
+    'SCHEMA': 'schema.schema', # Where your Graphene schema lives
+    'MIDDLEWARE': [
+        'graphql_jwt.middleware.JSONWebTokenMiddleware',
+    ],    
 }
 
 MIDDLEWARE = [
+
     'django.middleware.security.SecurityMiddleware',
     # 'shopping_junction.middleware.JWTMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -56,6 +61,12 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    # 'graphql_jwt.middleware.JSONWebTokenMiddleware',
+    # 'django.contrib.auth.middleware.AuthenticationMiddleware'
+]
+AUTHENTICATION_BACKENDS = [
+    'graphql_jwt.backends.JSONWebTokenBackend',
+    'django.contrib.auth.backends.ModelBackend',
 ]
 
 # REST_FRAMEWORK = {

@@ -49,6 +49,11 @@ Future<String> getCartCount() async{
     return preferences.getString("paymentMode");
   }
 
+  getToken() async{
+    SharedPreferences preferences = await SharedPreferences.getInstance();
+    return preferences.getString("LastToken");    
+  }
+  
 
   Future<String> get_Address() async{
     SharedPreferences preferences = await SharedPreferences.getInstance();
