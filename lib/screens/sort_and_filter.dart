@@ -5,7 +5,7 @@ import 'package:shopping_junction/models/category_model.dart';
 import 'package:shopping_junction/models/filter_model.dart';
 import 'package:shopping_junction/models/products.dart';
 import 'package:shopping_junction/models/subcategory_model.dart';
-import 'package:shopping_junction/screens/listpage_screen%20copy.dart';
+// import 'package:shopping_junction/screens/listpage_screen%20copy.dart';
 import 'package:shopping_junction/GraphQL/Queries.dart';
 
 class SortAndFilter extends StatefulWidget{

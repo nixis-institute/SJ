@@ -314,6 +314,18 @@ class CreateUser(graphene.Mutation):
         user.save()
         return CreateUser(user=user)
 
+class UploadImages(graphene.Mutation):
+    class Arguments:
+        id = graphene.Int()
+        # fl = graphene.
+    success = graphene.Boolean()
+    def mutate(self,info,id):
+        print(dir(info.context))
+        print(info)
+        return UploadImages(success=True)
+
+
+
 class UpdateOrders(graphene.Mutation):
     class Arguments:
         id = graphene.Int()
@@ -385,6 +397,24 @@ class UpdateUser(graphene.Mutation):
             Profile.objects.create(user_id=u.id,phone_number=phone,gender=gender)
         return UpdateUser(user = u)
 
+class UpdateSubProduct(graphene.Mutation):
+    class Arguments:
+        id = graphene.ID(required=True)
+        mrp = graphene.String(required=True)
+        list_price = graphene.String(required=True)
+        qty = graphene.String(required=True)
+    prd = graphene.Field(lambda  :SubProductNode)
+    
+    def mutate(self,info,id,mrp,list_price,qty):
+        print(id)
+        id = from_global_id(id)[1]
+        prd = SubProduct.objects.get(id=id)
+        prd.mrp = mrp
+        prd.list_price = list_price
+        prd.qty = qty
+        prd.save()
+        return UpdateSubProduct(prd = prd)
+
 
 class CreateParentProduct(graphene.Mutation):
     class Arguments:
@@ -394,6 +424,9 @@ class CreateParentProduct(graphene.Mutation):
         short_desc = graphene.String(required=False)
         long_desc = graphene.String(required=False)
     prd_id = graphene.Int()
+    prd = graphene.Field(lambda:ProductNode)
+    # prd = graphene.
+
     def mutate(self,info,type_id,prd_name,brand,short_desc,long_desc):
         type_id = from_global_id(type_id)[1]
 
@@ -404,7 +437,29 @@ class CreateParentProduct(graphene.Mutation):
             description=long_desc,
             sublist_id=type_id
             )
-        return CreateParentProduct(prd_id=prd.id)
+        return CreateParentProduct(prd_id=prd.id,prd=prd)
+
+class CreateSubProduct(graphene.Mutation):
+    class Arguments:
+        id = graphene.ID(required=True)
+        size = graphene.String(required=True)
+        color = graphene.String(required=True)
+        qty = graphene.String(required=True)
+        mrp = graphene.String(required=True)
+        list_price = graphene.String(required=True)
+    sub_product = graphene.Field(SubProductNode)
+
+    def mutate(self,info,id,size,color,qty,mrp,list_price):
+        id = from_global_id(id)[1]
+        prd = SubProduct.objects.create(
+            mrp = mrp,
+            list_price = list_price,
+            qty = qty,
+            color = color,
+            size = size,
+            parent_id = id
+            )
+        return CreateSubProduct(sub_product = prd)
 
 
 class ChangePassword(graphene.Mutation):
@@ -449,6 +504,9 @@ class Mutation(graphene.ObjectType):
     update_address = UpdateAddress.Field()
     delete_address = DeleteAddress.Field()
     update_orders = UpdateOrders.Field()
+    upload_images = UploadImages.Field()
+    update_sub_product = UpdateSubProduct.Field()
+    create_sub_product = CreateSubProduct.Field()
 
     # seller
 

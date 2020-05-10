@@ -14,7 +14,7 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path
+from django.urls import path,include
 from graphene_django.views import GraphQLView
 from django.views.decorators.csrf import csrf_exempt
 
@@ -22,11 +22,18 @@ from django.conf import settings
 from django.conf.urls.static import static
 from app.views import *
 from rest_framework_jwt.views import obtain_jwt_token
+from rest_framework import routers
+
+router=routers.DefaultRouter()
+router.register("upload",UploadParentImages,basename="product-detail"),
+
 
 urlpatterns = [
     # path('graphql/', GraphQLView.as_view(graphiql=True)),
     path('graphql/',csrf_exempt(GraphQLView.as_view(graphiql=True))),
     path('admin/', admin.site.urls),
+    path('api/',include(router.urls)),
+    # path('abc/',UploadParentImages.as_view()),
     path('api-token-auth/', obtain_jwt_token),
     path("",home),
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

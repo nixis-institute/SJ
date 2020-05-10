@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:shopping_junction/GraphQL/Queries.dart';
 import 'package:shopping_junction/GraphQL/services.dart';
-import 'package:shopping_junction/screens/accounts/login%20copy.dart';
+import 'package:shopping_junction/screens/accounts/login.dart';
+// import 'package:shopping_junction/screens/accounts/login%20copy.dart';
 import 'package:shopping_junction/screens/home_screen.dart';
 
 class RegistrationScreen extends StatefulWidget{
