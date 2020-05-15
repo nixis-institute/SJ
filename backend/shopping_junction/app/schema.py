@@ -37,7 +37,7 @@ class FilterNode(DjangoObjectType):
         filter_fields=()
         # description ="sdf"
         # model = Product
-        
+
         interfaces = (graphene.Node,)
 
     # def resolve_data(self,info):
@@ -58,7 +58,7 @@ class FilterNode(DjangoObjectType):
         # [i.brand for i in Product.objects.all()]
 
 class ProductNode(DjangoObjectType):
-    
+
     # class Arguments:
     #     kind_in = graphene.List(graphene.String)
     # sizes = django_filters.MultipleChoiceFilter(lookup_expr=["iexact"])
@@ -94,7 +94,7 @@ class ProductNode(DjangoObjectType):
     def resolve_sizes(self,info):
         return [i.size for i in SubProduct.objects.filter(parent_id=self.id)]
     def resolve_color(self,info):
-        return [i.color for i in SubProduct.objects.filter(parent_id=self.id)]        
+        return [i.color for i in SubProduct.objects.filter(parent_id=self.id)]
 
 # class ProductList(DjangoObjectType):
 #     # prd = graphene.ObjectType()
@@ -109,7 +109,7 @@ class ProductNode(DjangoObjectType):
 #             "name":["icontains"],
 #             # "brand":
 #         }
-#         interfaces = (relay.Node,)        
+#         interfaces = (relay.Node,)
 #     # class Meta:
 #     #     model = Product
 #     #     filter_fields = ()
@@ -255,7 +255,7 @@ class UpdateAddress(graphene.Mutation):
         state = graphene.String(required=True)
         person_name = graphene.String(required=True)
         phone_number = graphene.String(required=True)
-        alternate_number = graphene.String(required=False)    
+        alternate_number = graphene.String(required=False)
     success = graphene.Boolean()
     address = graphene.Field(AddressNode)
     def mutate(self,info,id,house_no,colony,landmark,city,state,person_name,phone_number,alternate_number):
@@ -404,7 +404,7 @@ class UpdateSubProduct(graphene.Mutation):
         list_price = graphene.String(required=True)
         qty = graphene.String(required=True)
     prd = graphene.Field(lambda  :SubProductNode)
-    
+
     def mutate(self,info,id,mrp,list_price,qty):
         print(id)
         id = from_global_id(id)[1]
@@ -461,6 +461,33 @@ class CreateSubProduct(graphene.Mutation):
             )
         return CreateSubProduct(sub_product = prd)
 
+class StockStatusProduct(graphene.Mutation):
+    class Arguments:
+        id = graphene.ID(required = True)
+        instock = graphene.Int(required = True) # 1 for instock and 0 for outof stock
+    success = graphene.Boolean()
+    def mutate(self,info,id,instock):
+        id = from_global_id(id)[1]
+        p = Product.objects.get(id = id)
+        # p.inStock =
+        p.instock = instock
+        p.isActive = True
+        p.save()
+        return StockStatusProduct(success = True)
+
+class ActiveProduct(graphene.Mutation):
+    class Arguments:
+        id = graphene.ID(required = True)
+        activate = graphene.Int(required = True) # 1 for activated and 0 for inactivate
+    success = graphene.Boolean()
+    def mutate(self,info,id,activate):
+        id = from_global_id(id)[1]
+        p = Product.objects.get(id = id)
+        # p.inStock =
+        p.isActive = activate
+        p.save()
+        return ActiveProduct(success = True)
+
 
 class ChangePassword(graphene.Mutation):
     class Arguments:
@@ -486,16 +513,16 @@ class ChangePassword(graphene.Mutation):
         else:
             print("not match...........")
             return ChangePassword(success=False)
-        
-        
+
+
 #eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VybmFtZSI6ImFkbWluIiwiZXhwIjoxNTg2MDg4MTY0LCJvcmlnSWF0IjoxNTg2MDg3ODY0fQ.5g0iEgS8EFi294JNXHm5TlcXLqr2qGmeRMMedr3pJBI
 
 class Mutation(graphene.ObjectType):
-    
+
     # buyer
     token_auth = graphql_jwt.ObtainJSONWebToken.Field()
     verify_token = graphql_jwt.Verify.Field()
-    refresh_token = graphql_jwt.Refresh.Field()    
+    refresh_token = graphql_jwt.Refresh.Field()
     create_user = CreateUser.Field()
     change_password = ChangePassword.Field()
     update_user = UpdateUser.Field()
@@ -507,6 +534,9 @@ class Mutation(graphene.ObjectType):
     upload_images = UploadImages.Field()
     update_sub_product = UpdateSubProduct.Field()
     create_sub_product = CreateSubProduct.Field()
+    activate_product = ActiveProduct.Field()
+    stock_status_product = StockStatusProduct.Field()
+    # out_of_stock_product = OutOfStockProduct.Field()
 
     # seller
 
@@ -532,19 +562,20 @@ class Query(graphene.AbstractType):
     user = graphene.Field(UserNode,user_id = graphene.Int())
 
     product_by_id = graphene.Field(ProductNode,id = graphene.ID())
-    
+
     orders = DjangoFilterConnectionField(OrdersNode, user_id=graphene.Int())
-    
+
 
     is_user_existed = graphene.Field(UserNode,username = graphene.String())
 
     sublist_by_id = graphene.Field(SubListSingleNode,id=graphene.ID())
 
     search_result = graphene.List(ProductNode,match = graphene.String())
+    search_by_brand = graphene.List(ProductNode,match = graphene.String())
     search_category = graphene.List(SubListNode,match = graphene.String())
     # s = graphene.ObjectType()
     product_by_parent_id = DjangoFilterConnectionField(SubProductNode,id=graphene.ID())
-    
+
     # all_filter = graphene.List(GetFilter)``
     # data = DjangoFilterConnectionField(GetFilter)
 
@@ -579,7 +610,7 @@ class Query(graphene.AbstractType):
         print(id_)
         if(c):
             return c[0]
-        
+
         # if(Cart.objects.filter(cart_products_id=id_)):
 
         # return Cart.objects.filter()
@@ -590,7 +621,7 @@ class Query(graphene.AbstractType):
         return Product.objects.get(id = id)
 
     def resolve_cart_products(self,info):
-        
+
         # cart = Cart.objects.all().order_by('-id')
 
         cart  = Cart.objects.filter(user_id=info.context.user.id)
@@ -606,6 +637,9 @@ class Query(graphene.AbstractType):
         cat = SubList.objects.filter(name__icontains=match)
         return cat
 
+    def resolve_search_by_brand(self,info,match):
+        prd = Product.objects.filter(brand__icontains=match).order_by('-id')
+        return prd
     def resolve_search_result(self,info,match):
         prd = Product.objects.filter(name__icontains=match).order_by('-id')
         # cat = SubList.objects.filter(name__icontains=match)
@@ -666,6 +700,7 @@ class Query(graphene.AbstractType):
     def resolve_all_products(self,info,**kwargs):
         # return Product.objects.exclude(parent=1)
         user = info.context.user
+        print(user.id)
         print(user.is_authenticated)
         return Product.objects.all()
 

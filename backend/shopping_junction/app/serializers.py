@@ -15,3 +15,10 @@ class UploadParentImageSerializer(serializers.HyperlinkedModelSerializer):
         fields = ('id','large_image','parent_id')
         read_only_fields = ('normal_image','thumbnail_image','product')
         
+class UploadSubProductImageSerializer(serializers.HyperlinkedModelSerializer):
+    # parent = 
+    # parent = ProductSerializer(required=False,read_only=True)
+    class Meta:
+        model = ProductImages
+        fields = ('id','large_image','product_id',"")
+        read_only_fields = ('normal_image','thumbnail_image','product')

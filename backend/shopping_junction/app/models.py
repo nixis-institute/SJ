@@ -5,7 +5,8 @@ from PIL import Image
 from io import BytesIO
 from django.core.files.uploadedfile import InMemoryUploadedFile
 import sys
-
+from django.dispatch import receiver
+import os
 # Create your models here.
 
 class Profile(models.Model):
@@ -17,7 +18,7 @@ class Profile(models.Model):
     # image = models.ImageField(upload_to="profile/",blank=True,null=True)
     def __str__(self):
         return self.user.username
-    
+
 
 
 
@@ -34,7 +35,7 @@ class Address(models.Model):
     alternate_number = models.CharField(max_length=13,null=True,blank=True)
     def __str__(self):
         return self.house_no+" : "+self.colony
-    
+
 
 
 
@@ -44,7 +45,7 @@ class ProductCategory(models.Model):
     image = models.ImageField(upload_to='category/',blank=True)
     def __str__(self):
         return self.name
-    
+
 
 class SubCategory(models.Model):
     name = models.CharField(max_length=100)
@@ -74,6 +75,7 @@ class Product(models.Model):
     discount = models.FloatField(null=True,blank=True)
     qty = models.IntegerField(null=True,blank=True)
     instock = models.BooleanField(default=0)
+    isActive = models.BooleanField(default=0,null=True,blank=True)
     colors = models.TextField(null=True,blank=True)
     sizes = models.TextField(null=True,blank=True)
     features = models.TextField(null=True,blank=True)
@@ -115,6 +117,7 @@ class ProductImages(models.Model):
         if(self.product):
             name =  self.product.parent.name
         else:
+            print(self.parent)
             name =  self.parent.name
         return name
 
@@ -126,17 +129,17 @@ class ProductImages(models.Model):
         if im.size[0]<=700:
             basewidth = im.size[0]
         else:
-            basewidth = 600   
+            basewidth = 600
 
         #img = Image.open('somepic.jpg')
         wpercent = (basewidth/float(im.size[0]))
         hsize = int((float(im.size[1])*float(wpercent)))
-        im = im.resize((basewidth,hsize), Image.ANTIALIAS)      
+        im = im.resize((basewidth,hsize), Image.ANTIALIAS)
         im = im.convert("RGB")
         self.height = im.height
         self.width = im.width
         im.save(output, format='JPEG', quality=70)
-        
+
         self.normal_image = InMemoryUploadedFile(output,'ImageField', "%s.jpg" %self.large_image.name.split('.')[0], 'image/jpeg', sys.getsizeof(output), None)
         weight,height=im.size
         if weight > height:
@@ -145,13 +148,13 @@ class ProductImages(models.Model):
         else:
             r=(height-weight)/2
             imc=im.crop((0,r,weight,height-r))
-        imc = imc.convert("RGB")      
+        imc = imc.convert("RGB")
         imc=imc.resize((300,300),Image.ANTIALIAS)
         output = BytesIO()
         imc.save(output, format='JPEG', quality=70)
         output.seek(0)
         self.thumbnail_image = InMemoryUploadedFile(output,'ImageField', "%s.jpg" %self.large_image.name.split('.')[0], 'image/jpeg', sys.getsizeof(output), None)
-        super(ProductImages,self).save()        
+        super(ProductImages,self).save()
 
 
 class ProductImages2(models.Model):
@@ -175,8 +178,8 @@ class WishList(models.Model):
     user = models.ForeignKey(User,on_delete=models.CASCADE,blank=True,null=True)
     def __str__(self):
         return self.product.name
-    
-    
+
+
 
 class Cart(models.Model):
     size = models.CharField(max_length=5,null=True,blank=True)
@@ -203,4 +206,11 @@ class ProductOrders(models.Model):
     payment_mode = models.CharField(max_length=200)
     def __str__(self):
         return self.product.parent.name
-    
+
+@receiver(models.signals.post_delete, sender=ProductImages)
+def auto_delete(sender,instance,**kwargs):
+    # if instance.large_image:
+    #     if os.path.isfile(instance.large_image.path):
+    os.remove(instance.large_image.path)
+    os.remove(instance.normal_image.path)
+    os.remove(instance.thumbnail_image.path)

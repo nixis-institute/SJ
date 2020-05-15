@@ -19,7 +19,16 @@ class UploadParentImages(viewsets.ModelViewSet):
         serializer.save(parent_id = from_global_id(self.request.data["parent_id"])[1])
 
 
-
+class UploadSubProductImages(viewsets.ModelViewSet):
+    queryset = ProductImages.objects.all()
+    serializer_class = UploadSubProductImageSerializer
+    def perform_create(self,serializer):
+        # product_id = 45
+        if self.request.data["product_id"].isdigit():
+            product_id = self.request.data["product_id"]
+        else:
+            product_id = from_global_id(self.request.data["product_id"])[1]
+        serializer.save(product_id = product_id)
 
 
 
