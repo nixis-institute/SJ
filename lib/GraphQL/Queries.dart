@@ -120,9 +120,9 @@ mutation abc(\$id:ID!,\$old:String!,\$new:String!){
 """;
 
 final updateOrdersQuery ="""
-mutation x(\$id:Int,\$mode:String!)
+mutation x(\$addressId:ID!,\$mode:String!)
 {
-  updateOrders(id:\$id,paymentMode:\$mode)
+  updateOrders(addressId:\$addressId,paymentMode:\$mode)
   {
     success
   }
@@ -130,10 +130,47 @@ mutation x(\$id:Int,\$mode:String!)
 
 """;
 
+final getOrderQuery = """
+  query x(\$orderId:ID!)
+  {
+    getOrder(id:\$orderId){
+      address{
+        id
+        houseNo
+        colony
+        landmark
+        city
+        state
+        pinCode
+        personName
+        phoneNumber
+        alternateNumber
+      }
+    }
+  }
+""";
+
+final currentUserQuery ="""
+query{
+  user{
+    id
+    firstName
+    lastName
+    username
+    cartSet{
+      edges{
+        node{
+          id
+        }
+      }
+    }
+  }
+}
+""";
 
 final getOrdersQuery ="""
-query(\$userId:Int!){
-  orders(userId:\$userId)
+query {
+  orders
   {
     edges{
       node{
@@ -143,12 +180,27 @@ query(\$userId:Int!){
         paymentMode				
         date
         qty
+        color
+        mrp
+        discount
+        coupon
         status
         product{
           id
+          productimagesSet{
+            edges{
+              node{
+                thumbnailImage
+              }
+            }
+          }
           parent{
             name
             imageLink
+            seller{
+              id
+              username
+            }
           }
         } 
       }
@@ -159,8 +211,8 @@ query(\$userId:Int!){
 
 
 final getAddress ="""
-query x(\$userId:Int){
-  user(userId:\$userId) {
+query x{
+  user{
     addressSet {
       edges {
         node {
@@ -271,8 +323,8 @@ mutation ax(\$id:ID!,\$house_no:String!,\$colony:String!,\$landmark:String!,\$ci
 // }
 
 final UpdateInCart = """
-mutation(\$prdID:ID!,\$qty:Int!,\$size:String!,\$userId:Int!,\$isNew:Boolean!){
-  updateCart(prdId:\$prdID,qty:\$qty,size:\$size,user:\$userId,isNew:\$isNew)
+mutation(\$prdID:ID!,\$qty:Int!,\$size:String!,\$color:String!,\$isNew:Boolean!){
+  updateCart(prdId:\$prdID,qty:\$qty,size:\$size,color:\$color,isNew:\$isNew)
   {
     success
   }
@@ -287,8 +339,15 @@ query getP(\$id:ID!){
 }
 """;
 
-final CartProductsQuery ="""
+String getTokenQuery ="""
+mutation x(\$username:String!,\$password:String!){
+  tokenAuth(username:\$username,password:\$password){
+    token
+  }
+}
+""";
 
+final CartProductsQuery ="""
 query {
   cartProducts{
     edges{
@@ -395,8 +454,8 @@ query x(\$id:ID!){
 
 
 final String getUser = """
-query GetUser(\$id:Int!){
-  user(userId:\$id)
+query GetUser(){
+  user
   {
     id
     username

@@ -22,6 +22,15 @@ class LoginModel {
       };
 }
 
+class SimpleUserModel{
+  String firstName;
+  String lastName;
+  String id;
+  String username;
+  int cartLen;
+  SimpleUserModel({this.firstName,this.lastName,this.id,this.username,this.cartLen});
+}
+
 class UserModel {
   String username;
   String id;

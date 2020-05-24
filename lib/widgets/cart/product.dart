@@ -135,7 +135,10 @@ class _CartProductState extends State<CartProductWidget>{
                           padding: EdgeInsets.all(5),
                           width: 90,
                           height: 120,
-                          child:CachedNetworkImage(
+                          // alignment: Alignment.center,
+                          child:product[index].img==null?Container(width:90,height:120,alignment: Alignment.center, child: Text("Not Available",textAlign: TextAlign.center,)):
+                          
+                          CachedNetworkImage(
                             imageUrl: 
                             
                             server_url+"/media/"+product[index].img,

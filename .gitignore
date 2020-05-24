@@ -29,7 +29,7 @@
 /backend/py3/
 
 /backend/shopping_junction/app/migrations/
-# /backend/shopping_junction/media/
+/backend/shopping_junction/media/
 
 # Android related
 **/android/**/gradle-wrapper.jar

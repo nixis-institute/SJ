@@ -9,6 +9,7 @@ import 'package:shopping_junction/models/cart.dart';
 import 'sucess_screen.dart';
 
 class FinalScreen extends StatefulWidget{
+  
   @override
 
   _FinalScreen createState() => _FinalScreen();
@@ -19,12 +20,14 @@ class _FinalScreen extends State<FinalScreen>
     List<CartProductModel> cartList =[];
 
     void postOrder() async{
+      print(addressId);
+      print(modeOfPayment);
       GraphQLClient _client = clientToQuery();
       QueryResult result = await _client.mutate(
         MutationOptions(
           documentNode: gql(updateOrdersQuery),
           variables: {
-            "id":userId,
+            "addressId":addressId,
             "mode":modeOfPayment
           }
         )
@@ -37,6 +40,7 @@ class _FinalScreen extends State<FinalScreen>
       //   });
 
       // }
+
       setState(() {
         isOrdering = true;          
       });
@@ -57,7 +61,7 @@ class _FinalScreen extends State<FinalScreen>
 
 
     void fillCartProduct() async{
-     GraphQLClient _client = clientToQuery();
+    GraphQLClient _client = clientToQuery();
     QueryResult result = await _client.query(
       QueryOptions(
         documentNode: gql(CartProductsQuery)
@@ -86,7 +90,8 @@ class _FinalScreen extends State<FinalScreen>
             node["cartProducts"]["id"],
 
             node["cartProducts"]["parent"]["name"], 
-            node["cartProducts"]["parent"]["imageLink"].split(",")[0], 
+            node["cartProducts"]["productimagesSet"]["edges"].isNotEmpty?node["cartProducts"]["productimagesSet"]["edges"][0]["node"]["thumbnailImage"]:null,
+            // node["cartProducts"]["parent"]["imageLink"].split(",")[0], 
 
             node["cartProducts"]["mrp"], 
             node["cartProducts"]["listPrice"], 
@@ -102,6 +107,8 @@ class _FinalScreen extends State<FinalScreen>
         isLoading = false;
       });
 
+      // print("Cart.....");
+      // print(cartList);
     }
   }
 
@@ -140,7 +147,7 @@ class _FinalScreen extends State<FinalScreen>
       addressId = c;
     });
     getPhone().then((c){
-      phone =c;
+      phone = c;
     });
 
     getPersonName().then((c){
@@ -153,7 +160,8 @@ class _FinalScreen extends State<FinalScreen>
   
   Widget build(BuildContext context)
   {
-    print(personName);
+    // print(cartList);
+    // print(personName);
     return Scaffold(
       appBar: AppBar(
         title: Text("Confirmation"),
@@ -197,6 +205,7 @@ class _FinalScreen extends State<FinalScreen>
  
         Container(
           padding: EdgeInsets.only(left:15,top:10,bottom:10),
+          // child: Text(cartList.length.toString()),
           child: Text("Your Products",style: TextStyle(fontSize:25,fontWeight: FontWeight.w300))
           ),
  
@@ -210,17 +219,21 @@ class _FinalScreen extends State<FinalScreen>
             itemCount: cartList.length,
             itemBuilder: (context,index)
             {
-              return ListTile(
-                leading: 
-                CachedNetworkImage(
-                    imageUrl:  cartList[index].img,
-                    fit: BoxFit.cover,
-                    alignment: Alignment.topCenter,
-                    placeholder: (context, url) =>Center(child: CircularProgressIndicator()),
-                  ),
-                
-                title: Text(cartList[index].name),
-                trailing: Text(cartList[index].listPrice.toString()),
+              return Container(
+                color: Colors.white,
+                child: ListTile(
+                  leading: cartList[index].img==null?Container(width: 55,alignment: Alignment.center, child: Text("No Preview"),):
+                    CachedNetworkImage(
+                      imageUrl: server_url+"/media/"+ cartList[index].img,
+                      fit: BoxFit.cover,
+                      alignment: Alignment.topCenter,
+                      placeholder: (context, url) =>Center(child: CircularProgressIndicator()),
+                    ),
+                  
+                  title: Text(cartList[index].name),
+                  subtitle: Text("Quantity "+ cartList[index].qty.toString()),
+                  trailing: Text((cartList[index].listPrice*cartList[index].qty).toString() ),
+                ),
               );
             }
           ),

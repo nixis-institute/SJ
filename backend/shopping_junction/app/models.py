@@ -28,11 +28,27 @@ class Address(models.Model):
     house_no = models.TextField()
     colony = models.TextField()
     landmark = models.CharField(max_length=200, null=True,blank=True)
+    pin_code = models.IntegerField(null=True,blank=True)
     city = models.CharField(max_length=100)
     state = models.CharField(max_length=100)
     person_name = models.CharField(max_length=50)
     phone_number = models.CharField(max_length=13)
     alternate_number = models.CharField(max_length=13,null=True,blank=True)
+    def __str__(self):
+        return self.house_no+" : "+self.colony
+
+class OrdersAddres(models.Model):
+    house_no = models.TextField()
+    colony = models.TextField()
+    landmark = models.CharField(max_length=200, null=True,blank=True)
+    city = models.CharField(max_length=100)
+    state = models.CharField(max_length=100)
+    pin_code = models.IntegerField(null=True,blank=True)
+    person_name = models.CharField(max_length=50)
+    phone_number = models.CharField(max_length=13)
+    alternate_number = models.CharField(max_length=13,null=True,blank=True)
+    user_address_id = models.IntegerField(null=True,blank=True)
+    # user_address = models.ForeignKey(Address,)
     def __str__(self):
         return self.house_no+" : "+self.colony
 
@@ -80,6 +96,7 @@ class Product(models.Model):
     sizes = models.TextField(null=True,blank=True)
     features = models.TextField(null=True,blank=True)
     image_link = models.TextField(blank=True)
+    seller = models.ForeignKey(User,on_delete=models.CASCADE,default=1)
     # parent = models.ForeignKey(Product)
     parent = models.IntegerField(null=True,blank=True)
 
@@ -115,10 +132,12 @@ class ProductImages(models.Model):
     def __str__(self):
         # name = len(self.product.parent.name) if self.product.parent.name else self.parent.name
         if(self.product):
+            # print("sdf")
             name =  self.product.parent.name
         else:
-            print(self.parent)
+            # print(self.parent)
             name =  self.parent.name
+        print(name)
         return name
 
     def save(self,force_insert=False,force_update=False, using=None):
@@ -141,15 +160,24 @@ class ProductImages(models.Model):
         im.save(output, format='JPEG', quality=70)
 
         self.normal_image = InMemoryUploadedFile(output,'ImageField', "%s.jpg" %self.large_image.name.split('.')[0], 'image/jpeg', sys.getsizeof(output), None)
-        weight,height=im.size
-        if weight > height:
-            r=(weight-height)/2
-            imc=im.crop((r,0,height+r,height))
+        # weight,height=im.size
+        # if weight > height:
+        #     r=(weight-height)/2
+        #     imc=im.crop((r,0,height+r,height))
+        # else:
+        #     r=(height-weight)/2
+        #     imc=im.crop((0,r,weight,height-r))
+        if im.size[0]<=100:
+            basewidth = im.size[0]
         else:
-            r=(height-weight)/2
-            imc=im.crop((0,r,weight,height-r))
+            basewidth = 100
+        wpercent = (basewidth/float(im.size[0]))
+        hsize = int((float(im.size[1])*float(wpercent)))
+        imc = im.resize((basewidth,hsize), Image.ANTIALIAS)
+
+
         imc = imc.convert("RGB")
-        imc=imc.resize((300,300),Image.ANTIALIAS)
+        # imc=imc.resize((300,300),Image.ANTIALIAS)
         output = BytesIO()
         imc.save(output, format='JPEG', quality=70)
         output.seek(0)
@@ -157,11 +185,11 @@ class ProductImages(models.Model):
         super(ProductImages,self).save()
 
 
-class ProductImages2(models.Model):
-    image = models.ImageField(upload_to='product/')
-    product = models.ForeignKey(Product,on_delete=models.CASCADE)
-    def __str__(self):
-        return self.product.name
+# class ProductImages2(models.Model):
+#     image = models.ImageField(upload_to='product/')
+#     product = models.ForeignKey(Product,on_delete=models.CASCADE)
+#     def __str__(self):
+#         return self.product.name
 
 # class ProductReview(models.Model):
 #     rating = models.FloatField(null=True,blank=True)
@@ -183,6 +211,7 @@ class WishList(models.Model):
 
 class Cart(models.Model):
     size = models.CharField(max_length=5,null=True,blank=True)
+    color = models.CharField(max_length=20,null=True,blank=True)
     qty = models.IntegerField(null=True,blank=True)
     cart_products = models.ForeignKey(SubProduct,on_delete=models.CASCADE,blank=True,null=True,related_name="cart_products")
     user = models.ForeignKey(User,on_delete=models.CASCADE,blank=True,null=True)
@@ -193,14 +222,17 @@ class Cart(models.Model):
 
 
 class ProductOrders(models.Model):
-    status = models.CharField(max_length=20,null=True,blank=True)
+    status = models.CharField(max_length=20,default = "Processing")
     product  = models.ForeignKey(SubProduct,on_delete=models.CASCADE,related_name='OrderProduct')
     seller = models.ForeignKey(User,on_delete=models.CASCADE,related_name='seller')
     buyer = models.ForeignKey(User,on_delete=models.CASCADE,related_name='buyer')
+    mrp = models.FloatField(null=True,blank=True)
     price = models.FloatField(null=True,blank=True)
     size = models.CharField(max_length=10,null=True,blank=True)
     date = models.DateTimeField(default=datetime.now)
     qty = models.IntegerField()
+    color = models.CharField(max_length=20,null=True,blank=True)
+    address = models.ForeignKey(OrdersAddres,on_delete=models.CASCADE,null=True,blank=True)
     coupon = models.FloatField(null=True,blank=True)
     discount = models.FloatField(null=True,blank=True)
     payment_mode = models.CharField(max_length=200)
@@ -211,6 +243,10 @@ class ProductOrders(models.Model):
 def auto_delete(sender,instance,**kwargs):
     # if instance.large_image:
     #     if os.path.isfile(instance.large_image.path):
-    os.remove(instance.large_image.path)
-    os.remove(instance.normal_image.path)
-    os.remove(instance.thumbnail_image.path)
+
+    if(instance.large_image and os.path.isfile(instance.large_image.path)):
+        os.remove(instance.large_image.path)
+    if(instance.normal_image and os.path.isfile(instance.large_image.path)):
+        os.remove(instance.normal_image.path)
+    if(instance.thumbnail_image and os.path.isfile(instance.large_image.path)):
+        os.remove(instance.thumbnail_image.path)

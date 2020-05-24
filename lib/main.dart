@@ -1,60 +1,85 @@
 import 'dart:async';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:shopping_junction/GraphQL/services.dart';
 import 'package:flutter/material.dart';
+import 'package:shopping_junction/bloc/cart_block/cart_bloc.dart';
+import 'package:shopping_junction/bloc/cart_block/cart_repository.dart';
+import 'package:shopping_junction/bloc/login_bloc/login_bloc.dart';
+import 'package:shopping_junction/bloc/orders_bloc/orders_bloc.dart';
+import 'package:shopping_junction/bloc/orders_bloc/orders_repository.dart';
+import 'package:shopping_junction/bloc/products_bloc/products_bloc.dart';
+import 'package:shopping_junction/screens/accounts/login.dart';
 import 'package:shopping_junction/screens/home_screen.dart';
+import 'package:shopping_junction/screens/orders/order_list.dart';
+
+import 'bloc/login_bloc/login_repository.dart';
+import 'bloc/products_bloc/product_repository.dart';
 
 void main() => runApp(MyApp());
 
 class MyApp extends StatelessWidget {
   // This widget is the root of your application.
+  LoginRepostory loginRepostory = LoginRepostory();
+  ProductRepository productRepository = ProductRepository();
+  CartRepository cartRepository = CartRepository();
+  OrdersRepository ordersRepository = OrdersRepository();
   @override
   Widget build(BuildContext context) {
     Color theme = Color(0xffc2d0b1);
-    return MaterialApp(
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider<ProductsBloc>(
+          create: (context)=> ProductsBloc(),
+        ),
+        BlocProvider<LoginBloc>(
+          create: (context)=> LoginBloc(repository: loginRepostory, authenticateBloc: BlocProvider.of<AuthenticateBloc>(context)),
+          child: LoginScreen(),
+        ),
+        BlocProvider<AuthenticateBloc>(
+          create: (context)=> AuthenticateBloc(loginRepostory),
+        ),
+        BlocProvider<CartBloc>(
+          create: (context) => CartBloc(cartRepository: cartRepository),
+        ),
+        BlocProvider<OrdersBloc>(
+          create: (context)=> OrdersBloc(repository:ordersRepository),
+          child: OrderList(),
+          // child: LoginScreen(),
+        )
+        // BlocProvider<ProductsBloc>(
+        //   create: (context)=> ProductsBloc(),
+        // ),        
+      ], 
+      child: 
+    
+    
+    MaterialApp(
       title: 'Shopping Junction',
       theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // Try running your application with "flutter run". You'll see the
-        // application has a blue toolbar. Then, without quitting the app, try
-        // changing the primarySwatch below to Colors.green and then invoke
-        // "hot reload" (press "r" in the console where you ran "flutter run",
-        // or simply save your changes to "hot reload" in a Flutter IDE).
-        // Notice that the counter didn't reset back to zero; the application
-        // is not restarted.
         primaryColor: Colors.teal,
-        
-        // primarySwatch: MaterialColor(0xffc2d0b1,const{
-        //   50:Color.fromARGB(194, 208, 177, 1),
-        //   100:Color.fromARGB(194, 208, 177, 1),
-        //   200:Color.fromARGB(194, 208, 177, 1),
-        //   300:Color.fromARGB(194, 208, 177, 1),
-        //   400:Color.fromARGB(194, 208, 177, 1),
-        //   500:Color.fromARGB(194, 208, 177, 1),
-        //   600:Color.fromARGB(194, 208, 177, 1),
-        //   700:Color.fromARGB(194, 208, 177, 1),
-        //   800:Color.fromARGB(194, 208, 177, 1),
-        //   900:Color.fromARGB(194, 208, 177, 1),
-
-        // }
-        
-        
-        
-        
         ),
+      // darkTheme: ThemeData(
+      //     brightness: Brightness.dark,
+      //   ),
+
       // home: MyHomePage(title: 'Flutter Demo Home Page'),
       // home:SplashScreen(),
-    home: GraphQLProvider(
-      client: client,
-      child: CacheProvider(
-        child: HomeScreen()
-        )
+    home: BlocBuilder<AuthenticateBloc,AuthenticateState>(
+      builder: (context,state){
+        return HomeScreen();
+        // if(state is Authenticated)
+        //   return HomeScreen();
+        // else
+        //   return MyHomePage();
+      },
+      // child: HomeScreen()
       ),
     //   routes: <String, WidgetBuilder>{
     //   '/HomeScreen': (BuildContext context) => new HomeScreen()
     // },
 
+    )
     );
   }
 }

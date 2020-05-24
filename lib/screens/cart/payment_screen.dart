@@ -4,6 +4,8 @@ import 'package:shopping_junction/common/commonFunction.dart';
 import '../home_screen.dart';
 import 'final_screen.dart';
 class PaymentScreen extends StatefulWidget{
+  String addressID;
+  PaymentScreen({this.addressID});
   @override
 
   _PaymentScreen createState() => _PaymentScreen();

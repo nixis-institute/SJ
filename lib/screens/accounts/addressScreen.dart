@@ -74,6 +74,7 @@ class _Addresses extends State<Addresses>
   bool isAfterCart = false;
   var  _character;
   var total;
+  String addressID;
 
   void initState(){
   super.initState();
@@ -267,6 +268,7 @@ class _Addresses extends State<Addresses>
       ), 
           bottomNavigationBar: isAfterCart? InkWell(
             onTap:()=>Navigator.push(context, MaterialPageRoute(builder: (_)=>PaymentScreen(
+              addressID:addressID
             ))),
             child: BottomAppBar(
             child: Container(
@@ -348,10 +350,10 @@ class _Addresses extends State<Addresses>
 
 
                       child: Card(
-                  elevation: 8,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20)
-                    ),                  
+                  elevation: 1,
+                    // shape: RoundedRectangleBorder(
+                    //   borderRadius: BorderRadius.circular(20)
+                    // ),
                   
                   child: Container(
                         
@@ -375,7 +377,7 @@ class _Addresses extends State<Addresses>
 
 
 
-                  borderRadius: BorderRadius.circular(20),
+                  // borderRadius: BorderRadius.circular(20),
                   // border: BorderRadius.circular(radius)
                 ),   
                   // color: 
@@ -401,6 +403,7 @@ class _Addresses extends State<Addresses>
                               onChanged: (val){
                                 setState(() {
                                   _character = val;
+                                  addressID = this.widget.address[index].id;
                                 });
                               },
                             ),

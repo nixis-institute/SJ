@@ -1,8 +1,11 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+// import 'package:color/color.dart';
+// import 'package:complimentary_colors/complimentary_colors.dart';
 import 'package:shopping_junction/GraphQL/Queries.dart';
 import 'package:shopping_junction/GraphQL/services.dart';
 import 'package:shopping_junction/common/commonFunction.dart';
@@ -19,36 +22,16 @@ class DetailPage extends StatefulWidget{
 
   _DetailPageState createState() => _DetailPageState();
 }
-// class DetailProduct{
-//   String id;
-//   String name;
-//   double listPrice;
-//   double mrp;
-//   List sizes;
-//   bool isInCart;
-//   List imageLink;
-//   // bool isInCart;
-//   List<ProductImage> images;
-//   DetailProduct(this.id,this.name,this.listPrice,this.mrp,this.images,this.sizes,this.imageLink);
-// }
 
-class SubProduct{
-  String id;
-  double listPrice;
-  double mrp;
-  int qty;
-  String size,color;
-  bool isInCart;
-  List<ProductImage> images;
-  SubProduct(this.id,this.listPrice,this.mrp,this.size,this.color,this.qty,this.isInCart,this.images);
 
-}
 
 class _DetailPageState extends State<DetailPage>
 {
+  dynamic sizes ={};
+  dynamic colors ={};
   List<SubProduct> subproduct=[];
   void getSubProduct() async{
-    print(this.widget.pId);
+    // print(this.widget.pId);
     // cproduct = this.widget.product; 
     GraphQLClient _client = clientToQuery();
     QueryResult result = await _client.query(
@@ -67,11 +50,12 @@ class _DetailPageState extends State<DetailPage>
     if(!result.hasException){
 
       List<SubProduct> l=[];
+
       var data = result.data["productByParentId"]["edges"];
       for(int i=0;i<data.length;i++)
       {
         List<ProductImage> im =[];
-
+        
         for(int j=0;j<data[i]["node"]["productimagesSet"]["edges"].length;j++)
         {
           im.add(
@@ -83,6 +67,25 @@ class _DetailPageState extends State<DetailPage>
             )
           );
         }
+        if(colors.length==0 && sizes.length==0){
+          colors = { data[i]["node"]["color"]:[data[i]["node"]["size"]] };
+          sizes ={ data[i]["node"]["size"] : [data[i]["node"]["color"]] };
+        }
+        else{
+          colors.containsKey(data[i]["node"]["color"])
+          ?colors[data[i]["node"]["color"]].add(data[i]["node"]["size"])
+          :colors[data[i]["node"]["color"]] = [data[i]["node"]["size"]];
+
+          // print(data[i]["node"]["size"]);
+          // print(sizes);
+          sizes.containsKey(data[i]["node"]["size"])
+          ?sizes[data[i]["node"]["size"]].add(data[i]["node"]["color"])
+          :sizes[data[i]["node"]["size"]] = [data[i]["node"]["color"]];
+        }
+
+
+        // colors.contains(data[i]["node"]["color"])?colors.add(data[i]["node"]["color"]):null;
+        // sizes.contains(data[i]["node"]["size"])?colors.add(data[i]["node"]["size"]):null;
 
         l.add(
           SubProduct(data[i]["node"]["id"], 
@@ -106,20 +109,31 @@ class _DetailPageState extends State<DetailPage>
         // cproduct = Product(id, name, listPrice, mrp, images, sizes, imageLink,)
         loading = false;
         // cproduct.id = subproduct[0].id;
+        // print(subproduct[0].color);
         prdId = subproduct[0].id;
         cproduct.images = subproduct[0].images;
         cproduct.isInCart = subproduct[0].isInCart;
         selectedSize = subproduct[0].size;
+        selectedColor = subproduct[0].color;
         _id = cproduct.id;
-
       });
 
+      // print(sizes);
+      // print(colors);
 
-      print("is in cart..."+cproduct.isInCart.toString());
+      // print("is in cart..."+cproduct.isInCart.toString());
 
     }
 
   }
+  void AddToCart1() async{
+    print(prdId);
+    print(qty);
+    print(selectedSize);
+    print(selectedColor);
+
+
+  } 
   void AddToCart() async{
     // print("addtocart");
   // print(this.widget.product.id);
@@ -128,6 +142,11 @@ class _DetailPageState extends State<DetailPage>
     });
     SharedPreferences preferences = await SharedPreferences.getInstance();    
     GraphQLClient _client = clientToQuery();
+    // print(prdId);
+    // print(qty);
+    // print(selectedSize);
+    // print(userID);
+
     QueryResult result = await _client.mutate(
       MutationOptions(
         documentNode: gql(UpdateInCart),
@@ -135,7 +154,8 @@ class _DetailPageState extends State<DetailPage>
           "prdID":prdId,
           "qty":qty,
           "size":selectedSize,
-          "userId":userID,
+          "color":selectedColor,
+          // "userId":userID,
           'isNew':true
           }
       )
@@ -227,7 +247,7 @@ class _DetailPageState extends State<DetailPage>
   var size_index =0;
   bool isLoading = true;
   bool loading = true;
-  var selectedColor = '0xffb74093';
+  var selectedColor;
   var qty = 1;
   var picheight = 300.0;  
   var _count = "";
@@ -262,6 +282,7 @@ class _DetailPageState extends State<DetailPage>
       });
     });
     
+    // print(this.widget.pId);
     getSubProduct();
     // XX();
   }
@@ -271,11 +292,11 @@ class _DetailPageState extends State<DetailPage>
   Widget build(BuildContext context)
   {
   // print(this.widget.product.listPrice);
-  getCartCount().then((c){
-    setState(() {
-      _count = c;
-      });
-    });
+  // getCartCount().then((c){
+  //   setState(() {
+  //     _count = c;
+  //     });
+  //   });
 
     // print(_count);
     // print(isInCart);
@@ -414,19 +435,66 @@ class _DetailPageState extends State<DetailPage>
                   },
                   child: AnimatedContainer(
                   duration: Duration(milliseconds: 300),
-                  height: picheight,
-                  child: CachedNetworkImage(
-                    height: 230,
-                    imageUrl: 
-                    server_url+"/media/"+cproduct.images[0].normalImage.toString(),
-                    // widget.product.imageLink[0].toString(),
+                  // height: picheight,
+                  child: 
+                  cproduct.images.isEmpty
+                  ?Container(
+                    height:400,
+                    alignment: Alignment.center,
+                    child: Text("Image Not Upload",
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color:Colors.grey,
+                        fontSize: 18
+                      ),
+                      ),
+                    )
+                  :
+                  CarouselSlider(
+                    // enlargeCenterPage: true,
+                    height: 400,
+                    aspectRatio: 16/9,
+                    autoPlay: false,
+                    viewportFraction: 1.0,
+                    items : cproduct.images.map((f){
+                      return 
+                      // CachedNetworkImage(
+                      //   height:230,
+                      //   imageUrl: server_url+"/media/"+f.normalImage.toString(),
+                      //     fit: BoxFit.fitWidth,
+                      //     alignment: Alignment.topCenter,
+                      //     placeholder: (context, url) =>Center(child: CircularProgressIndicator()),
+                      // );
+
+                        Container(
+                          color:Colors.red,
+                          child: CachedNetworkImage(
+                          // height: 100,
+                          imageUrl: 
+                          server_url+"/media/"+f.normalImage.toString(),
+                          // widget.product.imageLink[0].toString(),
+                          
+                          fit: BoxFit.cover,
+                          alignment: Alignment.topCenter,
+                          placeholder: (context, url) =>Center(child: CircularProgressIndicator()),
+                      ),
+                        );                        
+                      
+                    }).toList()
+                  )
+
+                  // :CachedNetworkImage(
+                  //   height: 230,
+                  //   imageUrl: 
+                  //   server_url+"/media/"+cproduct.images[0].normalImage.toString(),
+                  //   // widget.product.imageLink[0].toString(),
                     
-                    fit: BoxFit.cover,
-                    alignment: Alignment.topCenter,
-                    placeholder: (context, url) =>Center(child: CircularProgressIndicator()),
-                    // placeholder: (context, url) => Container(height: 20,child:Container(child: CircularProgressIndicator(value: 0.2,))),
-                    // errorWidget: (context, url, error) => Icon(Icons.error),
-                  ),
+                  //   fit: BoxFit.cover,
+                  //   alignment: Alignment.topCenter,
+                  //   placeholder: (context, url) =>Center(child: CircularProgressIndicator()),
+                  // ),
+
+
                   // child: Image.network(
                   //   widget.product.imageLink[0]
                   // )
@@ -555,13 +623,15 @@ class _DetailPageState extends State<DetailPage>
                               
                               child: ListView.builder(
                                 shrinkWrap: true,
-                                itemCount: subproduct.length,
+                                itemCount: sizes.length,
 
                                 scrollDirection: Axis.horizontal,
                                 itemBuilder: (BuildContext context,int index){                                
                                     return Padding(
                                       padding: const EdgeInsets.only(right:10),
-                                      child: _size(subproduct[index].size, true,subproduct[index],index),
+                                      child: _size(
+                                        sizes.keys.toList()[index],index
+                                        ),
                                     );
                                 },
                               ),
@@ -585,17 +655,40 @@ class _DetailPageState extends State<DetailPage>
                           Text("Color",style: TextStyle(fontWeight:FontWeight.w700)),
                           SizedBox(height: 10,),
                           loading?Center(child: CircularProgressIndicator(),):
-                          Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: <Widget>[
-                                _color("0xffb74093", false),
-                                SizedBox(width: 10,),
-                                _color("0xffaabbcc", true),
-                                SizedBox(width: 10,),
-                                _color("0xffa26676", false),
-                                SizedBox(width: 10,)                                                            
-                            ],
+                          // Row(
+                          //   crossAxisAlignment: CrossAxisAlignment.start,
+                          //   children: <Widget>[
+                          //       _color("0xffb74093", false),
+                          //       SizedBox(width: 10,),
+                          //       _color("0xffaabbcc", true),
+                          //       SizedBox(width: 10,),
+                          //       _color("0xffa26676", false),
+                          //       SizedBox(width: 10,)                                                            
+                          //   ],
+                          // )
+                          Container(
+                            width: MediaQuery.of(context).size.width,
+                            height: 35,
+                            // color:Colors.red,
+                            child: ListView.builder(
+                              shrinkWrap: true,
+                              scrollDirection: Axis.horizontal,
+                              itemCount: sizes[selectedSize].length,
+                              itemBuilder:(context,index){
+                                // return Text("S");
+                                return Container(
+                                  margin: EdgeInsets.only(right:10),
+                                  child: _color(
+                                    sizes[selectedSize][index].replaceAll("#","0xff"), false)
+                                    // colors.keys.toList()[index].replaceAll("#","0xff"), false)
+                                  
+                                );
+                              }
+                              ),
                           )
+
+
+
                         ],
                       ),
                     ),
@@ -667,15 +760,16 @@ class _DetailPageState extends State<DetailPage>
 
 
 
-  Widget _size(String size,bool selected,SubProduct product,int index){
+  Widget _size(String size,int index){
     return InkWell(
           onTap: (){
+              selectedSize = size;
               size_index = index;
-              cproduct.listPrice =  product.listPrice;
-              cproduct.mrp =  product.mrp;
-              cproduct.isInCart = product.isInCart;
-              cproduct.images = product.images;
-              prdId = product.id;
+              // cproduct.listPrice =  product.listPrice;
+              // cproduct.mrp =  product.mrp;
+              // cproduct.isInCart = product.isInCart;
+              // cproduct.images = product.images;
+              // prdId = product.id;
 
             // setState(() {
             //   // this.cproduct.sizes[0] = product.size;
@@ -719,9 +813,15 @@ class _DetailPageState extends State<DetailPage>
 
 
   Widget _color(String colors,bool selected){
+      // var givenHexColor = HexColor('FF0000');
+
+      // CalculateComplimentaryColor.fromHex(colors);
+      // print(colors+"--");
+
+      // print(selectedColor);
       return InkWell(
           onTap: (){
-            selectColor(colors);
+            selectColor(colors.replaceAll("0xff", "#"));
           },
             child: AnimatedContainer(
             duration: Duration(milliseconds: 200),
@@ -731,13 +831,18 @@ class _DetailPageState extends State<DetailPage>
             decoration: BoxDecoration(
               borderRadius: BorderRadius.all(Radius.circular(30)),
               color:Color(int.parse(colors)),
+              // color:Colors.black,
               border: Border.all(
-                color: Colors.grey[200],
-                width: selectedColor == colors
-                ?4
+                color: Colors.black,
+                width: selectedColor == colors.replaceAll("0xff", "#")
+                ?0.2
                 :0.2
                 )
             ),
+            child: selectedColor == colors.replaceAll("0xff", "#")?Icon(
+              Icons.check_circle,
+              color: Colors.white,
+              ):null,
           ),
       );
   }
@@ -745,9 +850,33 @@ class _DetailPageState extends State<DetailPage>
 
 
   selectColor(color){
-    setState(() {
+    // List<SubProduct> p = subproduct.where((e) => e.color == color && e.size == selectedSize: e).toList();
+    SubProduct p;
+    
+    setState(() {      
       selectedColor = color;
     });
+    // print(selectedColor);
+    // print(selectedSize);
+
+      subproduct.forEach((product) {
+        // print(product.color);
+        if(product.size == selectedSize && product.color == selectedColor.replaceAll("0xff", "#")){
+          p = product;
+        }
+     });
+    //  print(p.listPrice);
+    //  print(p.mrp);
+    //  print(p.isInCart);
+    //  print(p.images);
+    setState(() {
+        cproduct.listPrice =  p.listPrice;
+        cproduct.mrp =  p.mrp;
+        cproduct.isInCart = p.isInCart;
+        cproduct.images = p.images;
+        prdId = p.id;
+    });
+    //  print(p);
   }
 
 

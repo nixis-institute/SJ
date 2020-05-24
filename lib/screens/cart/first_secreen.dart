@@ -40,6 +40,8 @@ class _ChatScreenState extends State<CartScreen>   {
       var data = result.data["cartProducts"]["edges"];
       double p = 0;
       List<CartProductModel> l=[];
+      // print("ddd");
+      // print(result.data["cartProducts"]["edges"]);
       for(int i=0;i<data.length;i++)
       {
         
@@ -53,7 +55,7 @@ class _ChatScreenState extends State<CartScreen>   {
           CartProductModel(
             node["cartProducts"]["id"],
             node["cartProducts"]["parent"]["name"], 
-            node["cartProducts"]["productimagesSet"]["edges"][0]["node"]["thumbnailImage"], 
+            node["cartProducts"]["productimagesSet"]["edges"].isEmpty?null:node["cartProducts"]["productimagesSet"]["edges"][0]["node"]["thumbnailImage"], 
             node["cartProducts"]["mrp"], 
             node["cartProducts"]["listPrice"], 
             node["size"], 
@@ -61,6 +63,7 @@ class _ChatScreenState extends State<CartScreen>   {
             )
         );
       }
+      // print(l);
 
       setState(() {
         totalPrice = p;

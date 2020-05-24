@@ -8,15 +8,36 @@ class ProductImage{
   ProductImage(this.id,this.largeImage,this.normalImage,this.thumImage);
 }
 
+// class SubProduct{
+//   String id;
+//   String name;
+//   double listPrice;
+//   double mrp;
+//   List sizes;
+//   List imageLink;
+//   List<ProductImage> images;
+//   SubProduct(this.id,this.name,this.listPrice,this.mrp,this.images,this.sizes,this.imageLink);  
+// }
 class SubProduct{
   String id;
-  String name;
   double listPrice;
   double mrp;
-  List sizes;
-  List imageLink;
+  int qty;
+  String size,color;
+  bool isInCart;
   List<ProductImage> images;
-  SubProduct(this.id,this.name,this.listPrice,this.mrp,this.images,this.sizes,this.imageLink);  
+  SubProduct(this.id,this.listPrice,this.mrp,this.size,this.color,this.qty,this.isInCart,this.images);
+
+}
+
+class SizeMapping{
+  dynamic sizeToColor;
+  SizeMapping({this.sizeToColor});
+}
+
+class ColorMapping{
+  dynamic colorToSize;
+  ColorMapping({this.colorToSize});
 }
 
 class Product{

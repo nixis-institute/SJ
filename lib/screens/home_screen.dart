@@ -1,9 +1,11 @@
 import 'package:flappy_search_bar/search_bar_style.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shopping_junction/GraphQL/services.dart';
+import 'package:shopping_junction/bloc/login_bloc/login_bloc.dart';
 import 'package:shopping_junction/common/commonFunction.dart';
 import 'package:shopping_junction/models/category_model.dart';
 import 'package:shopping_junction/models/products.dart';
@@ -56,6 +58,7 @@ List<ProductCategory> listCategory = List<ProductCategory>();
 
     if(!_result.hasException)
     {
+      print(_result.data["cartProducts"]["edges"]);
       SharedPreferences preferences = await SharedPreferences.getInstance();
       var len = _result.data["cartProducts"]["edges"];
       setState(() {
@@ -74,14 +77,16 @@ List<ProductCategory> listCategory = List<ProductCategory>();
     {
         isError = true;
         Error = result.exception.toString();
-    } 
+        print("...");
+        print(Error);
+    }
 
     if(!result.hasException)
     {
       setState(() {
         isLoading = false;
       });
-      print("__data__");
+      // print("__data__");
       for(var i=0;i<result.data["allCategory"]["edges"].length;i++)
         {
           // print("-->");
@@ -125,9 +130,13 @@ List<ProductCategory> listCategory = List<ProductCategory>();
   var _count="";
   void initState(){
     super.initState();
+    BlocProvider.of<AuthenticateBloc>(context).add(
+      AppStarted()
+    );
     // _loadUser();
     fillList();
-  }  
+
+  }
 
   
   Widget build (BuildContext context){
@@ -194,11 +203,28 @@ List<ProductCategory> listCategory = List<ProductCategory>();
                         color: Colors.red,
                         borderRadius: BorderRadius.circular(10)
                       ),
-                      child: Text(
-                        isLoading?"":
-                        _count,
-                        style: TextStyle(color:Colors.white),
-                        ),
+                      child: 
+                      BlocBuilder<AuthenticateBloc,AuthenticateState>(
+                        builder: (context,state){
+                          if(state is Authenticated)
+                            {return Text(
+                              isLoading?"":
+                              _count==null?"":_count,
+                              style: TextStyle(color:Colors.white),
+                            );}
+                          else{
+                            return Text("0",style: TextStyle(color:Colors.white),);
+                          }
+                        },
+                      )
+                      
+                      // Text(
+                      //   isLoading?"":
+                      //   _count==null?"":_count,
+                      //   style: TextStyle(color:Colors.white),
+                      //   ),
+
+
                     ),
                   )
                 ]
@@ -206,7 +232,36 @@ List<ProductCategory> listCategory = List<ProductCategory>();
             ],
             // bottom: PreferredSize(child: SearchBar(), preferredSize: Size(50, 50)),
             ),
-        drawer: SideDrawer(productCategory:listCategory),
+        drawer: 
+        
+        BlocListener<AuthenticateBloc,AuthenticateState>(
+          listener: (context, state) {
+            if(state is Authenticated)
+            {
+              print("Authenticated---------------");
+            }
+            else{
+              print("----------Not Authenticated");
+            }
+          },
+            child: BlocBuilder<AuthenticateBloc,AuthenticateState>(
+            builder: (context, state){
+              if(state is Authenticated)
+              {
+                // print(state.user);
+                return SideDrawer(productCategory:listCategory,user:state.user.firstName);
+              }
+              if(state is NotAuthenticated){
+                return SideDrawer(productCategory:listCategory);
+              }
+              else{
+                return SideDrawer(productCategory:listCategory,user:"Else");
+              }
+            }
+          ),
+        ),
+        
+        
         body: ListView(
           
           children: <Widget>[

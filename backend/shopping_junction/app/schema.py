@@ -158,6 +158,12 @@ class OrdersNode(DjangoObjectType):
         filter_fields = ()
         interfaces = (relay.Node,)
 
+class OrdersAddresNode(DjangoObjectType):
+    class Meta:
+        model = OrdersAddres
+        filter_fields = ()
+        interfaces = (graphene.Node,)
+
 class SubCategoryNode(DjangoObjectType):
     productSize = graphene.Int()
     class Meta:
@@ -328,25 +334,53 @@ class UploadImages(graphene.Mutation):
 
 class UpdateOrders(graphene.Mutation):
     class Arguments:
-        id = graphene.Int()
+        address_id = graphene.ID()
         paymentMode = graphene.String()
     success = graphene.Boolean()
-    def mutate(self,info,id,paymentMode):
-        cart = Cart.objects.filter(user_id=id)
+    def mutate(self,info,address_id,paymentMode):
+        cart = Cart.objects.filter(user_id=info.context.user.id)
+        oAddress = Address.objects.get(id = from_global_id(address_id)[1])
+        
+        new_address = OrdersAddres.objects.filter(user_address_id = oAddress.id)
+
+        if(new_address):
+            new_address = new_address[0]
+        else:
+            new_address = OrdersAddres.objects.create(
+            house_no = oAddress.house_no,
+            colony = oAddress.colony,
+            landmark = oAddress.landmark,
+            city = oAddress.city,
+            state = oAddress.state,
+            person_name = oAddress.person_name,
+            phone_number = oAddress.phone_number,
+            pin_code = oAddress.pin_code,
+            user_address_id = oAddress.id,
+            alternate_number = oAddress.alternate_number
+        )
+
+        print(new_address.id)
+        print(id)
         for i in cart:
             ProductOrders.objects.create(
                 product_id = i.cart_products.id,
-                seller_id = id,
-                buyer_id = id,
+                seller_id = i.cart_products.parent.seller.id,
+                buyer_id = info.context.user.id,
                 qty = i.qty,
                 coupon = 0,
                 discount = 0,
-                payment_mode=paymentMode,
+                payment_mode = paymentMode,
+                mrp = i.cart_products.mrp,
                 price = i.cart_products.list_price,
-                size = i.size
+                size = i.size,
+                color = i.color,
+                address_id = new_address.id
             )
+            temp = SubProduct.objects.get(id=i.cart_products.id)
+            temp.qty = temp.qty - i.qty
 
-        Cart.objects.filter(user_id=id).delete()
+        temp.save()
+        Cart.objects.filter(user_id=info.context.user.id).delete()
         return UpdateOrders(success=True)
 
 
@@ -355,15 +389,17 @@ class UpdateCart(graphene.Mutation):
     class Arguments:
         size = graphene.String(required=False)
         qty = graphene.Int(required=False)
+        color = graphene.String(required=True)
         # prd_id = graphene.ID(required=True)
-        user = graphene.Int(required=True)
+        # user = graphene.Int(required=True)
         prd_id = graphene.ID(required=True)
         is_new = graphene.Boolean(required=True)
     success = graphene.Boolean()
-    def mutate(self,info,size,qty,prd_id,user,is_new):
+    def mutate(self,info,size,qty,prd_id,is_new,color):
         prd_id = from_global_id(prd_id)[1]
         if(is_new):
-            Cart.objects.create(size = size,qty = qty,cart_products_id = prd_id,user_id = user)
+            print(info.context.user.id)
+            Cart.objects.create(color = color,size = size,qty = qty,cart_products_id = prd_id,user_id = info.context.user.id)
         else:
             # c = Cart.objects.get(cart_products_id=prd_id)
             Cart.objects.get(cart_products_id=prd_id).delete()
@@ -396,6 +432,38 @@ class UpdateUser(graphene.Mutation):
         else:
             Profile.objects.create(user_id=u.id,phone_number=phone,gender=gender)
         return UpdateUser(user = u)
+class UpdateProduct(graphene.Mutation):
+    class Arguments:
+        id = graphene.ID(required=True)
+        name = graphene.String(required = True)
+        brand = graphene.String(required = True)
+        sortD = graphene.String(required = True)
+        longD = graphene.String(required = True)
+    success = graphene.Boolean()
+    def mutate(self,info,id,name,sortD,longD,brand):
+        prd = Product.objects.get(id = from_global_id(id)[1])
+        prd.brand = brand
+        prd.name = name
+        prd.shortDescription = sortD
+        prd.description = longD
+        prd.save()
+        return UpdateProduct(success = True)
+
+class DeleteSubProduct(graphene.Mutation):
+    class Arguments:
+        id = graphene.ID(required = True)
+    success = graphene.Boolean()
+    def mutate(self,info,id):
+        SubProduct.objects.get(id = from_global_id(id)[1]).delete()
+        return DeleteSubProduct(success = True)
+class DeleteProduct(graphene.Mutation):
+    class Arguments:
+        id = graphene.ID(required = True)
+    success = graphene.Boolean()
+    def mutate(self,info,id):
+        Product.objects.get(id = from_global_id(id)[1]).delete()
+        return DeleteProduct(success = True)
+
 
 class UpdateSubProduct(graphene.Mutation):
     class Arguments:
@@ -403,15 +471,17 @@ class UpdateSubProduct(graphene.Mutation):
         mrp = graphene.String(required=True)
         list_price = graphene.String(required=True)
         qty = graphene.String(required=True)
+        color = graphene.String(required=True)
     prd = graphene.Field(lambda  :SubProductNode)
 
-    def mutate(self,info,id,mrp,list_price,qty):
+    def mutate(self,info,id,mrp,list_price,qty,color):
         print(id)
         id = from_global_id(id)[1]
         prd = SubProduct.objects.get(id=id)
         prd.mrp = mrp
         prd.list_price = list_price
         prd.qty = qty
+        prd.color = color
         prd.save()
         return UpdateSubProduct(prd = prd)
 
@@ -536,6 +606,9 @@ class Mutation(graphene.ObjectType):
     create_sub_product = CreateSubProduct.Field()
     activate_product = ActiveProduct.Field()
     stock_status_product = StockStatusProduct.Field()
+    update_product = UpdateProduct.Field()
+    delete_product = DeleteProduct.Field()
+    delete_sub_product = DeleteSubProduct.Field()
     # out_of_stock_product = OutOfStockProduct.Field()
 
     # seller
@@ -559,11 +632,12 @@ class Query(graphene.AbstractType):
     subcateogry_by_category_id = DjangoFilterConnectionField(SubCategoryNode,main_category_id = graphene.ID())
     sublist_by_subcategory_id = DjangoFilterConnectionField(SubListNode, sub_category_id=graphene.ID())
     product_by_sublist_id = DjangoFilterConnectionField(ProductNode, sublist_id=graphene.ID())
-    user = graphene.Field(UserNode,user_id = graphene.Int())
+    user = graphene.Field(UserNode)
 
     product_by_id = graphene.Field(ProductNode,id = graphene.ID())
 
-    orders = DjangoFilterConnectionField(OrdersNode, user_id=graphene.Int())
+    orders = DjangoFilterConnectionField(OrdersNode)
+    get_order = graphene.Field(OrdersNode,id=graphene.ID())
 
 
     is_user_existed = graphene.Field(UserNode,username = graphene.String())
@@ -581,6 +655,8 @@ class Query(graphene.AbstractType):
 
     # def resolve_data(self,info):
     #     return ["sdf","sdf"]
+    def resolve_get_order(self,info,id):
+        return ProductOrders.objects.get(id = from_global_id(id)[1])
     def resolve_filter_by_id(self,info,id):
         id = from_global_id(id)[1]
         print(id)
@@ -621,15 +697,23 @@ class Query(graphene.AbstractType):
         return Product.objects.get(id = id)
 
     def resolve_cart_products(self,info):
+        # return None
 
         # cart = Cart.objects.all().order_by('-id')
-
-        cart  = Cart.objects.filter(user_id=info.context.user.id)
+        # return cart
+        # if(info.context.user.is_authenticated):
+        cart = Cart.objects.filter(user_id=info.context.user.id).order_by("-id")
+        return cart
+        #     return cart
+        # else:
+            
+        # cart  = Cart.objects.filter(user_id=info.context.user.id).order_by("-id")
         # print(info.context.user.id)
         # print(dir(info.context.user))
-        return cart
+        
 
-    def resolve_orders(self,info,user_id):
+    def resolve_orders(self,info):
+        user_id = info.context.user.id
         return ProductOrders.objects.filter(buyer_id = user_id).order_by("-date")
 
 
@@ -670,7 +754,8 @@ class Query(graphene.AbstractType):
         # else:
         #     return False
 
-    def resolve_user(self,info,user_id):
+    def resolve_user(self,info):
+        user_id = info.context.user.id
         return User.objects.get(id = user_id)
 
     def resolve_sublist_by_id(self,info,id):
@@ -702,7 +787,7 @@ class Query(graphene.AbstractType):
         user = info.context.user
         print(user.id)
         print(user.is_authenticated)
-        return Product.objects.all()
+        return Product.objects.all().order_by("-id")
 
     def resolve_all_category(self,info,**kwargs):
         return ProductCategory.objects.all()

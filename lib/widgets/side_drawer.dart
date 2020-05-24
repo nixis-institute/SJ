@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:shopping_junction/GraphQL/Queries.dart';
 import 'package:shopping_junction/GraphQL/services.dart';
+import 'package:shopping_junction/bloc/login_bloc/login_bloc.dart';
 import 'package:shopping_junction/models/category_model.dart';
 import 'package:shopping_junction/models/userModel.dart';
 import 'package:shopping_junction/screens/accounts/account.dart';
@@ -12,7 +14,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class SideDrawer extends StatefulWidget{
   List<ProductCategory> productCategory;
-  SideDrawer({this.productCategory});
+  String user;
+  SideDrawer({this.productCategory,this.user});
   @override
   _SideDrawerState createState() => _SideDrawerState();
 }
@@ -43,7 +46,12 @@ class _SideDrawerState extends State<SideDrawer>
   var Error = "";
   void initState(){
     super.initState();
-    _loadUser();
+    _loadUser(); 
+    
+    // BlocProvider.of<AuthenticateBloc>(context).add(
+    //   AppStarted()
+    // );
+
   }
 
   _loadUser() async {
@@ -143,33 +151,21 @@ class _SideDrawerState extends State<SideDrawer>
               ),
             ),
 
-            InkWell(
-                onTap: (){
-                  Navigator.pop(context);
-                  user!=null?
+            ListTile(
+              onTap: (){
+                Navigator.pop(context);
+                  this.widget.user==null?Navigator.push(context, MaterialPageRoute(builder: (_)=>LoginScreen(
+                    ))):
+
                   Navigator.push(context, MaterialPageRoute(builder: (_)=>ProfileScreen(
                     uid:uid
-                  )))
-                  :
-                  Navigator.push(context, MaterialPageRoute(builder: (_)=>LoginScreen(
                   )));
-                },
-
-                child: ListTile(
-                title:Text(
-
-                    user!=null?
-                    '$user':'LOGIN',
-                    // '$user??Login',
-                    // user.toString().length >0)?user:"Login",
-                  // "LOGIN",
-
-                
-                style: TextStyle(color: Colors.white,fontSize: 18,fontWeight: FontWeight.w400),
-                ),
+              },
+              title: Text(this.widget.user==null?"Login":this.widget.user,
+              style: TextStyle(color: Colors.white,fontSize: 18,fontWeight: FontWeight.w400),
               ),
+              
             ),
-
             ListTile(
               title:Text("MORE",
               style: TextStyle(color: Colors.white,fontSize: 18,fontWeight: FontWeight.w400),

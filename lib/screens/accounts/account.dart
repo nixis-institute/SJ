@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shopping_junction/GraphQL/Queries.dart';
 import 'package:shopping_junction/GraphQL/services.dart';
+import 'package:shopping_junction/bloc/login_bloc/login_bloc.dart';
 import 'package:shopping_junction/models/userModel.dart';
 import 'package:shopping_junction/screens/accounts/checkpassword.dart';
 import 'package:shopping_junction/screens/orders/order_list.dart';
@@ -29,9 +31,9 @@ class _ProfileScreenState extends State<ProfileScreen>{
     QueryResult result = await _client.query(
       QueryOptions(
         documentNode: gql(getUser),
-        variables:{
-          "id":_uid,
-          }
+        // variables:{
+        //   "id":_uid,
+        //   }
       )
     );
 
@@ -92,8 +94,12 @@ class _ProfileScreenState extends State<ProfileScreen>{
   }
 
 _clear() async{
-  final pref = await SharedPreferences.getInstance();
-  pref.clear();
+  BlocProvider.of<LoginBloc>(context).add(
+      OnLogout()
+  );
+  // final pref = await SharedPreferences.getInstance();
+  // pref.getString("key")
+  // pref.clear();
 }
 
 
@@ -166,10 +172,11 @@ _clear() async{
                 // Text(user.username)
                 // loading?Center(child: CircularProgressIndicator()):
                 SizedBox(height: 15,),
-                CircleAvatar(
-                  radius: 70,
-                  backgroundImage: AssetImage("assets/category/1.jpg",),
-                ),
+                // CircleAvatar(
+                //   radius: 70,
+                //   // backgroundImage: AssetImage("assets/category/1.jpg",),
+                // ),
+
                 SizedBox(height: 10,),
                 Text(user.firstName+" "+ user.lastName,style: TextStyle(fontSize: 20,fontWeight: FontWeight.bold),)
                 // Text(user.firstName)
@@ -179,10 +186,8 @@ _clear() async{
           Container(
             child: Column(children: <Widget>[
               // ListTile(trailing: Icon(Icons.info),)
-              
               ListTile(
                 onTap: (){
-
                 Navigator.push(context, MaterialPageRoute(builder: (_)=>OrderList(
                 )));  
                   
@@ -234,7 +239,10 @@ _clear() async{
               
               ListTile(leading: Icon(Icons.power_settings_new,color: Colors.red,),title: Text('Logout',style: TextStyle(color: Colors.red,fontWeight: FontWeight.bold,fontSize: 18),),
               onTap:(){
-              _clear();
+              // _clear();
+              BlocProvider.of<AuthenticateBloc>(context).add(
+                  LoggedOut()
+              );
               Navigator.pop(context);
               }
               ),
