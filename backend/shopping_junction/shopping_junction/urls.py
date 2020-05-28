@@ -27,6 +27,7 @@ from rest_framework import routers
 router=routers.DefaultRouter()
 router.register("upload",UploadParentImages,basename="product-detail"),
 router.register("subproduct",UploadSubProductImages,basename = "productimages-detail")
+router.register("profile",ProfileSer,basename="profile-detail")
 
 
 urlpatterns = [

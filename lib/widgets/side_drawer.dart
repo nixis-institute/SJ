@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
@@ -14,7 +15,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class SideDrawer extends StatefulWidget{
   List<ProductCategory> productCategory;
-  String user;
+  SimpleUserModel user;
   SideDrawer({this.productCategory,this.user});
   @override
   _SideDrawerState createState() => _SideDrawerState();
@@ -68,144 +69,161 @@ class _SideDrawerState extends State<SideDrawer>
     Drawer(
       elevation: 1,
       child: 
-      Container(
-        color: Colors.teal,
-        child: ListView(        
-          // shrinkWrap: true,
-          // scrollDirection: Axis.vertical,
-          children: <Widget>[
-            SizedBox(height: 30,),
-            isLoading
-            ?
-            
-            Center(
-              child: Container(
-                height: 50,
-                width: 50,
-                child: CircularProgressIndicator()),
-            ):
-            
-            
-            ListView.builder(
-              shrinkWrap: true,
-              physics: ClampingScrollPhysics(),
-              // itemCount:  listCategory.length,
-              itemCount: this.widget.productCategory.length,
-              itemBuilder: (BuildContext context,int index){
-                // return ListTile(title: Text(category_model[index].name),);
-                return Padding(
-                  padding: const EdgeInsets.only(left:10.0,right: 10),
-                  child: ExpansionTile(
-                    title: Text(this.widget.productCategory[index].name.toUpperCase(),style: TextStyle(color: Colors.white,fontSize: 18,fontWeight: FontWeight.w400),),
-                    trailing: Icon(Icons.add,color:Colors.white),
-                    children: <Widget>[
-                      ListView.builder(
-                        shrinkWrap: true,
-                        itemCount: this.widget.productCategory[index].subCat.length,
-                        physics: ClampingScrollPhysics(),
-                        itemBuilder: (BuildContext context, int i){
-                          return InkWell(
-                                onTap: (){
-                                Navigator.pop(context);
-                                Navigator.push(context, MaterialPageRoute(builder: (_)=>ListPage(
-                                  subCategory:this.widget.productCategory[index].subCat[i]
-                                  // product: category_model[index].list[i].products,
-                                ))); 
-                                },
-                                child: Padding(
-                                padding: EdgeInsets.only(left: 10),
-                                child: ListTile(
-                                title: Text(this.widget.productCategory[index].subCat[i].name.toUpperCase(),style: TextStyle(color: Colors.white,fontWeight: FontWeight.w400),),
-                                ),
-                            ),
-                          );
-                        },
-                      )
-                    ],
-                  ),
-                );
-              
-              },
-            ),
-            Divider(height: 1,color: Colors.white,),
-
-            ListTile(
-              title:Text("SHOPPING TRENDS",
-              style: TextStyle(color: Colors.white,fontSize: 18,fontWeight: FontWeight.w400),
-              )),
-            ListTile(
-              title:Text("GIFT CARDS",
-              style: TextStyle(color: Colors.white,fontSize: 18,fontWeight: FontWeight.w400),
-              ),              
-            ),
-
-            ListTile(
-              title:Text("THEME STORE",
-              style: TextStyle(color: Colors.white,fontSize: 18,fontWeight: FontWeight.w400),
-              ),
-            ),
-
-            ListTile(
-              title:Text("CONTACT US",
-              style: TextStyle(color: Colors.white,fontSize: 18,fontWeight: FontWeight.w400),
-              ),
-            ),
-
-            ListTile(
+      ListView(        
+        shrinkWrap: true,
+        // scrollDirection: Axis.vertical,
+        children: <Widget>[
+          this.widget.user==null?
+          ListTile(
+            onTap: (){
+              Navigator.pop(context);
+              Navigator.push(context, MaterialPageRoute(builder: (_)=>LoginScreen()));
+            },
+            trailing: Icon(Icons.account_circle,),
+            title: Text("LOGIN",style: TextStyle(fontSize: 18),),
+          )
+          // SizedBox()
+          :
+          
+          InkWell(
               onTap: (){
                 Navigator.pop(context);
-                  this.widget.user==null?Navigator.push(context, MaterialPageRoute(builder: (_)=>LoginScreen(
-                    ))):
-
-                  Navigator.push(context, MaterialPageRoute(builder: (_)=>ProfileScreen(
-                    uid:uid
-                  )));
+                Navigator.push(context, MaterialPageRoute(builder: (_)=>ProfileScreen(uid: uid,user:this.widget.user)));
               },
-              title: Text(this.widget.user==null?"Login":this.widget.user,
-              style: TextStyle(color: Colors.white,fontSize: 18,fontWeight: FontWeight.w400),
-              ),
+              child: UserAccountsDrawerHeader(
+              // decoration:BoxDecoration(
+              //   color: Colors.transparent
+              // ),
+              // accountName: Text(this.widget.user.firstName),
+              accountName: 
+              Text(this.widget.user.firstName+" "+ this.widget.user.lastName,style: TextStyle(fontSize: 20,fontWeight: FontWeight.bold),), 
+
+              accountEmail: null,
+              // this.widget.user.profilePic==null?null:
+
+              currentAccountPicture: 
+                Hero(
+                  tag: "imageHero",
+                  child: 
+                  CircleAvatar(
+                    radius: 70,
+                    backgroundImage: CachedNetworkImageProvider(server_url+"/media/"+
+                    
+                    this.widget.user.profilePic
+                    
+                    ))
+                ),
+              // Hero(
+              //   // backgroundColor: Colors.white,
+              //   child: this.widget.user.profilePic!=null?null: Icon(Icons.account_circle),
+              //   // backgroundColor: Colors.white,
+              //   backgroundImage: this.widget.user.profilePic==null?null:
+              //    NetworkImage(server_url+"/media/"+this.widget.user.profilePic),
+              // ),
               
             ),
-            ListTile(
-              title:Text("MORE",
-              style: TextStyle(color: Colors.white,fontSize: 18,fontWeight: FontWeight.w400),
-              ),
-            ),
+          ),
+
+          // Text(this.widget.user.profilePic),
+          // SizedBox(height: 30,),
+          isLoading
+          ?
+          
+          Center(
+            child: Container(
+              height: 50,
+              width: 50,
+              child: CircularProgressIndicator()),
+          ):
+          
+          
+          ListView.builder(
+            shrinkWrap: true,
+            physics: ClampingScrollPhysics(),
+            // itemCount:  listCategory.length,
+            itemCount: this.widget.productCategory.length,
+            itemBuilder: (BuildContext context,int index){
+              // return ListTile(title: Text(category_model[index].name),);
+              return Padding(
+                padding: const EdgeInsets.only(left:10.0,right: 10),
+                child: ExpansionTile(
+                  title: Text(this.widget.productCategory[index].name.toUpperCase(),style: TextStyle(fontSize: 18,fontWeight: FontWeight.w400),),
+                  trailing: Icon(Icons.add),
+                  children: <Widget>[
+                    ListView.builder(
+                      shrinkWrap: true,
+                      itemCount: this.widget.productCategory[index].subCat.length,
+                      physics: ClampingScrollPhysics(),
+                      itemBuilder: (BuildContext context, int i){
+                        return InkWell(
+                              onTap: (){
+                              Navigator.pop(context);
+                              Navigator.push(context, MaterialPageRoute(builder: (_)=>ListPage(
+                                subCategory:this.widget.productCategory[index].subCat[i]
+                                // product: category_model[index].list[i].products,
+                              ))); 
+                              },
+                              child: Padding(
+                              padding: EdgeInsets.only(left: 10),
+                              child: ListTile(
+                              title: Text(this.widget.productCategory[index].subCat[i].name.toUpperCase(),style: TextStyle(fontWeight: FontWeight.w400),),
+                              ),
+                          ),
+                        );
+                      },
+                    )
+                  ],
+                ),
+              );
             
-          ],
-        )
-        
-        
-        // Column(
-        //   children: <Widget>[
-        //     SizedBox(height: 50,),
-        //     ExpansionTile(
-        //       title: Text("MEN",
-        //       style: TextStyle(fontSize: 20,color:Colors.white,fontWeight: FontWeight.w300),
-        //       ),
-        //       trailing: Icon(Icons.add,color:Colors.white),
-        //       children: <Widget>[
-        //         ListTile(
-        //           title: Text("Topwear",style: TextStyle(color:Colors.white),),
-        //         ),
-        //         ListTile(
-        //           title: Text("Pents",style: TextStyle(color:Colors.white),),
-        //         ),
-        //         ListTile(
-        //           title: Text("Shoes",style: TextStyle(color:Colors.white),),
-        //         ),                                
-        //       ],
-        //     ),
-        //     ExpansionTile(
-        //       title: Text("WOMEN",
-        //       style: TextStyle(fontSize: 20,color:Colors.white,fontWeight: FontWeight.w300),
-        //       ),
-        //       trailing: Icon(Icons.add,color:Colors.white),
-        //     )
+            },
+          ),
+          Divider(height: 1,color: Colors.white,),
 
+          ListTile(
+            title:Text("SHOPPING TRENDS",
+            style: TextStyle(fontSize: 18,fontWeight: FontWeight.w400),
+            )),
+          ListTile(
+            title:Text("GIFT CARDS",
+            style: TextStyle(fontSize: 18,fontWeight: FontWeight.w400),
+            ),              
+          ),
 
-        //   ],
-        // ),
+          ListTile(
+            title:Text("THEME STORE",
+            style: TextStyle(fontSize: 18,fontWeight: FontWeight.w400),
+            ),
+          ),
+
+          ListTile(
+            title:Text("CONTACT US",
+            style: TextStyle(fontSize: 18,fontWeight: FontWeight.w400),
+            ),
+          ),
+
+          // ListTile(
+          //   onTap: (){
+          //     Navigator.pop(context);
+          //       this.widget.user==null?Navigator.push(context, MaterialPageRoute(builder: (_)=>LoginScreen(
+          //         ))):
+
+          //       Navigator.push(context, MaterialPageRoute(builder: (_)=>ProfileScreen(
+          //         uid:uid
+          //       )));
+          //   },
+          //   title: Text(this.widget.user==null?"Login":this.widget.user,
+          //   style: TextStyle(fontSize: 18,fontWeight: FontWeight.w400),
+          //   ),
+            
+          // ),
+          ListTile(
+            title:Text("MORE",
+            style: TextStyle(fontSize: 18,fontWeight: FontWeight.w400),
+            ),
+          ),
+          
+        ],
       ),
     );
   }

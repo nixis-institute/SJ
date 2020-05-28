@@ -550,6 +550,7 @@ void fillProductAndCateogry() async{
             setState(() {
               brand="";
               size="";
+              color="";
               items.clear();
               filter_list.clear();
               isLoading = true;
@@ -561,10 +562,12 @@ void fillProductAndCateogry() async{
           // else if(product["items"]!=null)
           else
           {
+            print(product["filter"]["color"]);
             setState(() {
               items = product["items"];
               brand = product["filter"]["brands"]??"";
               size = product["filter"]["size"]??"";
+              color = product["filter"]["color"]??"";
               filter_list = product["filter"]["filter_list"];
               isLoading = true;              
 

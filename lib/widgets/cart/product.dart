@@ -33,10 +33,11 @@ class _CartProductState extends State<CartProductWidget>{
         documentNode: gql(UpdateInCart),
         variables:{
           "prdID":id,
-          "userId":userID,
+          // "userId":userID,
           'isNew':false,
-          'qty':3,
-          'size':4,
+          'qty':1,
+          'size':"",
+          'color':""
           }
       )
     );
@@ -63,7 +64,7 @@ class _CartProductState extends State<CartProductWidget>{
         // product.removeAt(index);
         });
         // await preferences.setString("key", value)
-        preferences.setString("cartCount", _count);
+        preferences.setInt("cartLen",int.parse(_count));
         // preferences.setString("cartCount", (int.parse(_count)).toString());
       }
     }
@@ -213,15 +214,15 @@ class _CartProductState extends State<CartProductWidget>{
                                 color:Colors.black54,
                                 onPressed: (){
 
-                            setState(() {
-                              // product[index].qty-=1;
-                              AddToCart(product[index].id,index);
-                              this.widget.callback(
-                                this.widget.total - product[index].listPrice
-                              );
-                              product.removeAt(index);
+                                  setState(() {
+                                    // product[index].qty-=1;
+                                    AddToCart(product[index].id,index);
+                                    this.widget.callback(
+                                      this.widget.total - product[index].listPrice
+                                    );
+                                    product.removeAt(index);
 
-                            });
+                                  });
 
                                 },
                               )

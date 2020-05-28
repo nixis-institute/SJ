@@ -362,7 +362,7 @@ class _Addresses extends State<Addresses>
                   // color:Colors.white,
                   color: 
                   !isAfterCart?Colors.white:
-                  _character ==index?Colors.green:Colors.white,                      
+                  _character ==index?Colors.black12:Colors.white,                      
                         
                     //   boxShadow: [BoxShadow(
                     //   offset: const Offset(3, 5.0),

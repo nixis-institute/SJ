@@ -14,7 +14,8 @@ class OrdersRepository{
         documentNode: gql(getOrderQuery),
         variables: {
           "orderId":id
-        }
+        },
+        fetchPolicy: FetchPolicy.networkOnly
       )
     );
     if(!result.hasException){
@@ -34,11 +35,25 @@ class OrdersRepository{
     }
   }
 
+  Future<bool> cancelOrder(id) async{
+    QueryResult result = await _client.mutate(
+      MutationOptions(
+        documentNode: gql(cancelOrderQuery),
+        variables: {
+          "id":id
+        }
+      )
+    );
+    if(!result.hasException){
+      return result.data["cancelOrder"]["success"];
+    }
+  }
+
   Future<List<Orders>> getAllOrders() async{
       QueryResult result = await _client.query(
         QueryOptions(
           documentNode: gql(getOrdersQuery),
-
+          fetchPolicy: FetchPolicy.networkOnly
         )
       );     
 

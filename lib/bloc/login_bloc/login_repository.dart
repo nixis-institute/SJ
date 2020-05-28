@@ -7,11 +7,16 @@ import 'package:shopping_junction/models/userModel.dart';
 class LoginRepostory{
   GraphQLClient client = clientToQuery();
 
+  updatePic(url) async{
+    
+
+  }
+  
   Future<bool> hasToken() async{
   SharedPreferences preferences = await SharedPreferences.getInstance();    
     // print(preferences.getString("LastToken"));
     // return true;
-    print("Token is .....V");
+    // print("Token is .....V");
     print(preferences.getString("LastToken"));
     // return false;
     return preferences.getString("LastToken")==null?false:true;
@@ -19,11 +24,13 @@ class LoginRepostory{
   Future<SimpleUserModel> getPersistInfo() async{
     SharedPreferences preferences = await SharedPreferences.getInstance();
     SimpleUserModel user = SimpleUserModel( 
-    id:preferences.getString("id"),
-    firstName:preferences.getString("firstName"),
-    lastName:preferences.getString("lastName"),
-    username:preferences.getString("username"),
-    cartLen:preferences.getInt("cartLen")
+      id:preferences.getString("id"),
+      firstName:preferences.getString("firstName"),
+      lastName:preferences.getString("lastName"),
+      username:preferences.getString("username"),
+      cartLen:preferences.getInt("cartLen"),
+      profileId: preferences.getString("profileId"),
+      profilePic: preferences.getString("profilePic")
     );
     return user;
     // return preferences.getString("firstName");
@@ -45,13 +52,19 @@ class LoginRepostory{
         firstName: data["firstName"],
         lastName: data["lastName"],
         username: data["username"],
-        cartLen: data["cartSet"]["edges"].length
+        cartLen: data["cartSet"]["edges"].length,
+        profileId: data["profile"]!=null?data["profile"]["id"]:null,
+        profilePic: data["profile"]!=null?data["profile"]["image"]:null,
+
       );
     preferences.setString("id", data["id"]);
+    preferences.setString("profileId", user.profileId);
+    preferences.setString("profilePic", user.profilePic);
     preferences.setString("firstName", data["firstName"]);
     preferences.setString("lastName", data["lastName"],);
     preferences.setString("username", data["username"]);
-    preferences.setInt("cartLen", data["cartLen"]);
+
+    preferences.setInt("cartLen", data["cartSet"]["edges"].length);
 
     // return user;
     }
@@ -65,7 +78,10 @@ class LoginRepostory{
 
   removeToken() async{
     SharedPreferences preferences = await SharedPreferences.getInstance();
-    preferences.setString("LastToken", null);
+    preferences.clear();
+    preferences.setInt("cartLen", 0);
+
+    // preferences.setString("LastToken", null);
   }
 
   login(username,password) async{

@@ -15,10 +15,36 @@ class Profile(models.Model):
     phone_number = models.CharField(max_length = 12,null=True,blank=True)
     gender = models.CharField(max_length=10,null=True,blank=True)
     GST_number = models.CharField(max_length=20, null=True,blank=True)
-    # image = models.ImageField(upload_to="profile/",blank=True,null=True)
+    image = models.ImageField(upload_to="profile/",blank=True,null=True)
     def __str__(self):
         return self.user.username
 
+    def save(self,force_insert=False,force_update=False, using=None):
+        #super(Photos,self).save()
+
+        # os.path.isfile(image.path)
+        p = Profile.objects.filter(id = self.id)
+        if(p):
+            if p[0].image != self.image:
+                p[0].image.delete(save=False)
+        im = Image.open(self.image)
+        output = BytesIO()
+        #basewidth = 600
+        if im.size[0]<=700:
+            basewidth = im.size[0]
+        else:
+            basewidth = 600
+
+        #img = Image.open('somepic.jpg')
+        wpercent = (basewidth/float(im.size[0]))
+        hsize = int((float(im.size[1])*float(wpercent)))
+        im = im.resize((basewidth,hsize), Image.ANTIALIAS)
+        im = im.convert("RGB")
+        self.height = im.height
+        self.width = im.width
+        im.save(output, format='JPEG', quality=70)
+        self.image = InMemoryUploadedFile(output,'ImageField', "%s.jpg" %self.image.name.split('.')[0], 'image/jpeg', sys.getsizeof(output), None)        
+        super(Profile,self).save()
 
 
 

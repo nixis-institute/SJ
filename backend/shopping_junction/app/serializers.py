@@ -6,6 +6,10 @@ class ProductSerializer(serializers.HyperlinkedModelSerializer):
         model = Product
         fields = ('id','name','brand','instock')
 
+class ProfileSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = Profile
+        fields = ("image","user_id")
 
 class UploadParentImageSerializer(serializers.HyperlinkedModelSerializer):
     # parent =

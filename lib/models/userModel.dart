@@ -28,7 +28,9 @@ class SimpleUserModel{
   String id;
   String username;
   int cartLen;
-  SimpleUserModel({this.firstName,this.lastName,this.id,this.username,this.cartLen});
+  String profileId;
+  String profilePic;
+  SimpleUserModel({this.firstName,this.lastName,this.id,this.username,this.cartLen,this.profileId,this.profilePic});
 }
 
 class UserModel {
@@ -39,9 +41,11 @@ class UserModel {
   String email;
   String phone;
   String gender;
+  String profileId;
+  String profilePic;
   List<Address> address;
   UserModel(this.username,this.id,this.firstName,this.lastName,this.email,this.phone,this.gender,
-  this.address
+  this.address,{this.profilePic,this.profileId}
   );
 }
 

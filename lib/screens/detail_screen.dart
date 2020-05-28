@@ -185,7 +185,7 @@ class _DetailPageState extends State<DetailPage>
         _count = (int.parse(_count)+1).toString(); 
         });
         // await preferences.setString("key", value)
-        preferences.setString("cartCount", _count);
+        preferences.setInt("cartLen", int.parse(_count));
         // preferences.setString("cartCount", (int.parse(_count)).toString());
       }
     }

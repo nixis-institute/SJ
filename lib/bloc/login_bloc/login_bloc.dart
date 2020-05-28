@@ -38,6 +38,11 @@ class AuthenticateBloc extends Bloc<AuthenticateEvent,AuthenticateState>{
       // print("called Authenticated in block file");
       yield Authenticated(user:info);
     }
+    if(event is OnProfilePicUpdate){
+      SimpleUserModel user = (state as Authenticated).user;
+      user.profilePic = event.url;
+      yield Authenticated(user:user);
+    }
 
   }
 }
@@ -72,6 +77,9 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
       yield token==null?LoginFailure():LoginSuccess();
     
     }
+    // if(event is OnProfilePicUpdate){
+    //   repository.updatePic(url)
+    // }
     if(event is OnLogout){
       // repository.removeToken();
       authenticateBloc.add(

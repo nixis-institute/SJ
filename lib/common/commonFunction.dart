@@ -2,7 +2,9 @@
 import 'package:shared_preferences/shared_preferences.dart';
 Future<String> getCartCount() async{
     SharedPreferences preferences = await SharedPreferences.getInstance();
-    String _count = preferences.getString("cartCount");
+    String _count = preferences.getInt("cartLen").toString();
+    // print(_count);
+    // print(preferences.getInt("cartLen"));
     // print("count_"+_count);
     return _count;
   }
@@ -34,7 +36,7 @@ Future<String> getCartCount() async{
 
   setCount(count) async{
     SharedPreferences preferences = await SharedPreferences.getInstance(); 
-    preferences.setString("cartCount", count);
+    preferences.setInt("cartLen", count);
   }
 
   setAddress(address,phone,id,name) async{

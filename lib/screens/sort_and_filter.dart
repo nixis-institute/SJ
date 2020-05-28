@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:shopping_junction/GraphQL/services.dart';
+import 'package:shopping_junction/common/commonFunction.dart';
 import 'package:shopping_junction/models/category_model.dart';
 import 'package:shopping_junction/models/filter_model.dart';
 import 'package:shopping_junction/models/products.dart';
@@ -125,6 +126,7 @@ class _SortAndFilterState extends State<SortAndFilter>
     // var its={};
     String brands="";
     String sizes="";
+    String colors="";
     bool isAllClear = true;
     bool loading = true;
     
@@ -203,9 +205,9 @@ class _SortAndFilterState extends State<SortAndFilter>
                               Colors.blue:Colors.black,
                               ),
                             ),
-// items = filter_models.prd[selectedString].map((item)=>_ListItem(item,false)).toList();
+                              // items = filter_models.prd[selectedString].map((item)=>_ListItem(item,false)).toList();
 
-                          // onTap: () =>setState(()=> selectedString = filters[index]) 
+                              // onTap: () =>setState(()=> selectedString = filters[index]) 
                             onTap: (){
                               setState(() {
                                 selectedString = filter_list[index].type;
@@ -236,11 +238,43 @@ class _SortAndFilterState extends State<SortAndFilter>
                     // itemCount: items.length,
                     itemBuilder: (context,i)
                     {
-
                         return CheckboxListTile(
+                          
+
                           value: items[selectedString][i].checked??false,
-                          key: Key(items[selectedString][i].value),                          
-                          title: Text(items[selectedString][i].value ),
+                          
+                          key:  Key(items[selectedString][i].value),
+                          title: selectedString=="Color"?
+                          
+                          Row(
+                            children: <Widget>[
+                              Container(
+                                  padding: EdgeInsets.all(3),
+                                  height: 20,
+                                  width: 20,
+                                  decoration: BoxDecoration(
+                                    border: Border.all(width:0.2,color:Colors.grey),
+                                    color: Color(int.parse(items[selectedString][i].value.replaceAll("#", "0xff"))),
+                                    borderRadius: BorderRadius.circular(50)
+                                    ),
+                                // child:
+                                ),
+
+                              SizedBox(width: 10,),
+                              Text(colorsPicker[items[selectedString][i].value],style: TextStyle(
+                                // color: 
+                              
+                              // Colors.black,
+                              fontWeight: FontWeight.normal),),
+                            ],
+                          )
+                          
+                          :
+                          // Text("Color"): 
+                          
+                          Text(items[selectedString][i].value),
+                          
+                          
                           onChanged: (bool value){
                               setState(()=>items[selectedString][i].checked = value);
                           },
@@ -294,6 +328,10 @@ class _SortAndFilterState extends State<SortAndFilter>
                         {
                           sizes+=i.value+",";
                         }
+                        else if(f=="Color" && i.checked==true)
+                        {
+                          colors+=i.value+",";
+                        }
                       })
                     });
 
@@ -311,7 +349,7 @@ class _SortAndFilterState extends State<SortAndFilter>
                   
                   // Navigator.pop(context,{items,filter_list}); 
 
-                  Navigator.pop(context,{"items":items,"isClearAll":isAllClear,"filter":{"brands":brands,"size":sizes,"filter_list":filter_list}});
+                  Navigator.pop(context,{"items":items,"isClearAll":isAllClear,"filter":{"brands":brands,"size":sizes,"color": colors,"filter_list":filter_list}});
 
                   },
                 child: Container(

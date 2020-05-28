@@ -18,6 +18,18 @@ class UploadParentImages(viewsets.ModelViewSet):
         print(self.request.data["parent_id"])
         serializer.save(parent_id = from_global_id(self.request.data["parent_id"])[1])
 
+class ProfileSer(viewsets.ModelViewSet):
+    queryset = Profile.objects.all()
+    serializer_class = ProfileSerializer
+    def perform_create(self,serializer):
+        # print(self.request.user)
+        # print(self.request.data)
+        serializer.save(user_id=self.request.user.id)
+    
+    def perform_update(self,serializer):
+        print(self.request.data)
+        print(self.request.data["image"])
+        serializer.save(image = self.request.data["image"])
 
 class UploadSubProductImages(viewsets.ModelViewSet):
     queryset = ProductImages.objects.all()

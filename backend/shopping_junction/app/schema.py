@@ -75,6 +75,7 @@ class ProductNode(DjangoObjectType):
         model = Product
         # filter_fields = ("sizes","parent")
         filter_fields ={
+            "isActive":["exact"],
             "parent":["lte","gte","exact","isnull"],
             "sizes":["in","icontains","exact","iexact"],
             "list_price":["lte","gte"],
@@ -212,8 +213,8 @@ class UserNode(DjangoObjectType):
 class ProfileNode(DjangoObjectType):
     class Meta:
         model = Profile
-        filter_fields = ()
-        interfaces = (graphene.Node,)
+        # filter_fields = ()
+        # interfaces = (graphene.Node,)
 
 class CartNode(DjangoObjectType):
     class Meta:
@@ -389,7 +390,7 @@ class UpdateCart(graphene.Mutation):
     class Arguments:
         size = graphene.String(required=False)
         qty = graphene.Int(required=False)
-        color = graphene.String(required=True)
+        color = graphene.String(required=False)
         # prd_id = graphene.ID(required=True)
         # user = graphene.Int(required=True)
         prd_id = graphene.ID(required=True)
@@ -545,6 +546,17 @@ class StockStatusProduct(graphene.Mutation):
         p.save()
         return StockStatusProduct(success = True)
 
+class CancelOrder(graphene.Mutation):
+    class Arguments:
+        id = graphene.ID(required=True)
+    success = graphene.Boolean()
+    def mutate(self,info,id):
+        order = ProductOrders.objects.get(id = from_global_id(id)[1])
+        order.status = "Cancel"
+        order.save()
+        return CancelOrder(success = True)
+
+
 class ActiveProduct(graphene.Mutation):
     class Arguments:
         id = graphene.ID(required = True)
@@ -609,6 +621,7 @@ class Mutation(graphene.ObjectType):
     update_product = UpdateProduct.Field()
     delete_product = DeleteProduct.Field()
     delete_sub_product = DeleteSubProduct.Field()
+    cancel_order = CancelOrder.Field()
     # out_of_stock_product = OutOfStockProduct.Field()
 
     # seller
@@ -658,11 +671,12 @@ class Query(graphene.AbstractType):
     def resolve_get_order(self,info,id):
         return ProductOrders.objects.get(id = from_global_id(id)[1])
     def resolve_filter_by_id(self,info,id):
+        print(id)
         id = from_global_id(id)[1]
         print(id)
         # s = SubList.objects.filter(sub_category_id=id)
         # print(s)
-        data = Product.objects.filter(sublist_id__in=[i.id for i in SubList.objects.filter(sub_category_id=id)])
+        data = Product.objects.filter(sublist_id__in=[i.id for i in SubList.objects.filter(sub_category_id=id)]).filter(isActive=1)
         # data = Product.objects.filter(sub_category_id=id)
 
         # print(data)
@@ -725,7 +739,7 @@ class Query(graphene.AbstractType):
         prd = Product.objects.filter(brand__icontains=match).order_by('-id')
         return prd
     def resolve_search_result(self,info,match):
-        prd = Product.objects.filter(name__icontains=match).order_by('-id')
+        prd = Product.objects.filter(name__icontains = match).order_by('-id')
         # cat = SubList.objects.filter(name__icontains=match)
         # prd =["45345","435"]
         # cat=["sdf","pdk"]

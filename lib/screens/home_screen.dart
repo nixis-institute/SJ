@@ -43,6 +43,8 @@ List<ProductCategory> listCategory = List<ProductCategory>();
   // }
 
   void fillList() async {
+    // SharedPreferences preferences = await SharedPreferences.getInstance();
+    // preferences.clear();
      GraphQLClient _client = clientToQuery();
     QueryResult result = await _client.query(
       QueryOptions(
@@ -128,6 +130,7 @@ List<ProductCategory> listCategory = List<ProductCategory>();
   var isError = false;
   var Error = "";
   var _count="";
+  
   void initState(){
     super.initState();
     BlocProvider.of<AuthenticateBloc>(context).add(
@@ -249,13 +252,13 @@ List<ProductCategory> listCategory = List<ProductCategory>();
               if(state is Authenticated)
               {
                 // print(state.user);
-                return SideDrawer(productCategory:listCategory,user:state.user.firstName);
+                return SideDrawer(productCategory:listCategory,user:state.user);
               }
               if(state is NotAuthenticated){
                 return SideDrawer(productCategory:listCategory);
               }
               else{
-                return SideDrawer(productCategory:listCategory,user:"Else");
+                return SideDrawer(productCategory:listCategory,user:null);
               }
             }
           ),

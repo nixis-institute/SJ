@@ -160,12 +160,16 @@ class _ProductGridState extends State<ProductGrid>
                               ):
                               CachedNetworkImage(
                                 height: 230,
+                                
                                 imageUrl: 
                                 server_url+"/media/"+widget.product[index].images[0].normalImage.toString(),
                                 // widget.product[index].imageLink[0].toString(),
                                 
                                 fit: BoxFit.fill,
+                                errorWidget: (context,url,error) => Center(child: Text("Image Not Found",style: TextStyle(color:Colors.grey),),),
                                 placeholder: (context, url) =>Center(child: CircularProgressIndicator()),
+                                
+
                               ),
                           ),
                           Container(

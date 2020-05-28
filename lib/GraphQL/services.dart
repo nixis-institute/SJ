@@ -6,9 +6,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 // import 'package:flutter_graphql/src/link/fetch_result.dart';
 
 
-// final server_url = 'http://shoppingjunction.pythonanywhere.com';
+final server_url = 'http://shoppingjunction.pythonanywhere.com';
 // final server_url = "http://10.0.2.2:8000";
-final server_url = "http://127.0.0.1:8000";
+// final server_url = "http://127.0.0.1:8000";
 
   class AuthLink extends Link {
     AuthLink()

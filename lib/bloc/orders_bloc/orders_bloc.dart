@@ -25,6 +25,18 @@ class OrdersBloc extends Bloc<OrdersEvent, OrdersState> {
       final data = await repository.getAllOrders();
       yield LoadOrders(orders: data);
     }
+
+    if(event is OnUpdateOrder)
+    {
+      final orders = (state as LoadOrders).orders;
+      print(event.order.orderId);
+      final complete = await repository.cancelOrder(event.order.orderId);
+      
+      List<Orders> nOrder =  orders.map((e) {
+          return e.orderId == event.order.orderId?event.order:e;
+        }).toList();
+      yield LoadOrders(orders: nOrder);
+    }
   }
 }
 

@@ -121,6 +121,10 @@ class _OrderList extends State<OrderList>
 
                 itemCount: state.orders.length,
                 itemBuilder:(context,index){
+                  // var newFormat = DateFormat("yy-MM-dd");
+
+                  // var newDt = DateFormat.yMMMEd().format(dt);
+
                   return 
                   
                   // ListTile(
@@ -136,6 +140,7 @@ class _OrderList extends State<OrderList>
                             );
                           },
                           child: Card(
+                            elevation: 3,
                           
                           // elevation: 8,
                           // shape: RoundedRectangleBorder(
@@ -165,13 +170,14 @@ class _OrderList extends State<OrderList>
 
                           // color: Colors.grey[100],   
                           // margin: EdgeInsets.only(bottom:10),  
-                          padding: EdgeInsets.all(5),
+                          padding: EdgeInsets.all(10),
                           // margin:EdgeInsets.all(2),
                           child: Row(
                             children: <Widget>[
                               Container(
                                 width: 100,
-                                child:
+                                alignment: Alignment.center,
+                                child:state.orders[index].imgLink==null?Text("No Preview",style: TextStyle(color:Colors.grey,fontSize: 16),):
                                 CachedNetworkImage(
                                     height: 100,
                                     imageUrl: server_url+"/media/"+ state.orders[index].imgLink.toString(),
@@ -193,8 +199,8 @@ class _OrderList extends State<OrderList>
                                       crossAxisAlignment: CrossAxisAlignment.start,
                                     children: <Widget>[
                                       Text(state.orders[index].productName,style: 
-                                      TextStyle(fontSize:15,fontWeight: FontWeight.w800,color:
-                                      state.orders[index].status=="Cancel"?Colors.grey:Colors.black,
+                                      TextStyle(fontSize:17,fontWeight: FontWeight.normal,color:
+                                      state.orders[index].status=="Cancelled"?Colors.grey:Colors.black,
                                       ),),
                                       
                                       
@@ -202,12 +208,19 @@ class _OrderList extends State<OrderList>
 
                                       
                                       // Text(state.orders[index].date),
-                                      Text(DateTime.parse(
-                                        state.orders[index].date).day.toString()+"-"+
-                                        DateTime.parse(state.orders[index].date).month.toString()+"-"+
-                                        DateTime.parse(state.orders[index].date).year.toString(),
-                                        style: TextStyle(color:Colors.grey),
-                                       ),
+                                      Row(
+                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        children: <Widget>[
+                                          Text("\u20B9 "+(state.orders[index].price * state.orders[index].qty - state.orders[index].coupon).toInt().toString(), style: TextStyle(fontWeight: FontWeight.bold,fontSize: 15 ),),
+                                          // SizedBox(width:40),
+                                          Text(DateTime.parse(
+                                            state.orders[index].date).day.toString()+"-"+
+                                            DateTime.parse(state.orders[index].date).month.toString()   +"-"+
+                                            DateTime.parse(state.orders[index].date).year.toString(),
+                                            style: TextStyle(color:Colors.grey),
+                                           ),
+                                        ],
+                                      ),
                                       // Text(timeago.format(DateTime.parse(mytimestring))
 
                                       SizedBox(height:10),

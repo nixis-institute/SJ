@@ -118,6 +118,14 @@ mutation abc(\$id:ID!,\$old:String!,\$new:String!){
   }
 }
 """;
+final cancelOrderQuery ="""
+  mutation x(\$id:ID!){
+    cancelOrder(id:\$id)
+    {
+      success
+    }
+  }
+""";
 
 final updateOrdersQuery ="""
 mutation x(\$addressId:ID!,\$mode:String!)
@@ -157,6 +165,10 @@ query{
     firstName
     lastName
     username
+    profile{
+    	id
+      image
+    }
     cartSet{
       edges{
         node{
@@ -570,7 +582,7 @@ query GetSubList(\$SubCateogryId:ID!,\$after:String!){
 
 
 final String GetSubListAndProductBySubCateogryId = """ 
-query GetSubList(\$SubCateogryId:ID!,\$brand: String!, \$sizes: String!){
+query GetSubList(\$SubCateogryId:ID!,\$brand: String!, \$sizes: String!,\$color:String!){
   sublistBySubcategoryId(subCategoryId:\$SubCateogryId)
   {
   pageInfo{
@@ -582,7 +594,7 @@ query GetSubList(\$SubCateogryId:ID!,\$brand: String!, \$sizes: String!){
       {
         id
         name
-        productSet(first:6,brand_In: \$brand,){
+        productSet(first:6,brand_In: \$brand,isActive:true){
           pageInfo{
             endCursor
             hasNextPage
@@ -593,7 +605,7 @@ query GetSubList(\$SubCateogryId:ID!,\$brand: String!, \$sizes: String!){
               name
               brand
               imageLink
-              subproductSet(size_In:\$sizes){
+              subproductSet(size_In:\$sizes,color_In:\$color){
                 edges{
                   node{
                     id

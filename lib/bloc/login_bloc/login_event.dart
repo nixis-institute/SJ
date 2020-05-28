@@ -7,6 +7,10 @@ class AppStarted extends AuthenticateEvent{
   @override
   List<Object> get props => null;
 }
+class OnProfilePicUpdate extends AuthenticateEvent{
+  String url;
+  OnProfilePicUpdate({this.url});
+}
 
 class OnIsAuthentication extends AuthenticateEvent{
   @override
@@ -35,3 +39,4 @@ class OnLogout extends LoginEvent{
   @override  
   List<Object> get props => null;
 }
+
