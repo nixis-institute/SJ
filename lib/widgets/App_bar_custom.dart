@@ -62,37 +62,41 @@ class _CustomAppBarState extends State<CustomAppBar>
                   },
                 ),
 
-              Stack(
-                  children:<Widget>[
-                    IconButton(
-                    icon: Icon(Icons.add_shopping_cart),
-                    iconSize: 30,
-                    color: Colors.white,
-                    
-                    onPressed: (){
-                      Navigator.push(context, MaterialPageRoute(builder: (_)=>CartScreen(
-                      )));
-                    },
-                ),
-                Positioned(
-                  top: 1,
-                  left: 20,
-                  child: Container(
-                    height: 20,
-                    width: 20,
-                    // color: Colors.red,
-                    alignment: Alignment.center,
-                    decoration: BoxDecoration(
-                      color: Colors.red,
-                      borderRadius: BorderRadius.circular(10)
-                    ),
-                    child: Text(_count,
-                      style: TextStyle(color:Colors.white),
-                    ),
+              Padding(
+                
+                padding: const EdgeInsets.only(top:5.0),
+                child: Stack(
+                    children:<Widget>[
+                      IconButton(
+                      icon: Icon(Icons.add_shopping_cart),
+                      // iconSize: 30,
+                      color: Colors.white,
+                      
+                      onPressed: (){
+                        Navigator.push(context, MaterialPageRoute(builder: (_)=>CartScreen(
+                        )));
+                      },
                   ),
-                )
-              ]
+                  Positioned(
+                    top: 1,
+                    left: 20,
+                    child: Container(
+                      height: 20,
+                      width: 20,
+                      // color: Colors.red,
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                        color: Colors.red,
+                        borderRadius: BorderRadius.circular(10)
+                      ),
+                      child: Text(_count,
+                        style: TextStyle(color:Colors.white),
+                      ),
+                    ),
+                  )
+                ]
             ),
+              ),
 
 
               // IconButton(

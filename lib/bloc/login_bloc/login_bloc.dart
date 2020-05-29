@@ -23,11 +23,16 @@ class AuthenticateBloc extends Bloc<AuthenticateEvent,AuthenticateState>{
     if(event is AppStarted){
       // print("inital");
       final token = await repository.hasToken();
-      final info = await repository.getPersistInfo();
+      SimpleUserModel info = await repository.getPersistInfo();
       // print(token);
       yield token?Authenticated(
         user: info
       ):NotAuthenticated();
+      info = await repository.setUserInfo();
+      yield token?Authenticated(
+        user: info
+      ):NotAuthenticated();
+
     }
     if(event is LoggedOut){
       await repository.removeToken();

@@ -3,6 +3,7 @@ final String Categories = """
   allCategory{
     edges{
       node{
+        productSize
         id
         name
         image
@@ -16,6 +17,7 @@ final String Categories = """
         subcategorySet{
           edges{
             node{
+              productSize
               id
               name
             }
@@ -367,10 +369,12 @@ query {
         id
         size
         qty
+        color
         cartProducts{
           id
           parent{
             name
+            id
           }          
 					productimagesSet{
             edges{

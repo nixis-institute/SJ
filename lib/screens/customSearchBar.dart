@@ -192,6 +192,7 @@ class _CustomSearchBar extends State<CustomSearchBar>
         appBar: AppBar(
           title: TextFormField(
             controller: _searchTerm,
+            autofocus: true,
             decoration: InputDecoration(
               hintText: "Search",
               // helperStyle: TextStyle(color:Colors.white,fontWeight: FontWeight.w700 ),

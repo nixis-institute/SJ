@@ -178,15 +178,18 @@ class _OrderList extends State<OrderList>
                                 width: 100,
                                 alignment: Alignment.center,
                                 child:state.orders[index].imgLink==null?Text("No Preview",style: TextStyle(color:Colors.grey,fontSize: 16),):
-                                CachedNetworkImage(
-                                    height: 100,
-                                    imageUrl: server_url+"/media/"+ state.orders[index].imgLink.toString(),
-                                    fit: BoxFit.contain,
-                                    placeholder: (context, url) =>Center(child: CircularProgressIndicator()),
+                                Hero(
+                                  tag: state.orders[index].orderId,
+                                      child: CachedNetworkImage(
+                                      height: 100,
+                                      imageUrl: server_url+"/media/"+ state.orders[index].imgLink.toString(),
+                                      fit: BoxFit.contain,
+                                      placeholder: (context, url) =>Center(child: CircularProgressIndicator()),
 
-                                    // placeholder: (context, url) => Container(height: 20,child:Container(child: CircularProgressIndicator(value: 0.2,))),
-                                    // errorWidget: (context, url, error) => Icon(Icons.error),
-                                  ),
+                                      // placeholder: (context, url) => Container(height: 20,child:Container(child: CircularProgressIndicator(value: 0.2,))),
+                                      errorWidget: (context, url, error) => Text("No Preview",style: TextStyle(color:Colors.grey,fontSize: 16),) //Icon(Icons.error,color: Colors.grey,),
+                                    ),
+                                ),
 
                               
                               
@@ -198,6 +201,7 @@ class _OrderList extends State<OrderList>
                                     child: Column(
                                       crossAxisAlignment: CrossAxisAlignment.start,
                                     children: <Widget>[
+                                      // tag:state.orders[index].productName.replaceAll(" ", "-")+state.orders[index].orderId,
                                       Text(state.orders[index].productName,style: 
                                       TextStyle(fontSize:17,fontWeight: FontWeight.normal,color:
                                       state.orders[index].status=="Cancelled"?Colors.grey:Colors.black,
@@ -226,8 +230,14 @@ class _OrderList extends State<OrderList>
                                       SizedBox(height:10),
                                       Text(state.orders[index].status,style: 
                                       TextStyle(
-                                        color:state.orders[index].status=="Delivered"?Colors.green:
-                                        state.orders[index].status=="Cancel"?Colors.red:Colors.black,
+                                      color:
+                                      state.orders[index].status=="Delivered"?Colors.green:
+                                      state.orders[index].status=="Cancelled"?Colors.red
+                                      :Colors.blue,                                        
+                                        // color:state.orders[index].status=="Delivered"?Colors.green:
+                                        // state.orders[index].status=="Cancel"?Colors.red:Colors.black,
+
+
                                         fontWeight: FontWeight.w600),
                                         ),
                                       // Row(

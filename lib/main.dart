@@ -9,7 +9,10 @@ import 'package:shopping_junction/bloc/login_bloc/login_bloc.dart';
 import 'package:shopping_junction/bloc/orders_bloc/orders_bloc.dart';
 import 'package:shopping_junction/bloc/orders_bloc/orders_repository.dart';
 import 'package:shopping_junction/bloc/products_bloc/products_bloc.dart';
+import 'package:shopping_junction/bloc/subproduct_bloc/subproduct_bloc.dart';
+import 'package:shopping_junction/bloc/subproduct_bloc/subproduct_repository.dart';
 import 'package:shopping_junction/screens/accounts/login.dart';
+import 'package:shopping_junction/screens/detail_screen.dart';
 import 'package:shopping_junction/screens/home_screen.dart';
 import 'package:shopping_junction/screens/orders/order_list.dart';
 
@@ -24,6 +27,7 @@ class MyApp extends StatelessWidget {
   ProductRepository productRepository = ProductRepository();
   CartRepository cartRepository = CartRepository();
   OrdersRepository ordersRepository = OrdersRepository();
+  SubProductRepository subProductRepository = SubProductRepository();
   @override
   Widget build(BuildContext context) {
     Color theme = Color(0xffc2d0b1);
@@ -37,7 +41,7 @@ class MyApp extends StatelessWidget {
           child: LoginScreen(),
         ),
         BlocProvider<AuthenticateBloc>(
-          create: (context)=> AuthenticateBloc(loginRepostory),
+          create: (context)=> AuthenticateBloc(loginRepostory)..add(AppStarted()),
         ),
         BlocProvider<CartBloc>(
           create: (context) => CartBloc(cartRepository: cartRepository),
@@ -46,7 +50,16 @@ class MyApp extends StatelessWidget {
           create: (context)=> OrdersBloc(repository:ordersRepository),
           child: OrderList(),
           // child: LoginScreen(),
-        )
+        ),
+
+        BlocProvider<SubproductBloc>(
+          create: (context)=> SubproductBloc(repository:subProductRepository),
+          // child: DetailPage(),
+          // child: LoginScreen(),
+        ),
+
+
+
         // BlocProvider<ProductsBloc>(
         //   create: (context)=> ProductsBloc(),
         // ),        
@@ -68,13 +81,20 @@ class MyApp extends StatelessWidget {
     home: BlocBuilder<AuthenticateBloc,AuthenticateState>(
       builder: (context,state){
         return HomeScreen();
-        // if(state is Authenticated)
-        //   return HomeScreen();
-        // else
-        //   return MyHomePage();
-      },
+      //   if(state is Authenticated) 
+      //     return HomeScreen();
+      //   else
+      //     return LoginScreen();
+      // },
       // child: HomeScreen()
+        }
       ),
+
+       routes: <String,WidgetBuilder>{
+        '/home':(BuildContext context) => new HomeScreen(),
+        // '/productList':(BuildContext context) => new ProductScreen(),
+        // '/image':(BuildContext context) => new ImageScreen(),
+        },
     //   routes: <String, WidgetBuilder>{
     //   '/HomeScreen': (BuildContext context) => new HomeScreen()
     // },

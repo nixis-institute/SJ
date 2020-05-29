@@ -2,17 +2,20 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 // import 'package:color/color.dart';
 // import 'package:complimentary_colors/complimentary_colors.dart';
 import 'package:shopping_junction/GraphQL/Queries.dart';
 import 'package:shopping_junction/GraphQL/services.dart';
+import 'package:shopping_junction/bloc/subproduct_bloc/subproduct_bloc.dart';
 import 'package:shopping_junction/common/commonFunction.dart';
 import 'package:shopping_junction/models/productAndCat.dart';
 import 'package:shopping_junction/widgets/App_bar.dart';
 
 import 'cart/first_secreen.dart';
+import 'customSearchBar.dart';
 
 class DetailPage extends StatefulWidget{
   @override
@@ -175,8 +178,11 @@ class _DetailPageState extends State<DetailPage>
       var data = result.data["updateCart"];
       if(data["success"] == true)
       {
+        BlocProvider.of<SubproductBloc>(context).add(
+          OnAddToCart(prd: subproduct)
+        );
         setState(() {
-        cloading = false;
+        // cloading = false;
         isInCart = true;  
         // _count += ;
           cproduct.isInCart=true;
@@ -187,8 +193,13 @@ class _DetailPageState extends State<DetailPage>
         // await preferences.setString("key", value)
         preferences.setInt("cartLen", int.parse(_count));
         // preferences.setString("cartCount", (int.parse(_count)).toString());
+        // OnAddToCart
+        
       }
     }
+    // setState(() {
+    //   cloading = false;
+    // });
 
   }
   
@@ -283,7 +294,11 @@ class _DetailPageState extends State<DetailPage>
     });
     
     // print(this.widget.pId);
-    getSubProduct();
+    BlocProvider.of<SubproductBloc>(context).add(
+      FetchSubProducts(this.widget.pId)
+    );
+    // getSubProduct();
+
     // XX();
   }
 
@@ -292,11 +307,11 @@ class _DetailPageState extends State<DetailPage>
   Widget build(BuildContext context)
   {
   // print(this.widget.product.listPrice);
-  // getCartCount().then((c){
-  //   setState(() {
-  //     _count = c;
-  //     });
-  //   });
+  getCartCount().then((c){
+    setState(() {
+      _count = c;
+      });
+    });
 
     // print(_count);
     // print(isInCart);
@@ -341,7 +356,7 @@ class _DetailPageState extends State<DetailPage>
 
                     // isInCart
                     cproduct.isInCart
-                    ==true?"Check in Cart":
+                    ==true?"Show in Cart":
                     
                     "ADD TO CART",
                     style: TextStyle(
@@ -377,38 +392,53 @@ class _DetailPageState extends State<DetailPage>
               //   // color: Colors.white,
               //   onPressed: (){},
               // ),
-
-              Stack(
-                  children:<Widget>[
-                    IconButton(
-                    icon: Icon(Icons.add_shopping_cart),
-                    iconSize: 30,
-                    // color: Colors.white,
-                    
-                    onPressed: (){
-                      Navigator.push(context, MaterialPageRoute(builder: (_)=>CartScreen(
-                      )));
-                    },
+              IconButton(
+                  icon: Icon(Icons.search,color: Colors.black,),
+                  iconSize: 25,
+                  color: Colors.white,
+                  onPressed: (){
+                    Navigator.push(context, MaterialPageRoute(builder: (_)=>CustomSearchBar(
+                    )));
+                    // FlappySearchBar()
+                    // showSearch(context: context, delegate:DataSearch());
+                  },
                 ),
-                Positioned(
-                  top: 1,
-                  left: 20,
-                  child: Container(
-                    height: 20,
-                    width: 20,
-                    // color: Colors.red,
-                    alignment: Alignment.center,
-                    decoration: BoxDecoration(
-                      color: Colors.red,
-                      borderRadius: BorderRadius.circular(10)
-                    ),
-                    child: Text(_count,
-                    style: TextStyle(color: Colors.white),
-                    ),
+
+              Padding(
+                padding: const EdgeInsets.only(top:5.0),
+                child: Stack(
+                    children:<Widget>[
+                      
+                      IconButton(
+                      icon: Icon(Icons.add_shopping_cart),
+                      // iconSize: 30,
+                      // color: Colors.white,
+                      
+                      onPressed: (){
+                        Navigator.push(context, MaterialPageRoute(builder: (_)=>CartScreen(
+                        )));
+                      },
                   ),
-                )
-              ]
+                  Positioned(
+                    top: 1,
+                    left: 20,
+                    child: Container(
+                      height: 20,
+                      width: 20,
+                      // color: Colors.red,
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                        color: Colors.red,
+                        borderRadius: BorderRadius.circular(10)
+                      ),
+                      child: Text(_count,
+                      style: TextStyle(color: Colors.white),
+                      ),
+                    ),
+                  )
+                ]
             ),
+              ),
 
 
 
@@ -423,334 +453,688 @@ class _DetailPageState extends State<DetailPage>
         
         
         body: 
-        loading?
-        Center(child: CircularProgressIndicator()):
-        ListView(
-            children: <Widget>[
-              // CustomAppBar(name: this.widget.category.name),
-              // CustomAppBar(name:"Detail"),
-              GestureDetector(
-                  onTap: (){
-                    ChangeHeight();
-                  },
-                  child: AnimatedContainer(
-                  duration: Duration(milliseconds: 300),
-                  // height: picheight,
-                  child: 
-                  cproduct.images.isEmpty
-                  ?Container(
-                    height:400,
-                    alignment: Alignment.center,
-                    child: Text("Image Not Upload",
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        color:Colors.grey,
-                        fontSize: 18
-                      ),
-                      ),
-                    )
-                  :
-                  CarouselSlider(
-                    // enlargeCenterPage: true,
-                    height: 400,
-                    aspectRatio: 16/9,
-                    autoPlay: false,
-                    viewportFraction: 1.0,
-                    items : cproduct.images.map((f){
-                      return 
-                      // CachedNetworkImage(
-                      //   height:230,
-                      //   imageUrl: server_url+"/media/"+f.normalImage.toString(),
-                      //     fit: BoxFit.fitWidth,
-                      //     alignment: Alignment.topCenter,
-                      //     placeholder: (context, url) =>Center(child: CircularProgressIndicator()),
-                      // );
+        
 
-                        Container(
-                          color:Colors.red,
-                          child: CachedNetworkImage(
-                          // height: 100,
-                          imageUrl: 
-                          server_url+"/media/"+f.normalImage.toString(),
-                          // widget.product.imageLink[0].toString(),
-                          
-                          fit: BoxFit.cover,
-                          alignment: Alignment.topCenter,
-                          placeholder: (context, url) =>Center(child: CircularProgressIndicator()),
-                      ),
-                        );                        
-                      
-                    }).toList()
-                  )
+        BlocListener<SubproductBloc,SubproductState>(
+          listener: (context,state){
+            print(cloading);
+            if(state is LoadSubProduct && cloading == false)
+            {
+              // print("state");
+                setState(() {
+                  colors = state.colors;
+                  sizes = state.sizes;
+                  subproduct = state.subproduct;
+                  // cproduct = subproduct[0];
+                  cproduct = Product(subproduct[0].id, this.widget.pName, subproduct[0].listPrice, subproduct[0].mrp, subproduct[0].images??[], [subproduct[0].size], subproduct[0].images??[]);
+                  // cproduct = Product(id, name, listPrice, mrp, images, sizes, imageLink,)
+                  loading = false;
+                  // cproduct.id = subproduct[0].id;
+                  // print(subproduct[0].color);
+                  prdId = subproduct[0].id;
+                  cproduct.images = subproduct[0].images;
+                  cproduct.isInCart = subproduct[0].isInCart;
+                  selectedSize = subproduct[0].size;
+                  selectedColor = subproduct[0].color;
+                  _id = cproduct.id;
+              });
+            }
+            setState(() {
+              cloading = false;
+            });
 
-                  // :CachedNetworkImage(
-                  //   height: 230,
-                  //   imageUrl: 
-                  //   server_url+"/media/"+cproduct.images[0].normalImage.toString(),
-                  //   // widget.product.imageLink[0].toString(),
-                    
-                  //   fit: BoxFit.cover,
-                  //   alignment: Alignment.topCenter,
-                  //   placeholder: (context, url) =>Center(child: CircularProgressIndicator()),
-                  // ),
-
-
-                  // child: Image.network(
-                  //   widget.product.imageLink[0]
-                  // )
-                  // Image.network(
-                  //   server_url+"/media/"+widget.product.images[0].imgUrl,
-                  //   fit:BoxFit.cover,
-                  //   alignment: Alignment.topCenter,
-                  //   )
-                  // Image.asset(
-                  //   widget.product.images[0].imgUrl,
-                  //   fit:BoxFit.cover,
-                  //   alignment: Alignment.topCenter,
-                  //   )
-
-
-
-                ),
-              ),
-
-              Padding(
-                // padding: const EdgeInsets.all(8.0),
-                padding: const EdgeInsets.only(left: 15,right: 15),
-                child: Column(
+          },
+          child: BlocBuilder<SubproductBloc,SubproductState>(
+            builder: (context,state){
+              if(state is Loading){
+                return Center(child: CircularProgressIndicator());
+              }
+              if(state is LoadSubProduct && cproduct!=null){
+                // return Text("List");
+                return ListView(
                   children: <Widget>[
+                    // CustomAppBar(name: this.widget.category.name),
+                    // CustomAppBar(name:"Detail"),
+                    GestureDetector(
+                        onTap: (){
+                          ChangeHeight();
+                        },
+                        child: AnimatedContainer(
+                        duration: Duration(milliseconds: 300),
+                        // height: picheight,
+                        child: 
 
+                        cproduct.images.isEmpty
+
+                        ?Container(
+                          height:400,
+                          alignment: Alignment.center,
+                          child: Text("Image Not Upload",
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color:Colors.grey,
+                              fontSize: 18
+                            ),
+                            ),
+                          )
+                        :
+                        CarouselSlider(
+                          // enlargeCenterPage: true,
+                          height: 400,
+                          aspectRatio: 16/9,
+                          autoPlay: false,
+                          viewportFraction: 1.0,
+                          items : cproduct.images.map((f){
+                            return 
+                            // CachedNetworkImage(
+                            //   height:230,
+                            //   imageUrl: server_url+"/media/"+f.normalImage.toString(),
+                            //     fit: BoxFit.fitWidth,
+                            //     alignment: Alignment.topCenter,
+                            //     placeholder: (context, url) =>Center(child: CircularProgressIndicator()),
+                            // );
+
+                              Container(
+                                color:Colors.red,
+                                child: CachedNetworkImage(
+                                // height: 100,
+                                imageUrl: 
+                                server_url+"/media/"+f.normalImage.toString(),
+                                // widget.product.imageLink[0].toString(),
+                                
+                                fit: BoxFit.cover,
+                                alignment: Alignment.topCenter,
+                                placeholder: (context, url) =>Center(child: CircularProgressIndicator()),
+                            ),
+                              );                        
+                            
+                          }).toList()
+                        )
+
+                        // :CachedNetworkImage(
+                        //   height: 230,
+                        //   imageUrl: 
+                        //   server_url+"/media/"+cproduct.images[0].normalImage.toString(),
+                        //   // widget.product.imageLink[0].toString(),
+                          
+                        //   fit: BoxFit.cover,
+                        //   alignment: Alignment.topCenter,
+                        //   placeholder: (context, url) =>Center(child: CircularProgressIndicator()),
+                        // ),
+
+
+                        // child: Image.network(
+                        //   widget.product.imageLink[0]
+                        // )
+                        // Image.network(
+                        //   server_url+"/media/"+widget.product.images[0].imgUrl,
+                        //   fit:BoxFit.cover,
+                        //   alignment: Alignment.topCenter,
+                        //   )
+                        // Image.asset(
+                        //   widget.product.images[0].imgUrl,
+                        //   fit:BoxFit.cover,
+                        //   alignment: Alignment.topCenter,
+                        //   )
+
+
+
+                      ),
+                    ),
 
                     Padding(
-                      padding: const EdgeInsets.only(top:20,bottom: 20),
-                      // padding: const EdgeInsets.all(0),
-                      child: Container(
-                        width: MediaQuery.of(context).size.width,
-                        decoration: BoxDecoration(
-                          // color: Colors.green
-                        ),
-                        child: Row(
-                          // spacing: ,
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: <Widget>[
-                            
-                            Expanded(
-                                child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
+                      // padding: const EdgeInsets.all(8.0),
+                      padding: const EdgeInsets.only(left: 15,right: 15),
+                      child: Column(
+                        children: <Widget>[
+
+
+                          Padding(
+                            padding: const EdgeInsets.only(top:20,bottom: 20),
+                            // padding: const EdgeInsets.all(0),
+                            child: Container(
+                              width: MediaQuery.of(context).size.width,
+                              decoration: BoxDecoration(
+                                // color: Colors.green
+                              ),
+                              child: Row(
+                                // spacing: ,
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: <Widget>[
-                                  // Text("sdfdsf",textAlign: ),
-                                  Text(
-                                      cproduct.name,
-                                      overflow: TextOverflow.visible,
-                                      textAlign: TextAlign.left, 
-                                      style: TextStyle(fontSize: 23,fontWeight: FontWeight.w800,),
-                                    ),
-                                  // Text("Exclusive Jacket"),
-                                  SizedBox(height:10,),
                                   
-                                  Padding(
-                                    padding: const EdgeInsets.only(left:0),
-                                    child: Row(
+                                  Expanded(
+                                      child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
                                       children: <Widget>[
-                                            Text("\u20B9",style: TextStyle(fontWeight: FontWeight.bold,fontSize: 20),),
-                                            Text(cproduct.listPrice.toString(),style: TextStyle(fontWeight: FontWeight.bold,fontSize: 20),),
-                                            SizedBox(width: 10,),
-                                            Text("\u20B9",style: TextStyle(fontWeight: FontWeight.w500,fontSize: 15,color: Colors.red),),
-                                            Text(cproduct.mrp.toString(),style: TextStyle(fontWeight: FontWeight.w500,fontSize: 15,color: Colors.red,decoration: TextDecoration.lineThrough),),
-                                            SizedBox(width: 6,),
-                                            
-                                            // double d = cproduct.mrp;
-                                            Text(
-                                                "("+
-                                              ((cproduct.mrp - cproduct.listPrice)*100 / cproduct.mrp ).toInt().toString()
-                                                +"% off)",
-                                                style: TextStyle(
-                                                  color: Colors.red,
-                                                  fontWeight: FontWeight.w400,
-                                                  fontSize: 12
-                                                ),
-                                            )
-                                            // Text("("+cproduct[index].discount.toInt().toString()+"% off)",style: TextStyle(fontWeight: FontWeight.w500,fontSize: 14,color: Colors.red),)
-                                          
+                                        // Text("sdfdsf",textAlign: ),
+                                        Text(
+                                            cproduct.name,
+                                            overflow: TextOverflow.visible,
+                                            textAlign: TextAlign.left, 
+                                            style: TextStyle(fontSize: 23,fontWeight: FontWeight.w800,),
+                                          ),
+                                        // Text("Exclusive Jacket"),
+                                        SizedBox(height:10,),
                                         
+                                        Padding(
+                                          padding: const EdgeInsets.only(left:0),
+                                          child: Row(
+                                            children: <Widget>[
+                                                  Text("\u20B9",style: TextStyle(fontWeight: FontWeight.bold,fontSize: 20),),
+                                                  Text(cproduct.listPrice.toString(),style: TextStyle(fontWeight: FontWeight.bold,fontSize: 20),),
+                                                  SizedBox(width: 10,),
+                                                  Text("\u20B9",style: TextStyle(fontWeight: FontWeight.w500,fontSize: 15,color: Colors.red),),
+                                                  Text(cproduct.mrp.toString(),style: TextStyle(fontWeight: FontWeight.w500,fontSize: 15,color: Colors.red,decoration: TextDecoration.lineThrough),),
+                                                  SizedBox(width: 6,),
+                                                  
+                                                  // double d = cproduct.mrp;
+                                                  Text(
+                                                      "("+
+                                                    ((cproduct.mrp - cproduct.listPrice)*100 / cproduct.mrp ).toInt().toString()
+                                                      +"% off)",
+                                                      style: TextStyle(
+                                                        color: Colors.red,
+                                                        fontWeight: FontWeight.w400,
+                                                        fontSize: 12
+                                                      ),
+                                                  )
+                                                  // Text("("+cproduct[index].discount.toInt().toString()+"% off)",style: TextStyle(fontWeight: FontWeight.w500,fontSize: 14,color: Colors.red),)
+                                                
+                                              
+
+                                            ],
+                                          ),
+                                        )
+
 
                                       ],
                                     ),
-                                  )
-
+                                  ),
 
                                 ],
                               ),
                             ),
-                            // Row(
-                            //     crossAxisAlignment: CrossAxisAlignment.start,
-                            //     children: <Widget>[
-                            //       Column(
-                            //         children: <Widget>[
-                            //           Icon(Icons.favorite,color: Colors.red,size: 30,),
-                            //           Text("450 Likes",style:TextStyle(fontSize: 10,color: Colors.grey),)
-                            //         ],
-                            //       ),
-                            //       SizedBox(width: 10,),
-                            //       Icon(Icons.bookmark,color: Colors.black12,size: 30,)
-                            //     ],
-                            // )
-        
-                          ],
-                        ),
-                      ),
-                    
-                    ),
-                    Divider(
-                      height: 2,
-                      color: Colors.grey,
-                    ),
-                    
-                    // loading?Center(child: CircularProgressIndicator(),):
-                    Padding(
-                      padding: const EdgeInsets.only(top:10,bottom: 15),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: <Widget>[
-                            Text("Select a Size",textAlign: TextAlign.left,style: TextStyle(fontWeight:FontWeight.w700),),
-                            SizedBox(height: 10,),
-                            loading?Center(child: CircularProgressIndicator(),):
-                            Container(
-                              // width: 300,
-                              width: MediaQuery.of(context).size.width,
-                              height: 35,
-                              // color: Colors.black,
-                              
-                              child: ListView.builder(
-                                shrinkWrap: true,
-                                itemCount: sizes.length,
-
-                                scrollDirection: Axis.horizontal,
-                                itemBuilder: (BuildContext context,int index){                                
-                                    return Padding(
-                                      padding: const EdgeInsets.only(right:10),
-                                      child: _size(
-                                        sizes.keys.toList()[index],index
-                                        ),
-                                    );
-                                },
-                              ),
-                            ),
-                            
                           
+                          ),
+                          Divider(
+                            height: 2,
+                            color: Colors.grey,
+                          ),
+                          
+                          // loading?Center(child: CircularProgressIndicator(),):
+                          Padding(
+                            padding: const EdgeInsets.only(top:10,bottom: 15),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: <Widget>[
+                                  Text("Select a Size",textAlign: TextAlign.left,style: TextStyle(fontWeight:FontWeight.w700),),
+                                  SizedBox(height: 10,),
+                                  loading?Center(child: CircularProgressIndicator(),):
+                                  Container(
+                                    // width: 300,
+                                    width: MediaQuery.of(context).size.width,
+                                    height: 35,
+                                    // color: Colors.black,
+                                    
+                                    child: ListView.builder(
+                                      shrinkWrap: true,
+                                      itemCount: sizes.length,
 
-                        ],
-                      ),
-                    ),
-                    Divider(
-                      height: 2,
-                      color: Colors.grey,
-                    ),
-
-                    Padding(
-                      padding: EdgeInsets.only(top:10,bottom:10),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: <Widget>[
-                          Text("Color",style: TextStyle(fontWeight:FontWeight.w700)),
-                          SizedBox(height: 10,),
-                          loading?Center(child: CircularProgressIndicator(),):
-                          // Row(
-                          //   crossAxisAlignment: CrossAxisAlignment.start,
-                          //   children: <Widget>[
-                          //       _color("0xffb74093", false),
-                          //       SizedBox(width: 10,),
-                          //       _color("0xffaabbcc", true),
-                          //       SizedBox(width: 10,),
-                          //       _color("0xffa26676", false),
-                          //       SizedBox(width: 10,)                                                            
-                          //   ],
-                          // )
-                          Container(
-                            width: MediaQuery.of(context).size.width,
-                            height: 35,
-                            // color:Colors.red,
-                            child: ListView.builder(
-                              shrinkWrap: true,
-                              scrollDirection: Axis.horizontal,
-                              itemCount: sizes[selectedSize].length,
-                              itemBuilder:(context,index){
-                                // return Text("S");
-                                return Container(
-                                  margin: EdgeInsets.only(right:10),
-                                  child: _color(
-                                    sizes[selectedSize][index].replaceAll("#","0xff"), false)
-                                    // colors.keys.toList()[index].replaceAll("#","0xff"), false)
+                                      scrollDirection: Axis.horizontal,
+                                      itemBuilder: (BuildContext context,int index){                                
+                                          return Padding(
+                                            padding: const EdgeInsets.only(right:10),
+                                            child: _size(
+                                              sizes.keys.toList()[index],index
+                                              ),
+                                          );
+                                      },
+                                    ),
+                                  ),
                                   
-                                );
-                              }
-                              ),
+                                
+
+                              ],
+                            ),
+                          ),
+                          Divider(
+                            height: 2,
+                            color: Colors.grey,
+                          ),
+
+                          Padding(
+                            padding: EdgeInsets.only(top:10,bottom:10),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: <Widget>[
+                                Text("Color",style: TextStyle(fontWeight:FontWeight.w700)),
+                                SizedBox(height: 10,),
+                                loading?Center(child: CircularProgressIndicator(),):
+                                // Row(
+                                //   crossAxisAlignment: CrossAxisAlignment.start,
+                                //   children: <Widget>[
+                                //       _color("0xffb74093", false),
+                                //       SizedBox(width: 10,),
+                                //       _color("0xffaabbcc", true),
+                                //       SizedBox(width: 10,),
+                                //       _color("0xffa26676", false),
+                                //       SizedBox(width: 10,)                                                            
+                                //   ],
+                                // )
+                                Container(
+                                  width: MediaQuery.of(context).size.width,
+                                  height: 35,
+                                  // color:Colors.red,
+                                  child: ListView.builder(
+                                    shrinkWrap: true,
+                                    scrollDirection: Axis.horizontal,
+                                    itemCount: sizes[selectedSize].length,
+                                    itemBuilder:(context,index){
+                                      // return Text("S");
+                                      return Container(
+                                        margin: EdgeInsets.only(right:10),
+                                        child: _color(
+                                          sizes[selectedSize][index].replaceAll("#","0xff"), false)
+                                          // colors.keys.toList()[index].replaceAll("#","0xff"), false)
+                                        
+                                      );
+                                    }
+                                    ),
+                                )
+
+
+
+                              ],
+                            ),
+                          ),
+
+                          Divider(
+                            height: 2,
+                            color: Colors.grey,
+                          ),
+
+                          Padding(
+                            padding: EdgeInsets.only(top: 10,bottom:10),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: <Widget>[
+                                Text("Quantity",style:TextStyle(fontWeight:FontWeight.w700),),
+                                Row(
+                                  children: <Widget>[
+                                    InkWell(
+                                        onTap: (){
+                                          // AddQty();
+                                          RemoveQty();
+                                        },
+                                        child: Container(
+                                        decoration: BoxDecoration(
+                                          color: Colors.grey[200]
+                                        ),
+                                        child: Icon(Icons.remove,color: Colors.grey, )
+                                        ),
+                                    ),
+
+                                    SizedBox(width: 15,),
+                                    Text( "$qty",
+                                    style: TextStyle(fontSize: 20),),
+                                    
+                                    SizedBox(width: 15,),
+
+                                    InkWell(
+                                      onTap: (){
+                                        AddQty();
+                                      },
+                                      child: Container(
+                                      decoration: BoxDecoration(
+                                      color: Colors.grey[200]
+                                      ),
+                                        child: Icon(Icons.add,color: Colors.grey,)
+                                        ),
+                                    ),
+                                  ],
+                                )
+                              ],
+                            ),
                           )
 
 
 
-                        ],
-                      ),
-                    ),
 
-                    Divider(
-                      height: 2,
-                      color: Colors.grey,
-                    ),
-
-                    Padding(
-                      padding: EdgeInsets.only(top: 10,bottom:10),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: <Widget>[
-                          Text("Quantity",style:TextStyle(fontWeight:FontWeight.w700),),
-                          Row(
-                            children: <Widget>[
-                              InkWell(
-                                  onTap: (){
-                                    // AddQty();
-                                    RemoveQty();
-                                  },
-                                  child: Container(
-                                  decoration: BoxDecoration(
-                                    color: Colors.grey[200]
-                                  ),
-                                  child: Icon(Icons.remove,color: Colors.grey, )
-                                  ),
-                              ),
-
-                              SizedBox(width: 15,),
-                              Text( "$qty",
-                              style: TextStyle(fontSize: 20),),
-                              
-                              SizedBox(width: 15,),
-
-                              InkWell(
-                                onTap: (){
-                                  AddQty();
-                                },
-                                child: Container(
-                                decoration: BoxDecoration(
-                                color: Colors.grey[200]
-                                ),
-                                  child: Icon(Icons.add,color: Colors.grey,)
-                                  ),
-                              ),
-                            ],
-                          )
                         ],
                       ),
                     )
 
-
-
-
                   ],
-                ),
-              )
+              );
+              }
+              else{
+                return Center(child:Text("something went wrong"));
+              }
 
-            ],
-        ),
+            },
+            
+            ),
+        )
+
+        // Center(child: CircularProgressIndicator()):
+        // ListView(
+        //     children: <Widget>[
+        //       // CustomAppBar(name: this.widget.category.name),
+        //       // CustomAppBar(name:"Detail"),
+        //       GestureDetector(
+        //           onTap: (){
+        //             ChangeHeight();
+        //           },
+        //           child: AnimatedContainer(
+        //           duration: Duration(milliseconds: 300),
+        //           // height: picheight,
+        //           child: 
+        //           cproduct.images.isEmpty
+        //           ?Container(
+        //             height:400,
+        //             alignment: Alignment.center,
+        //             child: Text("Image Not Upload",
+        //               style: TextStyle(
+        //                 fontWeight: FontWeight.bold,
+        //                 color:Colors.grey,
+        //                 fontSize: 18
+        //               ),
+        //               ),
+        //             )
+        //           :
+        //           CarouselSlider(
+        //             // enlargeCenterPage: true,
+        //             height: 400,
+        //             aspectRatio: 16/9,
+        //             autoPlay: false,
+        //             viewportFraction: 1.0,
+        //             items : cproduct.images.map((f){
+        //               return 
+        //               // CachedNetworkImage(
+        //               //   height:230,
+        //               //   imageUrl: server_url+"/media/"+f.normalImage.toString(),
+        //               //     fit: BoxFit.fitWidth,
+        //               //     alignment: Alignment.topCenter,
+        //               //     placeholder: (context, url) =>Center(child: CircularProgressIndicator()),
+        //               // );
+
+        //                 Container(
+        //                   color:Colors.red,
+        //                   child: CachedNetworkImage(
+        //                   // height: 100,
+        //                   imageUrl: 
+        //                   server_url+"/media/"+f.normalImage.toString(),
+        //                   // widget.product.imageLink[0].toString(),
+                          
+        //                   fit: BoxFit.cover,
+        //                   alignment: Alignment.topCenter,
+        //                   placeholder: (context, url) =>Center(child: CircularProgressIndicator()),
+        //               ),
+        //                 );                        
+                      
+        //             }).toList()
+        //           )
+
+        //           // :CachedNetworkImage(
+        //           //   height: 230,
+        //           //   imageUrl: 
+        //           //   server_url+"/media/"+cproduct.images[0].normalImage.toString(),
+        //           //   // widget.product.imageLink[0].toString(),
+                    
+        //           //   fit: BoxFit.cover,
+        //           //   alignment: Alignment.topCenter,
+        //           //   placeholder: (context, url) =>Center(child: CircularProgressIndicator()),
+        //           // ),
+
+
+        //           // child: Image.network(
+        //           //   widget.product.imageLink[0]
+        //           // )
+        //           // Image.network(
+        //           //   server_url+"/media/"+widget.product.images[0].imgUrl,
+        //           //   fit:BoxFit.cover,
+        //           //   alignment: Alignment.topCenter,
+        //           //   )
+        //           // Image.asset(
+        //           //   widget.product.images[0].imgUrl,
+        //           //   fit:BoxFit.cover,
+        //           //   alignment: Alignment.topCenter,
+        //           //   )
+
+
+
+        //         ),
+        //       ),
+
+        //       Padding(
+        //         // padding: const EdgeInsets.all(8.0),
+        //         padding: const EdgeInsets.only(left: 15,right: 15),
+        //         child: Column(
+        //           children: <Widget>[
+
+
+        //             Padding(
+        //               padding: const EdgeInsets.only(top:20,bottom: 20),
+        //               // padding: const EdgeInsets.all(0),
+        //               child: Container(
+        //                 width: MediaQuery.of(context).size.width,
+        //                 decoration: BoxDecoration(
+        //                   // color: Colors.green
+        //                 ),
+        //                 child: Row(
+        //                   // spacing: ,
+        //                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        //                   children: <Widget>[
+                            
+        //                     Expanded(
+        //                         child: Column(
+        //                         crossAxisAlignment: CrossAxisAlignment.start,
+        //                         children: <Widget>[
+        //                           // Text("sdfdsf",textAlign: ),
+        //                           Text(
+        //                               cproduct.name,
+        //                               overflow: TextOverflow.visible,
+        //                               textAlign: TextAlign.left, 
+        //                               style: TextStyle(fontSize: 23,fontWeight: FontWeight.w800,),
+        //                             ),
+        //                           // Text("Exclusive Jacket"),
+        //                           SizedBox(height:10,),
+                                  
+        //                           Padding(
+        //                             padding: const EdgeInsets.only(left:0),
+        //                             child: Row(
+        //                               children: <Widget>[
+        //                                     Text("\u20B9",style: TextStyle(fontWeight: FontWeight.bold,fontSize: 20),),
+        //                                     Text(cproduct.listPrice.toString(),style: TextStyle(fontWeight: FontWeight.bold,fontSize: 20),),
+        //                                     SizedBox(width: 10,),
+        //                                     Text("\u20B9",style: TextStyle(fontWeight: FontWeight.w500,fontSize: 15,color: Colors.red),),
+        //                                     Text(cproduct.mrp.toString(),style: TextStyle(fontWeight: FontWeight.w500,fontSize: 15,color: Colors.red,decoration: TextDecoration.lineThrough),),
+        //                                     SizedBox(width: 6,),
+                                            
+        //                                     // double d = cproduct.mrp;
+        //                                     Text(
+        //                                         "("+
+        //                                       ((cproduct.mrp - cproduct.listPrice)*100 / cproduct.mrp ).toInt().toString()
+        //                                         +"% off)",
+        //                                         style: TextStyle(
+        //                                           color: Colors.red,
+        //                                           fontWeight: FontWeight.w400,
+        //                                           fontSize: 12
+        //                                         ),
+        //                                     )
+        //                                     // Text("("+cproduct[index].discount.toInt().toString()+"% off)",style: TextStyle(fontWeight: FontWeight.w500,fontSize: 14,color: Colors.red),)
+                                          
+                                        
+
+        //                               ],
+        //                             ),
+        //                           )
+
+
+        //                         ],
+        //                       ),
+        //                     ),
+
+        //                   ],
+        //                 ),
+        //               ),
+                    
+        //             ),
+        //             Divider(
+        //               height: 2,
+        //               color: Colors.grey,
+        //             ),
+                    
+        //             // loading?Center(child: CircularProgressIndicator(),):
+        //             Padding(
+        //               padding: const EdgeInsets.only(top:10,bottom: 15),
+        //               child: Column(
+        //                 crossAxisAlignment: CrossAxisAlignment.start,
+        //                 children: <Widget>[
+        //                     Text("Select a Size",textAlign: TextAlign.left,style: TextStyle(fontWeight:FontWeight.w700),),
+        //                     SizedBox(height: 10,),
+        //                     loading?Center(child: CircularProgressIndicator(),):
+        //                     Container(
+        //                       // width: 300,
+        //                       width: MediaQuery.of(context).size.width,
+        //                       height: 35,
+        //                       // color: Colors.black,
+                              
+        //                       child: ListView.builder(
+        //                         shrinkWrap: true,
+        //                         itemCount: sizes.length,
+
+        //                         scrollDirection: Axis.horizontal,
+        //                         itemBuilder: (BuildContext context,int index){                                
+        //                             return Padding(
+        //                               padding: const EdgeInsets.only(right:10),
+        //                               child: _size(
+        //                                 sizes.keys.toList()[index],index
+        //                                 ),
+        //                             );
+        //                         },
+        //                       ),
+        //                     ),
+                            
+                          
+
+        //                 ],
+        //               ),
+        //             ),
+        //             Divider(
+        //               height: 2,
+        //               color: Colors.grey,
+        //             ),
+
+        //             Padding(
+        //               padding: EdgeInsets.only(top:10,bottom:10),
+        //               child: Column(
+        //                 crossAxisAlignment: CrossAxisAlignment.start,
+        //                 children: <Widget>[
+        //                   Text("Color",style: TextStyle(fontWeight:FontWeight.w700)),
+        //                   SizedBox(height: 10,),
+        //                   loading?Center(child: CircularProgressIndicator(),):
+        //                   // Row(
+        //                   //   crossAxisAlignment: CrossAxisAlignment.start,
+        //                   //   children: <Widget>[
+        //                   //       _color("0xffb74093", false),
+        //                   //       SizedBox(width: 10,),
+        //                   //       _color("0xffaabbcc", true),
+        //                   //       SizedBox(width: 10,),
+        //                   //       _color("0xffa26676", false),
+        //                   //       SizedBox(width: 10,)                                                            
+        //                   //   ],
+        //                   // )
+        //                   Container(
+        //                     width: MediaQuery.of(context).size.width,
+        //                     height: 35,
+        //                     // color:Colors.red,
+        //                     child: ListView.builder(
+        //                       shrinkWrap: true,
+        //                       scrollDirection: Axis.horizontal,
+        //                       itemCount: sizes[selectedSize].length,
+        //                       itemBuilder:(context,index){
+        //                         // return Text("S");
+        //                         return Container(
+        //                           margin: EdgeInsets.only(right:10),
+        //                           child: _color(
+        //                             sizes[selectedSize][index].replaceAll("#","0xff"), false)
+        //                             // colors.keys.toList()[index].replaceAll("#","0xff"), false)
+                                  
+        //                         );
+        //                       }
+        //                       ),
+        //                   )
+
+
+
+        //                 ],
+        //               ),
+        //             ),
+
+        //             Divider(
+        //               height: 2,
+        //               color: Colors.grey,
+        //             ),
+
+        //             Padding(
+        //               padding: EdgeInsets.only(top: 10,bottom:10),
+        //               child: Row(
+        //                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        //                 children: <Widget>[
+        //                   Text("Quantity",style:TextStyle(fontWeight:FontWeight.w700),),
+        //                   Row(
+        //                     children: <Widget>[
+        //                       InkWell(
+        //                           onTap: (){
+        //                             // AddQty();
+        //                             RemoveQty();
+        //                           },
+        //                           child: Container(
+        //                           decoration: BoxDecoration(
+        //                             color: Colors.grey[200]
+        //                           ),
+        //                           child: Icon(Icons.remove,color: Colors.grey, )
+        //                           ),
+        //                       ),
+
+        //                       SizedBox(width: 15,),
+        //                       Text( "$qty",
+        //                       style: TextStyle(fontSize: 20),),
+                              
+        //                       SizedBox(width: 15,),
+
+        //                       InkWell(
+        //                         onTap: (){
+        //                           AddQty();
+        //                         },
+        //                         child: Container(
+        //                         decoration: BoxDecoration(
+        //                         color: Colors.grey[200]
+        //                         ),
+        //                           child: Icon(Icons.add,color: Colors.grey,)
+        //                           ),
+        //                       ),
+        //                     ],
+        //                   )
+        //                 ],
+        //               ),
+        //             )
+
+
+
+
+        //           ],
+        //         ),
+        //       )
+
+        //     ],
+        // ),
+
+
+
+  
+      
       ),
     );
   }

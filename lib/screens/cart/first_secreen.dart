@@ -60,6 +60,8 @@ class _ChatScreenState extends State<CartScreen>   {
             node["cartProducts"]["listPrice"], 
             node["size"], 
             node["qty"],
+            node["cartProducts"]["parent"]["id"],
+            node["color"]
             )
         );
       }
@@ -75,11 +77,16 @@ class _ChatScreenState extends State<CartScreen>   {
   }
   
 
-  callback(total) {
+  callback(listCart,total) {
     setState(() {
+    cartList = listCart;
     totalPrice = total;
     setTotal(total.toString());
     });
+
+    // print(cartList.length);
+
+
     // updateSharePrefrence(total);
 }
 
@@ -142,7 +149,7 @@ class _ChatScreenState extends State<CartScreen>   {
       Scaffold(
         body: 
         
-        cartList.length>0
+        cartList.length!=0
         
         ?ListView(
           children: <Widget>[

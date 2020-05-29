@@ -66,7 +66,7 @@ class LoginRepostory{
 
     preferences.setInt("cartLen", data["cartSet"]["edges"].length);
 
-    // return user;
+    return user;
     }
   }
 

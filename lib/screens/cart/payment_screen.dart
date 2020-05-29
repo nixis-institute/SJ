@@ -47,7 +47,7 @@ class _PaymentScreen extends State<PaymentScreen>
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
-                  Text("PAY \u20B9",
+                  Text("PAY \u20B9 "+total,
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 17

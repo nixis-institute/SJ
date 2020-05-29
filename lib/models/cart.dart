@@ -24,11 +24,13 @@ class CartProductModel{
   String id;
   String img;
   String name;
+  String prdId;
   double mrp;
   double listPrice;
   String selectedSize;
+  String selectedColor;
   int qty;
-  CartProductModel(this.id,this.name,this.img,this.mrp,this.listPrice,this.selectedSize,this.qty);
+  CartProductModel(this.id,this.name,this.img,this.mrp,this.listPrice,this.selectedSize,this.qty,this.prdId,this.selectedColor);
 }
 
 // List<CartProduct> cart_product = [

@@ -22,7 +22,7 @@ class _SuccessScreen extends State<SuccessScreen>
   {
     goToHome()
     {
-      setCount("0");
+      setCount(0);
       Navigator.pushAndRemoveUntil(context, _homeRoute, (Route<dynamic> r) => false);      
     }
 
@@ -30,7 +30,7 @@ class _SuccessScreen extends State<SuccessScreen>
         onWillPop: () async => false,
         child: Scaffold(
         appBar: AppBar(
-          title: Text("order confirm"),
+          title: Text("Order Confirmation"),
           leading: IconButton(icon: Icon(Icons.arrow_back), onPressed: (){ goToHome();   }),
         ),
 
@@ -58,24 +58,30 @@ class _SuccessScreen extends State<SuccessScreen>
                   fontSize: 20
                   ),
                 ),
+                SizedBox(height:10),
 
               InkWell(
-                    onTap: (){
-                      goToHome();
-                    },
-                  child: Padding(
-                    padding: const EdgeInsets.only(top:8.0),
-                    child: Text(
-                    "Continue Shopping",
+                    // onTap: (){
+                    //   goToHome();
+                    // },
+                    child: RaisedButton(color: Colors.teal, onPressed: (){goToHome();},child: Text("Continue Shopping",style: TextStyle(color:Colors.white,fontSize: 18),),),
+              //     child: Container(
+              //       height: 50,
+              //       decoration: BoxDecoration(
+              //         color: Colors.teal
+              //       ),
+              //       padding: const EdgeInsets.only(top:8.0),
+              //       child: Text(
+              //       "Continue Shopping",
                     
-                    style: TextStyle(
-                      fontWeight: FontWeight.w300,
-                      fontSize: 20
-                    ),
+              //       style: TextStyle(
+              //         fontWeight: FontWeight.w300,
+              //         fontSize: 20
+              //       ),
 
 
-                ),
-                  ),
+              //   ),
+              // ),
               )
 
 

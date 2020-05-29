@@ -55,7 +55,13 @@ class _LoginScreenState1 extends State<LoginScreen1>
           });
         }
         else{
-          Navigator.pop(context);
+            if(Navigator.canPop(context))
+            {
+              Navigator.pop(context, MaterialPageRoute(builder: (_)=>HomeScreen()));
+            }
+            else{
+              Navigator.of(context).pushNamedAndRemoveUntil('/home', (Route<dynamic> route) => false);
+            }
         }
 
       }      
@@ -77,7 +83,15 @@ class _LoginScreenState1 extends State<LoginScreen1>
               );  
             }
             if(state is LoginSuccess){
-              Navigator.pop(context);
+              if(Navigator.canPop(context))
+              {
+                Navigator.pop(context, MaterialPageRoute(builder: (_)=>HomeScreen()));
+              }
+              else{
+                Navigator.of(context).pushNamedAndRemoveUntil('/home', (Route<dynamic> route) => false);
+              }              
+              // Navigator.pop(context);
+              // Navigator.of(context).pushNamedAndRemoveUntil('/home', (Route<dynamic> route) => false);
             }
           },
           child: BlocBuilder<LoginBloc,LoginState>(
@@ -94,7 +108,20 @@ class _LoginScreenState1 extends State<LoginScreen1>
                   alignment: Alignment.centerRight,
                   child: InkWell(
                     onTap: (){
-                      Navigator.pop(context, MaterialPageRoute(builder: (_)=>HomeScreen()));
+                      if(Navigator.canPop(context))
+                      {
+                        Navigator.pop(context, MaterialPageRoute(builder: (_)=>HomeScreen()));
+                      }
+                      else{
+                        Navigator.of(context).pushNamedAndRemoveUntil('/home', (Route<dynamic> route) => false);
+                        
+                        // Navigator.pushAndRemoveUntil(context, newRoute, (route) => false)
+
+                        // Navigator.of(context).pushNamedAndRemoveUntil('/', (Route<dynamic> route) => false);
+                        // Navigator.push(context, MaterialPageRoute(builder: (_)=>HomeScreen()));
+                      }
+                      // Navigator.push(context, MaterialPageRoute(builder: (_)=>HomeScreen()));
+                      // Navigator.pop(context, MaterialPageRoute(builder: (_)=>HomeScreen()));
                     },
                     child: Text("Skip Now"))
                     ),

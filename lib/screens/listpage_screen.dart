@@ -88,16 +88,18 @@ void fillMoreProduct() async{
           // filter_list.add(Filter_Model("Br",""));
           // brands.add(data["edges"][i]["node"]["brand"]);
           // sizes.add(data["edges"][i]["node"]["sizes"]);
-          prdList.add(
-            Product(data["edges"][i]["node"]["id"], 
-            data["edges"][i]["node"]["name"], 
-            data["edges"][i]["node"]["listPrice"],
-            data["edges"][i]["node"]["mrp"],
-            imgList,
-            data["edges"][i]["node"]["sizes"].split(","),
-            data["edges"][i]["node"]["imageLink"].split(","),
-            )
-          );
+        if(data["edges"][i]["node"]["subproductSet"]["edges"].isNotEmpty)
+            prdList.add(
+              Product(data["edges"][i]["node"]["id"], 
+              data["edges"][i]["node"]["name"], 
+              data["edges"][i]["node"]["subproductSet"]["edges"][0]["node"]["listPrice"],
+              data["edges"][i]["node"]["subproductSet"]["edges"][0]["node"]["mrp"],
+              imgList,
+              [],
+              // data["edges"][i]["node"]["sizes"].split(","),
+              data["edges"][i]["node"]["imageLink"].split(","),
+              )
+            );
 
         product[_currentIndex].product.addAll(prdList);
         }
@@ -286,11 +288,11 @@ void fillProductAndCateogry() async{
   Widget build(BuildContext context)
   {
 
-    // getCartCount().then((c){
-    //   setState(() {
-    //   _count = c;
-    //   });
-    // });
+    getCartCount().then((c){
+      setState(() {
+      _count = c;
+      });
+    });
 
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
@@ -324,37 +326,40 @@ void fillProductAndCateogry() async{
                   },
                 ),
 
-                Stack(
-                    children:<Widget>[
-                      IconButton(
-                      icon: Icon(Icons.add_shopping_cart),
-                      iconSize: 30,
-                      color: Colors.white,
-                      
-                      onPressed: (){
-                        Navigator.push(context, MaterialPageRoute(builder: (_)=>CartScreen(
-                        )));
-                      },
-                  ),
-                  Positioned(
-                    top: 1,
-                    left: 20,
-                    child: Container(
-                      height: 20,
-                      width: 20,
-                      // color: Colors.red,
-                      alignment: Alignment.center,
-                      decoration: BoxDecoration(
-                        color: Colors.red,
-                        borderRadius: BorderRadius.circular(10)
-                      ),
-                      child: Text(_count,
-                      style: TextStyle(color:Colors.white),
-                      ),
+                Padding(
+                  padding: const EdgeInsets.only(top:5.0),
+                  child: Stack(
+                      children:<Widget>[
+                        IconButton(
+                        icon: Icon(Icons.add_shopping_cart),
+                        // iconSize: 30,
+                        color: Colors.white,
+                        
+                        onPressed: (){
+                          Navigator.push(context, MaterialPageRoute(builder: (_)=>CartScreen(
+                          )));
+                        },
                     ),
-                  )
-                ]
+                    Positioned(
+                      top: 1,
+                      left: 20,
+                      child: Container(
+                        height: 20,
+                        width: 20,
+                        // color: Colors.red,
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(
+                          color: Colors.red,
+                          borderRadius: BorderRadius.circular(10)
+                        ),
+                        child: Text(_count,
+                        style: TextStyle(color:Colors.white),
+                        ),
+                      ),
+                    )
+                  ]
               ),
+                ),
             ],
 
             bottom:isLoading?null: 

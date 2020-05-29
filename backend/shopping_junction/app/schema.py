@@ -169,7 +169,9 @@ class SubCategoryNode(DjangoObjectType):
     productSize = graphene.Int()
     class Meta:
         model = SubCategory
-        filter_fields = ()
+        filter_fields = {
+            # "product_size":["lte","gte"]
+        }
         interfaces = (relay.Node,)
     def resolve_productSize(self,info):
         return len(Product.objects.filter(sublist_id__in=[i.id for i in SubList.objects.filter(sub_category_id=self.id)]))
@@ -658,6 +660,7 @@ class Query(graphene.AbstractType):
     sublist_by_id = graphene.Field(SubListSingleNode,id=graphene.ID())
 
     search_result = graphene.List(ProductNode,match = graphene.String())
+    search_result_seller = graphene.List(ProductNode,match = graphene.String())
     search_by_brand = graphene.List(ProductNode,match = graphene.String())
     search_category = graphene.List(SubListNode,match = graphene.String())
     # s = graphene.ObjectType()
@@ -738,8 +741,13 @@ class Query(graphene.AbstractType):
     def resolve_search_by_brand(self,info,match):
         prd = Product.objects.filter(brand__icontains=match).order_by('-id')
         return prd
-    def resolve_search_result(self,info,match):
+
+    def resolve_search_result_seller(self,info,match):
         prd = Product.objects.filter(name__icontains = match).order_by('-id')
+        return prd
+
+    def resolve_search_result(self,info,match):
+        prd = Product.objects.filter(name__icontains = match).filter(isActive=1).order_by('-id')
         # cat = SubList.objects.filter(name__icontains=match)
         # prd =["45345","435"]
         # cat=["sdf","pdk"]

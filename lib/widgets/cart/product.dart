@@ -1,17 +1,19 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shopping_junction/GraphQL/Queries.dart';
 import 'package:shopping_junction/GraphQL/services.dart';
+import 'package:shopping_junction/bloc/subproduct_bloc/subproduct_bloc.dart';
 import 'package:shopping_junction/common/commonFunction.dart';
 import 'package:shopping_junction/models/cart.dart';
 
 class CartProductWidget extends StatefulWidget{
   @override
   final List<CartProductModel> listCart;
-  Function(double) callback;
+  Function(List<CartProductModel>,double) callback;
   double total;
   CartProductWidget(this.listCart,this.callback,this.total);
   
@@ -24,7 +26,15 @@ class _CartProductState extends State<CartProductWidget>{
 
   // }
 
-  void AddToCart(id,index) async{
+  void AddToCart(id,index,product) async{
+
+
+
+    final snackBar = SnackBar(
+      content: Text('Removing from CartList'),
+    );
+    Scaffold.of(context).showSnackBar(snackBar);
+
     
     SharedPreferences preferences = await SharedPreferences.getInstance();    
     GraphQLClient _client = clientToQuery();
@@ -65,6 +75,44 @@ class _CartProductState extends State<CartProductWidget>{
         });
         // await preferences.setString("key", value)
         preferences.setInt("cartLen",int.parse(_count));
+        var total = this.widget.total - product[index].listPrice;
+
+
+
+        BlocProvider.of<SubproductBloc>(context).add(
+          OnRemoveFromCart(prd: product[index].id )
+        );
+        product.removeAt(index);
+        
+        // OnRemoveFromCart
+
+        this.widget.callback(
+            product,
+            total
+          );
+
+        final snackBar2 = SnackBar(
+          content: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              
+              Text(
+                'Removed SuccessFully',
+                style: TextStyle(
+                  // color: isDark?Colors.white:Colors.black
+                ),
+                ), 
+              Icon(
+                Icons.check_circle,
+                // color: isDark?Colors.white:Colors.black,
+                )
+              ],                    
+            )
+        );
+
+
+        Scaffold.of(context).hideCurrentSnackBar();
+        Scaffold.of(context).showSnackBar(snackBar2);
         // preferences.setString("cartCount", (int.parse(_count)).toString());
       }
     }
@@ -216,13 +264,10 @@ class _CartProductState extends State<CartProductWidget>{
 
                                   setState(() {
                                     // product[index].qty-=1;
-                                    AddToCart(product[index].id,index);
-                                    this.widget.callback(
-                                      this.widget.total - product[index].listPrice
-                                    );
-                                    product.removeAt(index);
-
+                                    AddToCart(product[index].id,index,product);
+                                    // product.removeAt(index);
                                   });
+                                  
 
                                 },
                               )
@@ -260,7 +305,7 @@ class _CartProductState extends State<CartProductWidget>{
                               setState(() {
                                   product[index].qty-=1;
                               });
-                              this.widget.callback(this.widget.total- product[index].listPrice);
+                              this.widget.callback(product,this.widget.total- product[index].listPrice);
                               }
                           },
                           child: Container(
@@ -294,7 +339,7 @@ class _CartProductState extends State<CartProductWidget>{
                               // this.widget.callback(this.widget.total+ product[index].listPrice);
                             });
                             }
-                          this.widget.callback(this.widget.total+ product[index].listPrice);
+                          this.widget.callback(product,this.widget.total+ product[index].listPrice);
                           
                           },
                           child: Container(

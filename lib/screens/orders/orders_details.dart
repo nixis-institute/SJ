@@ -47,7 +47,7 @@ class _OrdersDetailScreen extends State<OrdersDetailScreen>{
                 FlatButton(
                   onPressed: (){
                     setState(() {
-                      this.widget.orders.status = "Cancel";  
+                      this.widget.orders.status = "Cancelled";  
                     });
                     Navigator.pop(context);
                     
@@ -85,7 +85,9 @@ class _OrdersDetailScreen extends State<OrdersDetailScreen>{
             Text(this.widget.orders.status,
             style: TextStyle(
                 fontSize: 18,
-                color: this.widget.orders.status=="Delivered"?Colors.green:Colors.black,
+                color: this.widget.orders.status=="Delivered"?Colors.green:this.widget.orders.status=="Cancelled"?Colors.red:
+                Colors.blue,
+
                 fontWeight: FontWeight.bold
                 ),
               )
@@ -112,12 +114,18 @@ class _OrdersDetailScreen extends State<OrdersDetailScreen>{
                   child: ListTile(
                     trailing: this.widget.orders.imgLink==null?Text("No Preview",style: TextStyle(color:Colors.grey),):
                     
-                    CachedNetworkImage(
-                      imageUrl: server_url+"/media/"+this.widget.orders.imgLink,
-                      fit: BoxFit.contain,
-                      ),
+                    Hero(
+                        tag: this.widget.orders.orderId,
+                        child: CachedNetworkImage(
+                        imageUrl: server_url+"/media/"+this.widget.orders.imgLink,
+                        fit: BoxFit.contain,
+                        ),
+                    ),
                     isThreeLine: true,
-                    title: Text(this.widget.orders.productName,style: TextStyle(fontWeight: FontWeight.bold), ),
+                    title: 
+                    // tag: this.widget.orders.productName.replaceAll(" ", "-")+this.widget.orders.orderId,
+                    Text(this.widget.orders.productName,style: TextStyle(fontWeight: FontWeight.bold), ),
+                    
                     subtitle: Text(
                       "\u20B9 "+
                       this.widget.orders.price.toString(),style: TextStyle(fontWeight: FontWeight.w600),

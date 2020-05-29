@@ -52,22 +52,22 @@ List<ProductCategory> listCategory = List<ProductCategory>();
       )
     );
     // GraphQLClient _client = clientToQuery();
-    QueryResult _result = await _client.query(
-      QueryOptions(
-        documentNode: gql(CartProductsQuery)
-      )
-    ); 
+    // QueryResult _result = await _client.query(
+    //   QueryOptions(
+    //     documentNode: gql(CartProductsQuery)
+    //   )
+    // ); 
 
-    if(!_result.hasException)
-    {
-      print(_result.data["cartProducts"]["edges"]);
-      SharedPreferences preferences = await SharedPreferences.getInstance();
-      var len = _result.data["cartProducts"]["edges"];
-      setState(() {
-        _count = len.length.toString();
-      });
-      preferences.setString("cartCount", len.length.toString());
-    }
+    // if(!_result.hasException)
+    // {
+    //   print(_result.data["cartProducts"]["edges"]);
+    //   SharedPreferences preferences = await SharedPreferences.getInstance();
+    //   var len = _result.data["cartProducts"]["edges"];
+    //   setState(() {
+    //     _count = len.length.toString();
+    //   });
+    //   preferences.setString("cartCount", len.length.toString());
+    // }
 
     if(result.loading)
     {
@@ -100,9 +100,13 @@ List<ProductCategory> listCategory = List<ProductCategory>();
           List<PSlider> sl=[];
           for(int j=0;j<sub.length;j++)
           {
-            temp.add(
-                ProductSubCategory(sub[j]["node"]["id"],sub[j]["node"]["name"])
-              );
+            if(sub[j]["node"]["productSize"]>0)
+            {
+                temp.add(
+                  ProductSubCategory(sub[j]["node"]["id"],sub[j]["node"]["name"])
+                );
+            }
+            
           }
           for(int j=0;j<slider.length;j++)
           {
@@ -182,56 +186,61 @@ List<ProductCategory> listCategory = List<ProductCategory>();
                 //   onPressed: (){},
                 // ),
 
-                Stack(
-                    children:<Widget>[
-                      IconButton(
-                      icon: Icon(Icons.add_shopping_cart),
-                      iconSize: 30,
-                      color: Colors.white,
-                      
-                      onPressed: (){
-                        Navigator.push(context, MaterialPageRoute(builder: (_)=>CartScreen(
-                        )));
-                      },
-                  ),
-                  Positioned(
-                    top: 1,
-                    left: 20,
-                    child: Container(
-                      height: 20,
-                      width: 20,
-                      // color: Colors.red,
-                      alignment: Alignment.center,
-                      decoration: BoxDecoration(
-                        color: Colors.red,
-                        borderRadius: BorderRadius.circular(10)
-                      ),
-                      child: 
-                      BlocBuilder<AuthenticateBloc,AuthenticateState>(
-                        builder: (context,state){
-                          if(state is Authenticated)
-                            {return Text(
-                              isLoading?"":
-                              _count==null?"":_count,
-                              style: TextStyle(color:Colors.white),
-                            );}
-                          else{
-                            return Text("0",style: TextStyle(color:Colors.white),);
-                          }
+                Padding(
+                  padding: const EdgeInsets.only(top:5.0),
+                  child: Stack(
+                    // alignment: Alignment.bottomCenter,
+                      children:<Widget>[
+                        IconButton(
+                        icon: Icon(Icons.add_shopping_cart),
+                        // iconSize: 30,
+                        color: Colors.white,
+                        
+                        onPressed: (){
+                          Navigator.push(context, MaterialPageRoute(builder: (_)=>CartScreen(
+                          )));
                         },
-                      )
-                      
-                      // Text(
-                      //   isLoading?"":
-                      //   _count==null?"":_count,
-                      //   style: TextStyle(color:Colors.white),
-                      //   ),
-
-
                     ),
-                  )
-                ]
+                    Positioned(
+                      top: 1,
+                      left: 20,
+                      child: Container(
+                        height: 20,
+                        width: 20,
+                        // color: Colors.red,
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(
+                          color: Colors.red,
+                          borderRadius: BorderRadius.circular(10)
+                        ),
+                        child: 
+                        BlocBuilder<AuthenticateBloc,AuthenticateState>(
+                          builder: (context,state){
+                            if(state is Authenticated)
+                              {return Text(
+                                isLoading?"":
+                                _count==null?"":_count,
+                                style: TextStyle(color:Colors.white),
+                              );}
+                            else{
+                              return Text("0",style: TextStyle(color:Colors.white),);
+                            }
+                          },
+                        )
+                        
+                        // Text(
+                        //   isLoading?"":
+                        //   _count==null?"":_count,
+                        //   style: TextStyle(color:Colors.white),
+                        //   ),
+
+
+                      ),
+                    )
+                  ]
               ),
+                ),
+              Icon(Icons.more_vert)
             ],
             // bottom: PreferredSize(child: SearchBar(), preferredSize: Size(50, 50)),
             ),
@@ -255,6 +264,8 @@ List<ProductCategory> listCategory = List<ProductCategory>();
                 return SideDrawer(productCategory:listCategory,user:state.user);
               }
               if(state is NotAuthenticated){
+                // print("not authenticated");
+                // return LoginScreen();
                 return SideDrawer(productCategory:listCategory);
               }
               else{
