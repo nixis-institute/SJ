@@ -13,6 +13,8 @@ class RegistrationScreen extends StatefulWidget{
 
 class _RegistrationScreenState extends State<RegistrationScreen>
 {
+  final _FirstName = TextEditingController();
+  final _LastName = TextEditingController();
   final _User = TextEditingController();
   final _Email = TextEditingController();
   final _Pass1 = TextEditingController();
@@ -48,7 +50,7 @@ class _RegistrationScreenState extends State<RegistrationScreen>
   @override
   Widget build(BuildContext context)
   {
-    _createUser(context,username,email,password)
+    _createUser(context,username,email,password,firstname,lastname)
     async {
     if(username.length==0)
     {
@@ -57,6 +59,12 @@ class _RegistrationScreenState extends State<RegistrationScreen>
     setState(() {
       isSubmit = true;
     });
+    print(firstname);
+    print(lastname);
+    print(username);
+    print(email);
+    print(password);
+
 
     GraphQLClient _client = clientToQuery();
     QueryResult result = await _client.mutate(
@@ -65,7 +73,9 @@ class _RegistrationScreenState extends State<RegistrationScreen>
         variables:{
           "user":username,
           "email":email,
-          "password":password
+          "password":password,
+          "firstname":firstname,
+          "lastname":lastname
           }
       )
     );
@@ -160,6 +170,45 @@ class _RegistrationScreenState extends State<RegistrationScreen>
                       child: Column(
                         children: <Widget>[
                           
+                          TextFormField(
+                            autofocus: false,
+                            controller: _FirstName,
+                            // onChanged: ,
+                            decoration: InputDecoration(
+                              // border: InputBord
+                              // hintText: 'First Name',
+                              labelText: 'First Name',
+                              
+                            ),
+                            onTap: (){
+                              setState(() {
+                                isWrong = false;
+                              });
+                            },
+
+                          ),
+
+                          SizedBox(height: 20,),
+                          TextFormField(
+                            autofocus: false,
+                            controller: _LastName,
+                            // onChanged: ,
+                            decoration: InputDecoration(
+                              // border: InputBord
+                              // hintText: 'Email',
+                              labelText: 'Last Name',
+                              
+                            ),
+                            onTap: (){
+                              setState(() {
+                                isWrong = false;
+                              });
+                            },
+
+                          ),
+
+                          SizedBox(height: 20,),
+
                           TextFormField(
                             autofocus: false,
                             controller: _User,
@@ -319,7 +368,7 @@ class _RegistrationScreenState extends State<RegistrationScreen>
 
                           InkWell(
                               onTap: (){
-                                _createUser(context,_User.text,_Email.text,_Pass1.text);
+                                _createUser(context,_User.text,_Email.text,_Pass1.text,_FirstName.text,_LastName.text);
                               },
                               child: Container(
                               height: 50,

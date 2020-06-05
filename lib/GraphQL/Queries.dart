@@ -48,14 +48,15 @@ query GetSubCateogry(\$CateogryId:ID!){
 """;
 final String createUser = """
 
-mutation create(\$user:String!,\$email:String!,\$password:String!){
-  createUser(username:\$user,email:\$email,password:\$password){
+mutation create(\$user:String!,\$email:String!,\$password:String!,\$firstname:String!,\$lastname:String!){
+  createUser(username:\$user,email:\$email,password:\$password,firstname:\$firstname,lastname:\$lastname){
     user{
       id
       username
     }
   }
 }
+
 
 
 """;
@@ -510,7 +511,7 @@ query xyz(\$Id:ID!,\$after:String!)
   {
     id
     name
-    productSet(first:10,after:\$after){
+    productSet(first:10,after:\$after,isActive:true){
       pageInfo{
         endCursor
         hasNextPage
@@ -584,7 +585,88 @@ query GetSubList(\$SubCateogryId:ID!,\$after:String!){
 
 """;
 
+final getProductBySublistIdQuery ="""
 
+query x(\$sublistId: ID!, \$after: String!, \$brand: String!, \$sizes: String!,\$color:String!,\$ordering:String!) {
+  sublistById(id: \$sublistId) {
+    id
+    name
+    productSet(first: 10, sizes_In:\$sizes, after: \$after, brand_In: \$brand,isActive:true,colors_In:\$color,orderBy:\$ordering) {
+      pageInfo {
+        endCursor
+        hasNextPage
+      }
+      edges {
+        node {
+          id
+          name
+          brand
+          listPrice
+          mrp
+          productimagesSet {
+            edges {
+              node {
+                id
+                largeImage
+                normalImage
+                thumbnailImage
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+""";
+
+final String getSubListAndProductBySubCateogryIdQuery ="""
+query GetSubList(\$SubCateogryId:ID!,\$brand: String!, \$sizes: String!,\$color:String!,\$ordering:String!){
+  sublistBySubcategoryId(subCategoryId:\$SubCateogryId)
+  {
+  pageInfo{
+      endCursor
+      hasNextPage
+    }
+    edges{
+      node
+      {
+        id
+        name
+        productSize
+        productSet(first:10,brand_In: \$brand,isActive:true,colors_In:\$color,sizes_In:\$sizes,orderBy:\$ordering){
+          pageInfo{
+            endCursor
+            hasNextPage
+          }
+          edges{
+            node{
+              id
+              name
+              brand
+              listPrice
+              mrp
+              productimagesSet{
+                edges{
+                  node{
+                    id
+                    largeImage
+                    normalImage
+                    thumbnailImage
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+
+""";
 final String GetSubListAndProductBySubCateogryId = """ 
 query GetSubList(\$SubCateogryId:ID!,\$brand: String!, \$sizes: String!,\$color:String!){
   sublistBySubcategoryId(subCategoryId:\$SubCateogryId)
@@ -598,7 +680,7 @@ query GetSubList(\$SubCateogryId:ID!,\$brand: String!, \$sizes: String!,\$color:
       {
         id
         name
-        productSet(first:6,brand_In: \$brand,isActive:true){
+        productSet(first:10,brand_In: \$brand,isActive:true){
           pageInfo{
             endCursor
             hasNextPage
@@ -652,6 +734,7 @@ query x(\$id:ID!){
         size
         color
         qty
+        isInCart
         productimagesSet{
           edges{
             node{
@@ -661,14 +744,7 @@ query x(\$id:ID!){
               thumbnailImage
             }
           }
-        }        
-        cartProducts{
-          edges{
-            node{
-              id
-            }
-          }
-        }     
+        }
       }
     }
   }

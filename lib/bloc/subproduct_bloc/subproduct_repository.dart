@@ -78,7 +78,8 @@ class SubProductRepository{
             data[i]["node"]["size"],
             data[i]["node"]["color"],
             data[i]["node"]["qty"],
-            data[i]["node"]["cartProducts"]["edges"].length>0?true:false,
+            data[i]["node"]["isInCart"],
+            // data[i]["node"]["cartProducts"]["edges"].length>0?true:false,
             im
             // isInCart: data[i]["node"]["cartProducts"]["edges"].length>0?true:false
             )

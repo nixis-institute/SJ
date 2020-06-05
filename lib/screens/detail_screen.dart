@@ -293,7 +293,7 @@ class _DetailPageState extends State<DetailPage>
       });
     });
     
-    // print(this.widget.pId);
+    print(this.widget.pId);
     BlocProvider.of<SubproductBloc>(context).add(
       FetchSubProducts(this.widget.pId)
     );

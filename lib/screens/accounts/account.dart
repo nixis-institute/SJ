@@ -284,7 +284,7 @@ _clear() async{
                       children: <Widget>[
                         Hero(
                           tag: "imageHero",
-                          child: 
+                          child: this.widget.user.profilePic==null?Text("Upload"):
                           CircleAvatar(
                             child: isSubmit==true?
                             Center(child: CircularProgressIndicator(),):null,
@@ -292,6 +292,7 @@ _clear() async{
                             radius: 70,
                             backgroundImage: 
                             // _image != null?Image.file(_image,fit: BoxFit.fitHeight,):
+                            
                             CachedNetworkImageProvider(server_url+"/media/"+this.widget.user.profilePic))
                         
                         ),

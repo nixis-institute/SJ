@@ -15,8 +15,31 @@ from graphene import relay
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import User
 import django_filters
+from django_filters import FilterSet, OrderingFilter
 import json
+from graphene.utils.str_converters import to_snake_case
 import graphql_jwt
+
+class OrderedDjangoFilterConnectionField(DjangoFilterConnectionField):
+    @classmethod
+    def resolve_queryset(
+        cls, connection, iterable, info, args, filtering_args, filterset_class
+    ):
+        qs = super(DjangoFilterConnectionField, cls).resolve_queryset(
+            connection, iterable, info, args
+        )
+        filter_kwargs = {k: v for k, v in args.items() if k in filtering_args}
+        qs = filterset_class(data=filter_kwargs, queryset=qs, request=info.context).qs
+
+        order = args.get('orderBy', None)
+        if order:
+            if type(order) is str:
+                snake_order = to_snake_case(order)
+            else:
+                snake_order = [to_snake_case(o) for o in order]
+            qs = qs.order_by(*snake_order)
+        return qs
+
 
 class InnerItem(graphene.ObjectType):
     List = graphene.List(graphene.String)
@@ -57,6 +80,123 @@ class FilterNode(DjangoObjectType):
     #     return [d,s,c]
         # [i.brand for i in Product.objects.all()]
 
+from django.forms import *
+from django.db.models import Q
+from functools import reduce
+import operator
+
+
+class ListFilter(django_filters.CharFilter):
+
+    def sanitize(self, value_list):
+        """
+        remove empty items in case of ?number=1,,2
+        """
+        return [v for v in value_list if v != u'']
+
+    def customize(self, value):
+        return value
+
+    def filter(self, qs, value):
+        
+        multiple_vals = value.split(u",")
+        multiple_vals = self.sanitize(multiple_vals)
+        # multiple_vals = map(self.customize, multiple_vals)
+        # actual_filter = django_filters.fields.Lookup(multiple_vals, lookup_expr = "in")
+        # actual_filter = django_filters.fields.Lookup(multiple_vals,lookup_expr="exact")
+        return super(ListFilter, self).filter(qs, multiple_vals)
+
+class SizeFilter(django_filters.CharFilter):
+    def filter(self, qs, value):
+        # print(value)
+        if value:
+            value = value.split(',')
+            # print(value)
+            # actual_filter = django_filters.fields.Lookup(value, lookup_expr = "in")
+            f = self.field_name+"__contains"
+            query = reduce(operator.or_ , (Q(sizes__contains = item+",") for item in value))
+            # print(len(qs))
+            qs = qs.filter(query)
+            # print(len(qs))
+            # print(qs)
+        return super(SizeFilter, self).filter(qs,"")
+
+class ColorsFilter(django_filters.CharFilter):
+    def filter(self, qs, value):
+        # print(value)
+        if value:
+            value = value.split(',')
+            # print(value)
+            # actual_filter = django_filters.fields.Lookup(value, lookup_expr = "in")
+            f = self.field_name+"__contains"
+            query = reduce(operator.or_ , (Q(colors__contains = item+",") for item in value))
+            # print(len(qs))
+            qs = qs.filter(query)
+            # print(len(qs))
+            # print(qs)
+        return super(ColorsFilter, self).filter(qs,"")        
+
+class ProductFilter(FilterSet):
+    # brand_in = django_filters.CharFilter(field_name="brand", lookup_expr="iexact")
+    brand__in = django_filters.BaseInFilter(field_name="brand",lookup_expr="in")
+    list_price__gt = django_filters.BaseRangeFilter(field_name="list_price",lookup_expr="range")
+    # sizes__in = django_filters.BaseCSVFilter(field_name="sizes",lookup_expr="in")
+    sizes__in = SizeFilter(field_name="sizes",lookup_expr="contains")
+    colors__in = ColorsFilter(field_name="colors",lookup_expr="contains")
+    # def sizes__in(self,queryset,value,**args,**kwargs):
+    #     return queryset
+
+    # sizes__in = ListFilter(field_name="sizes")
+
+    # sizes__in = django_filters.(
+    #     field_name="sizes",
+    #     lookup_expr='in',
+    #     # lookup_expr='icontains',
+    #     # conjoined=False,
+    #     # choices=["S,M,L"],
+
+    # )
+
+    # colors__in = django_filters.BaseInFilter(field_name="color",lookup_expr="in")
+    
+    # sizes = graphene.List(graphene.String)
+
+    # size__in = django_filters.MultipleChoiceFilter(field_name="sizes",lookup_expr="in")
+    # sizes__in = django_filters.BaseInFilter(field_name="brand",lookup_expr="in")
+    class Meta:
+        model = Product
+        fields = '__all__'
+        filter_fields = {
+            "isActive":["exact"],
+            "parent":["lte","gte","exact","isnull"],
+            "sizes":["in","icontains","exact","iexact"],
+            "list_price":["lte","gte"],
+            "brand":["in"]
+
+        }
+
+    
+    # brands = django_filters.MultipleChoiceFilter(
+    #     # field_class = CharField,
+    #     # lookup_choices=("in",)
+    #     lookup_expr="in"
+    # )
+    order_by = OrderingFilter(
+        fields=(
+            ('id','brand','name','list_price','mrp')
+        ),
+        # lookup_expr="iexect"
+        # filter_fields = {
+        #     "isActive":["exact"],
+        #     "parent":["lte","gte","exact","isnull"],
+        #     "sizes":["in","icontains","exact","iexact"],
+        #     "list_price":["lte","gte"],
+        #     "brand":["in"]
+
+        # }
+    )
+
+
 class ProductNode(DjangoObjectType):
 
     # class Arguments:
@@ -82,6 +222,12 @@ class ProductNode(DjangoObjectType):
             "brand":["in"]
 
         }
+        order_by = OrderingFilter(
+            fields=(
+                ('id','name'),
+            )
+        )
+        
         # filter_fields = {
         #     size:
         #     # "sizes":["exact","icontains","in"],
@@ -132,6 +278,7 @@ class ProductSliderNode(DjangoObjectType):
         interfaces = (graphene.Node,)
 
 class SubProductNode(DjangoObjectType):
+    is_in_cart = graphene.Boolean()
     class Meta:
         model = SubProduct
         filter_fields = {
@@ -142,6 +289,14 @@ class SubProductNode(DjangoObjectType):
         "color":["in","icontains","exact","iexact"],
         }
         interfaces = (relay.Node,)
+    def resolve_is_in_cart(self,info):
+        if(Cart.objects.filter(cart_products_id=self.id).filter(user_id=info.context.user.id)):
+            return True
+        else:
+            return False
+
+        print(self.id)
+
 
 
 class ProductCategoryNode(DjangoObjectType):
@@ -179,6 +334,7 @@ class SubCategoryNode(DjangoObjectType):
 class SubListNode(DjangoObjectType):
     data = graphene.List(graphene.String)
     productSize = graphene.Int()
+    product_set = DjangoFilterConnectionField(ProductNode,filterset_class=ProductFilter)
     class Meta:
         model = SubList
         filter_fields = ()
@@ -187,6 +343,12 @@ class SubListNode(DjangoObjectType):
         return ["4","6","9"]
     def resolve_productSize(self,info):
         return len(Product.objects.filter(sublist_id = self.id))
+    
+    # def resolve_products(self,info,**kwargs):
+    #     return ProductFilter(kwargs).qs
+    # def resolve_product_set(self, info):
+    #     return Product.objects.all()
+        # return ProductFilter(data=args,queryset=self.products).qs
 
 class AddressNode(DjangoObjectType):
     class Meta:
@@ -202,10 +364,13 @@ class ImageNode(DjangoObjectType):
         interfaces = (relay.Node,)
 
 class SubListSingleNode(DjangoObjectType):
+    product_set = DjangoFilterConnectionField(ProductNode,filterset_class=ProductFilter)
     class Meta:
         model = SubList
         filter_fields = ()
         interfaces = (graphene.Node,)
+
+
 
 class UserNode(DjangoObjectType):
     class Meta:
@@ -316,11 +481,15 @@ class CreateUser(graphene.Mutation):
         username = graphene.String(required=True)
         password = graphene.String(required=True)
         email = graphene.String(required=True)
+        firstname = graphene.String(required=True)
+        lastname = graphene.String(required=True)
+
     user = graphene.Field(UserNode)
-    def mutate(self,info,username,password,email):
-        user = get_user_model()(username = username,email = email)
+    def mutate(self,info,username,password,email,firstname,lastname):
+        user = get_user_model()(username = username,email = email,first_name = firstname,last_name=lastname)
         user.set_password(password)
         user.save()
+        Profile.objects.create(user_id = user.id)
         return CreateUser(user=user)
 
 class UploadImages(graphene.Mutation):
@@ -554,7 +723,7 @@ class CancelOrder(graphene.Mutation):
     success = graphene.Boolean()
     def mutate(self,info,id):
         order = ProductOrders.objects.get(id = from_global_id(id)[1])
-        order.status = "Cancel"
+        order.status = "Cancelled"
         order.save()
         return CancelOrder(success = True)
 
@@ -634,9 +803,9 @@ class Mutation(graphene.ObjectType):
 
 
 class Query(graphene.AbstractType):
-    all_products = DjangoFilterConnectionField(ProductNode)
+    all_products = OrderedDjangoFilterConnectionField(ProductNode,orderBy=graphene.List(of_type=graphene.String))
     all_category = DjangoFilterConnectionField(ProductCategoryNode)
-    sub_category = DjangoFilterConnectionField(SubCategoryNode)
+    sub_category = OrderedDjangoFilterConnectionField(SubCategoryNode,orderBy=graphene.List(of_type=graphene.String))
     cart_products = DjangoFilterConnectionField(CartNode)
     # filtering = graphene.List(FilterNode)
     filter_by_id = graphene.List(FilterNode,id=graphene.ID())
@@ -645,7 +814,7 @@ class Query(graphene.AbstractType):
     # subcateogry_by_category_id = graphene.List(SubCategoryNode, main_category_id=graphene.ID())
 
     subcateogry_by_category_id = DjangoFilterConnectionField(SubCategoryNode,main_category_id = graphene.ID())
-    sublist_by_subcategory_id = DjangoFilterConnectionField(SubListNode, sub_category_id=graphene.ID())
+    sublist_by_subcategory_id = OrderedDjangoFilterConnectionField(SubListNode, sub_category_id=graphene.ID(),filterset_class=ProductFilter)
     product_by_sublist_id = DjangoFilterConnectionField(ProductNode, sublist_id=graphene.ID())
     user = graphene.Field(UserNode)
 
@@ -804,11 +973,13 @@ class Query(graphene.AbstractType):
     def resolve_sub_category(self,info,**kwargs):
         return SubCategory.objects.all()
 
-    def resolve_all_products(self,info,**kwargs):
+    def resolve_all_products(self, info,**kwargs):
         # return Product.objects.exclude(parent=1)
         user = info.context.user
         print(user.id)
         print(user.is_authenticated)
+        # return ProductFilter(queryset=self.all_products).qs
+
         return Product.objects.all().order_by("-id")
 
     def resolve_all_category(self,info,**kwargs):

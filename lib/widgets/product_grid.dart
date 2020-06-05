@@ -7,10 +7,11 @@ import 'package:flutter/cupertino.dart';
 
 class ProductGrid extends StatefulWidget{
   @override
+  final String customkey;
   final List<Product> product;
   Function(bool) callback;
 
-  ProductGrid(this.product,this.callback);
+  ProductGrid(this.product,this.callback,{this.customkey});
   _ProductGridState  createState() => _ProductGridState();
 } 
 
@@ -65,6 +66,7 @@ class _ProductGridState extends State<ProductGrid>
         
         Expanded(
           child: GridView.count(
+            key: PageStorageKey(widget.customkey),
             controller: _scrollController,
             shrinkWrap: true,
             crossAxisCount: 2,

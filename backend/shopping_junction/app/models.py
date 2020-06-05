@@ -22,28 +22,28 @@ class Profile(models.Model):
     def save(self,force_insert=False,force_update=False, using=None):
         #super(Photos,self).save()
 
-        # os.path.isfile(image.path)
-        p = Profile.objects.filter(id = self.id)
-        if(p):
-            if p[0].image != self.image:
-                p[0].image.delete(save=False)
-        im = Image.open(self.image)
-        output = BytesIO()
-        #basewidth = 600
-        if im.size[0]<=700:
-            basewidth = im.size[0]
-        else:
-            basewidth = 600
+        if(self.image):
+            p = Profile.objects.filter(id = self.id)
+            if(p):
+                if p[0].image != self.image:
+                    p[0].image.delete(save=False)
+            im = Image.open(self.image)
+            output = BytesIO()
+            #basewidth = 600
+            if im.size[0]<=700:
+                basewidth = im.size[0]
+            else:
+                basewidth = 600
 
-        #img = Image.open('somepic.jpg')
-        wpercent = (basewidth/float(im.size[0]))
-        hsize = int((float(im.size[1])*float(wpercent)))
-        im = im.resize((basewidth,hsize), Image.ANTIALIAS)
-        im = im.convert("RGB")
-        self.height = im.height
-        self.width = im.width
-        im.save(output, format='JPEG', quality=70)
-        self.image = InMemoryUploadedFile(output,'ImageField', "%s.jpg" %self.image.name.split('.')[0], 'image/jpeg', sys.getsizeof(output), None)        
+            #img = Image.open('somepic.jpg')
+            wpercent = (basewidth/float(im.size[0]))
+            hsize = int((float(im.size[1])*float(wpercent)))
+            im = im.resize((basewidth,hsize), Image.ANTIALIAS)
+            im = im.convert("RGB")
+            self.height = im.height
+            self.width = im.width
+            im.save(output, format='JPEG', quality=70)
+            self.image = InMemoryUploadedFile(output,'ImageField', "%s.jpg" %self.image.name.split('.')[0], 'image/jpeg', sys.getsizeof(output), None)        
         super(Profile,self).save()
 
 
@@ -140,6 +140,30 @@ class SubProduct(models.Model):
     parent = models.ForeignKey(Product,on_delete=Product)
     def __str__(self):
         return self.parent.name + " : "+str(self.list_price)
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        p = Product.objects.get(id = self.parent.id)
+        if(not p.mrp):
+            p.mrp = self.mrp
+            p.list_price = self.list_price
+        else:
+            if(p.list_price>self.list_price):
+                p.mrp = self.mrp
+                p.list_price = self.list_price
+        if(not p.sizes):
+            p.sizes = self.size+","
+        else:
+            if(p.sizes.split(",").count(self.size) is 0):
+                p.sizes+="{},".format(self.size)
+
+        if(not p.colors):
+            p.colors = self.color+","
+        else:
+            if(p.colors.split(",").count(self.color) is 0):
+                p.colors+="{},".format(self.color)
+        p.save()
+
+
 
 class ProductSlider(models.Model):
     title = models.CharField(max_length=20,null=True,blank=True)

@@ -108,7 +108,7 @@ class _SideDrawerState extends State<SideDrawer>
                       child: Hero(
                         tag: "imageHero",
                         child: 
-                        this.widget.user==null?Icon(Icons.account_circle,size: 40,color: Colors.white,):
+                        this.widget.user==null||this.widget.user.profilePic==null?Icon(Icons.account_circle,size: 40,color: Colors.white,):
                         CircleAvatar(
                           radius: 70,
                           backgroundImage: CachedNetworkImageProvider(server_url+"/media/"+

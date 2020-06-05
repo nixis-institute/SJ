@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:shopping_junction/GraphQL/Queries.dart';
 import 'package:shopping_junction/GraphQL/services.dart';
+import 'package:shopping_junction/bloc/products_bloc/products_bloc.dart';
 import 'package:shopping_junction/common/commonFunction.dart';
 import 'package:shopping_junction/models/filter_model.dart';
 import 'package:shopping_junction/models/productAndCat.dart';
@@ -30,222 +32,7 @@ class _ListPageState extends State<ListPage> with TickerProviderStateMixin
 {
 List<TypeAndProduct> product = List<TypeAndProduct>();
 
-void fillMoreProduct() async{
-    GraphQLClient _client = clientToQuery();
-    QueryResult result = await _client.query(
-      QueryOptions(
-        documentNode: gql(getMoreProductBySubListId),
-        variables:{
-          "sublistId":id,
-          "after":endCursor,
-          "sizes":size,
-          "brand":brand
-          }
-      )
-    );
-    if(result.loading)
-    {
-      setState(() {
-        loadMore = true;
-      });
-    }
 
-    if(!result.hasException)
-    {
-      var data = result.data["sublistById"]["productSet"];
-      setState(() {
-        loadMore = false;
-          endCursor = data["pageInfo"]["endCursor"];
-          hasNextPage =  data["pageInfo"]["hasNextPage"];
-      });
-
-      // List<String> brands=[];
-      // List<String> sizes =[];
-      // List<String> colors;
-      // List< 
-      
-      
-      for(var i=0;i<data["edges"].length;i++)
-        {
-
-          List<Product> prdList = [];
-          List im = data["edges"][i]["node"]["productimagesSet"]["edges"];
-          List<ProductImage> imgList = [];
-
-
-          for(var k = 0;k<im.length;k++){
-            imgList.add(
-              ProductImage(
-                // im[k]["node"]["id"], im[k]["node"]["image"]
-                  im[k]["node"]["id"],
-                  im[k]["node"]["largeImage"], 
-                  im[k]["node"]["normalImage"],
-                  im[k]["node"]["thumbnailImage"]                
-                )
-            );
-          }
-
-          // filter_list.add(Filter_Model("Br",""));
-          // brands.add(data["edges"][i]["node"]["brand"]);
-          // sizes.add(data["edges"][i]["node"]["sizes"]);
-        if(data["edges"][i]["node"]["subproductSet"]["edges"].isNotEmpty)
-            prdList.add(
-              Product(data["edges"][i]["node"]["id"], 
-              data["edges"][i]["node"]["name"], 
-              data["edges"][i]["node"]["subproductSet"]["edges"][0]["node"]["listPrice"],
-              data["edges"][i]["node"]["subproductSet"]["edges"][0]["node"]["mrp"],
-              imgList,
-              [],
-              // data["edges"][i]["node"]["sizes"].split(","),
-              data["edges"][i]["node"]["imageLink"].split(","),
-              )
-            );
-
-        product[_currentIndex].product.addAll(prdList);
-        }
-      // filter_list.add(Filter_Model("Brands",brands));
-      // filter_list.add(Filter_Model("Sizes",sizes));
-      tabController.addListener(() {
-        setState(() {
-          _currentIndex = tabController.index;
-          endCursor = product[_currentIndex].endCursor;
-          hasNextPage = product[_currentIndex].hasNextPage;
-          id = product[_currentIndex].id;
-        });
-      });
-
-
-    }    
-}
-
-void fillProductAndCateogry() async{
-    print(id);
-    List<TypeAndProduct> _product = List<TypeAndProduct>();
-    // product.clear();
-    GraphQLClient _client = clientToQuery();
-    QueryResult result = await _client.query(
-      QueryOptions(
-        documentNode: gql(GetSubListAndProductBySubCateogryId),
-        variables:{
-          "SubCateogryId":id,
-          "brand":brand,
-          "sizes":size,
-          "color":color,
-          }
-      )
-    );
-    if(result.loading)
-    {
-      setState(() {
-        isLoading = true;
-      });
-    }
-
-    if(!result.hasException)
-    {
-      // filter_list.clear();
-
-      setState(() {
-        isLoading = false;
-        endCursor = result.data["sublistBySubcategoryId"]["edges"][0]["node"]["productSet"]["pageInfo"]["endCursor"];
-        hasNextPage = result.data["sublistBySubcategoryId"]["edges"][0]["node"]["productSet"]["pageInfo"]["hasNextPage"];
-      });
-      // product.clear();
-
-      for(var i=0;i<result.data["sublistBySubcategoryId"]["edges"].length;i++)
-        {
-          List prd = result.data["sublistBySubcategoryId"]["edges"][i]["node"]["productSet"]["edges"];
-          // print(prd);
-          List<Product> prdList = [];
-          for(var j = 0;j<prd.length;j++){
-            List im = prd[j]["node"]["productimagesSet"]["edges"];
-            List<ProductImage> imgList = [];
-            for(var k = 0;k<im.length;k++){
-              imgList.add(
-                ProductImage(
-                  im[k]["node"]["id"],
-                  im[k]["node"]["largeImage"], 
-                  im[k]["node"]["normalImage"],
-                  im[k]["node"]["thumbnailImage"]
-                  )
-              );
-            }
-
-            if(prd[j]["node"]["subproductSet"]["edges"].length>0)
-            {
-              var subprd = prd[j]["node"]["subproductSet"]["edges"];
-              prdList.add(
-                Product(prd[j]["node"]["id"], 
-                prd[j]["node"]["name"], 
-                // prd[j]["node"]["listPrice"],
-                subprd[0]["node"]["listPrice"],
-                subprd[0]["node"]["mrp"],
-                imgList,
-                [],
-                prd[j]["node"]["imageLink"].split(","),
-                )
-              );
-            }
-
-            
-          }
-      // filter_list.add(Filter_Model("Brands",brands));
-      // filter_list.add(Filter_Model("Sizes",sizes));
-
-          // print(prdList.length);
-          // print(result.data["sublistBySubcategoryId"]["edges"][i]["node"]["name"]);
-          setState(() {
-              if(prdList.length >0)
-              {
-                _product.add(
-                  TypeAndProduct(
-                      result.data["sublistBySubcategoryId"]["edges"][i]["node"]["id"],
-                      result.data["sublistBySubcategoryId"]["edges"][i]["node"]["name"],
-                      prdList,
-                      result.data["sublistBySubcategoryId"]["edges"][i]["node"]["productSet"]["pageInfo"]["endCursor"],  
-                      result.data["sublistBySubcategoryId"]["edges"][i]["node"]["productSet"]["pageInfo"]["hasNextPage"],
-                  )
-                );
-              }
-          });
-        }
-
-      // filter_list.add(Filter_Model("Brands",brands.toSet().toList()));
-      // filter_list.add(Filter_Model("Sizes",sizes.toSet().toList()));        
-        // print(brands.toSet().toList() );
-        // print(sizes.toSet().toList());
-
-    }
-    // print(product[0]);
-    
-    // tabController
-    // print(brand);
-
-    
-      // print("length........");
-      // print(_product.length);
-      product = _product;
-      // print(product.length);
-      tabController = TabController(vsync:this, length: product.length);
-
-      // if(brand.length==0 && size.length==0){
-      //   tabController = TabController(vsync:this, length: product.length);
-      // }
-
-      
-    
-    
-    // tabController.
-
-    setState(() {
-      // print("index");
-      // print(tabController.index);
-      _currentIndex = tabController.index;
-      endCursor = product[_currentIndex].endCursor;
-      hasNextPage = product[_currentIndex].hasNextPage;
-      id = product[_currentIndex].id;
-    });
-}
 
 
   TabController tabController;
@@ -262,13 +49,26 @@ void fillProductAndCateogry() async{
   var brand="";
   var size="";
   var color="";
+  var ordering = "-id";
 
   void initState()
   {
     super.initState();
   
     id = this.widget.subCategory.id;
-    fillProductAndCateogry();
+    // fillProductAndCateogry();
+    BlocProvider.of<ProductsBloc>(context).add(
+      FetchProductAndType(
+        id: id,
+        brand: brand,
+        size: size,
+        color: color,
+        ordering: ordering
+      )
+    );
+
+    // tabController = TabController(vsync:this, length: 3);
+
     getCartCount().then((c){
       setState(() {
       _count = c;
@@ -277,17 +77,33 @@ void fillProductAndCateogry() async{
 
   } 
   callback(isNewData){
+    // print("....");
+    // print(hasNextPage);
+  // print("....");
     if(hasNextPage){
+      // print("hasnextPAge");
       setState(() {
         loadMore = true;
       });
-      fillMoreProduct();
+      // fillMoreProduct();
+      BlocProvider.of<ProductsBloc>(context).add(
+        FetchMoreProductAndType(
+          id: id,
+          after: endCursor,
+          brand: brand,
+          size: size,
+          color: color,
+          ordering: ordering
+        )
+      );
+      // print(id);
+      // print(endCursor);
     }
+    // print("Not has next page");
   }
 
   Widget build(BuildContext context)
   {
-
     getCartCount().then((c){
       setState(() {
       _count = c;
@@ -302,238 +118,275 @@ void fillProductAndCateogry() async{
             systemNavigationBarIconBrightness: Brightness.light,      
             statusBarBrightness:Brightness.dark  
       ),
-          child: Scaffold(
-          appBar: AppBar(
-            title: Text(this.widget.subCategory.name),
-            actions: <Widget>[
-                // IconButton(
-                //   icon: Icon(Icons.search),
-                //   iconSize: 25,
-                //   color: Colors.white,
+          child: BlocListener<ProductsBloc,ProductsState>(
+            listener: (context, state) {
+              if(state is LoadProductAndType){
+                // print("call tabcontroller.. ");
+                tabController = TabController(vsync:this, length: state.product.length);
+                product = state.product;
+                // print(product.length);
+                // _currentIndex = tabController.index;
+                tabController.animateTo(_currentIndex);
+                setState(() {
+                  _currentIndex = tabController.index;
+                  endCursor = product[_currentIndex].endCursor;
+                  hasNextPage = product[_currentIndex].hasNextPage;
+                  id = product[_currentIndex].id;
+                  loadMore = false;
+              });
+
+              }
+            },
+            child: BlocBuilder<ProductsBloc,ProductsState>(
+              builder: (context, state) {
+                if(state is Loading)
+                {
+                  return Scaffold(body: Center(child: CircularProgressIndicator(),),);
+                }
+                if(state is LoadProductAndType){
+                  product = state.product;
+                  if(tabController!=null){
+                    return Scaffold(
+                    appBar: AppBar(
+                      title: Text(this.widget.subCategory.name),
+                      actions: <Widget>[
+                          IconButton(
+                            icon: Icon(Icons.search),
+                            iconSize: 25,
+                            color: Colors.white,
+                            onPressed: (){
+                              Navigator.push(context, MaterialPageRoute(builder: (_)=>CustomSearchBar(
+                              )));
+                              // FlappySearchBar()
+                              // showSearch(context: context, delegate:DataSearch());
+                            },
+                          ),
+
+                          Padding(
+                            padding: const EdgeInsets.only(top:5.0),
+                            child: Stack(
+                                children:<Widget>[
+                                  IconButton(
+                                  icon: Icon(Icons.add_shopping_cart),
+                                  // iconSize: 30,
+                                  color: Colors.white,
+                                  
+                                  onPressed: (){
+                                    Navigator.push(context, MaterialPageRoute(builder: (_)=>CartScreen(
+                                    )));
+                                  },
+                              ),
+                              Positioned(
+                                top: 1,
+                                left: 20,
+                                child: Container(
+                                  height: 20,
+                                  width: 20,
+                                  // color: Colors.red,
+                                  alignment: Alignment.center,
+                                  decoration: BoxDecoration(
+                                    color: Colors.red,
+                                    borderRadius: BorderRadius.circular(10)
+                                  ),
+                                  child: Text(_count,
+                                  style: TextStyle(color:Colors.white),
+                                  ),
+                                ),
+                              )
+                            ]
+                        ),
+                          ),
+                      ],
+
+                      bottom:
+                      // isLoading?null: 
+                      TabBar(
+                        isScrollable: true,
+                        controller: tabController,
+                        
+                        onTap: (i){
+                        setState(() {
+                          id = product[i].id;
+                          _currentIndex = i;                
+                        });
+                        },
+                        
+                        indicator: BoxDecoration(
+                        ),
+                        tabs: List.generate(product.length, (index)=>
+                          Tab(
+                            child: Text(product[index].name),
+                          ),
+                        )
+                      ,
+                      // controller: tabController,
+                        labelColor: Colors.white,
+                        labelStyle: TextStyle(fontSize: 20),
+                        indicatorColor: Colors.black,
+                        unselectedLabelStyle: TextStyle(fontSize: 15),
+                      ),
+                    ),
+                // floatingActionButton: FloatingActionButton(
                 //   onPressed: (){
+                //       if(hasNextPage)
+                //       {
+                //         fillMoreProduct();
+                //       }
+
                 //   },
+                //   tooltip: 'Add New Address',
+                //   child:Icon(
+                //     Icons.add,
+                //     color: Colors.white,
+                //     ),
                 // ),
 
-                IconButton(
-                  icon: Icon(Icons.search),
-                  iconSize: 25,
-                  color: Colors.white,
-                  onPressed: (){
-                    Navigator.push(context, MaterialPageRoute(builder: (_)=>CustomSearchBar(
-                    )));
-                    // FlappySearchBar()
-                    // showSearch(context: context, delegate:DataSearch());
-                  },
-                ),
 
-                Padding(
-                  padding: const EdgeInsets.only(top:5.0),
-                  child: Stack(
-                      children:<Widget>[
-                        IconButton(
-                        icon: Icon(Icons.add_shopping_cart),
-                        // iconSize: 30,
-                        color: Colors.white,
-                        
-                        onPressed: (){
-                          Navigator.push(context, MaterialPageRoute(builder: (_)=>CartScreen(
-                          )));
-                        },
-                    ),
-                    Positioned(
-                      top: 1,
-                      left: 20,
-                      child: Container(
-                        height: 20,
-                        width: 20,
-                        // color: Colors.red,
-                        alignment: Alignment.center,
-                        decoration: BoxDecoration(
-                          color: Colors.red,
-                          borderRadius: BorderRadius.circular(10)
-                        ),
-                        child: Text(_count,
-                        style: TextStyle(color:Colors.white),
-                        ),
-                      ),
-                    )
-                  ]
-              ),
-                ),
-            ],
-
-            bottom:isLoading?null: 
-            TabBar(
-              
-              
-              isScrollable: true,
-              controller: tabController,
-              
-              onTap: (i){
-              setState(() {
-                id = product[i].id;
-                _currentIndex = i;                
-              });
-              },
-              
-              indicator: BoxDecoration(
-              ),
-              tabs: List.generate(product.length, (index)=>
-                Tab(
-                  child: Text(product[index].name),
-                ),
-               )
-            ,
-            // controller: tabController,
-              labelColor: Colors.white,
-              labelStyle: TextStyle(fontSize: 20),
-              indicatorColor: Colors.black,
-              unselectedLabelStyle: TextStyle(fontSize: 15),
-            ),
-            ),
-      // floatingActionButton: FloatingActionButton(
-      //   onPressed: (){
-      //       if(hasNextPage)
-      //       {
-      //         fillMoreProduct();
-      //       }
-
-      //   },
-      //   tooltip: 'Add New Address',
-      //   child:Icon(
-      //     Icons.add,
-      //     color: Colors.white,
-      //     ),
-      // ),
+                    body: 
+                    // isLoading
+                    // ?Center(child: CircularProgressIndicator())
+                    // :
 
 
-          body: isLoading
-          ?Center(child: CircularProgressIndicator())
-          :
-
-
-           Column(
-             children: <Widget>[
-               Expanded(
-                    child: TabBarView(
-                  // controller:,
-                  controller: tabController,
-                  children: List.generate(product.length, (index){
-                  // print(DefaultTabController.of(context).index); 
-                  return  ProductGrid(
-                      product[index].product,
-                      callback,
-                    );
-                    }
-                  )
-                ),
-               ),
-
-              !loadMore?SizedBox():
-               Container(
-                height:50,
-                
-                // child: Text("Loading...",style:TextStyle(fontSize:20)),
-                child:Center(
-                  child: Container(
-                    width: 20,
-                    height:20,
-                    child: CircularProgressIndicator(strokeWidth: 1,)),
-                )
-
-               )
-
-
-             ],
-           )
-          ,
-          // body: Center(child: CircularProgressIndicator()),
-          
-          // ProductGrid(
-          //   product: widget.product,
-          // ),
-          
-
-          bottomNavigationBar: BottomAppBar(
-            child: GestureDetector(
-                onTap: (){
-
-                // Navigator.push(context,MaterialPageRoute(
-                //     builder:(context)=>SortAndFilter()
-                //    ));
-
-                // _navigateAndDisplay(context);
-                  // fillProductAndCateogry();
-
-                  },
-                child: Container(
-                height: 50,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
-                    // Icon(Icons.sort,
-                    // color: Colors.white,
-                    // size: 22,
-                    // ),
-                    // SizedBox(width: 10,),
-
-                    Expanded(
-                        child: InkWell(
-                            onTap: (){
-                               _navigateAndDisplay(context);
-                            },
-                            // _navigateAndDisplay(context)
-                            child: Container(
-                            // alignment: Alignment.center,
-                            // color: Colors.green,
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: <Widget>[
-                                Icon(Icons.filter_list,color: Colors.white),
-                                SizedBox(width: 5),
-                                Text("Filter",
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.white,
-                                  fontSize: 17
-                                ),
-                                ),
-                              ],
-                            ),
+                    Column(
+                      children: <Widget>[
+                        Expanded(
+                              child: TabBarView(
+                            // controller:,
+                            controller: tabController,
+                            children: List.generate(product.length, (index){
+                            // print(DefaultTabController.of(context).index); 
+                            return  ProductGrid(
+                                product[index].product,
+                                callback,
+                                customkey: product[index].id,
+                              );
+                              }
+                            )
                           ),
                         ),
-                    ),
-                    // Divider(height: 2,color: Colors.white,),
-                    Expanded(
-                        child: Container(
-                          // alignment: Alignment.center,
-                          // color: Colors.green,
+
+                        !loadMore?SizedBox():
+                        Container(
+                          height:50,
+                          
+                          // child: Text("Loading...",style:TextStyle(fontSize:20)),
+                          child:Center(
+                            child: Container(
+                              width: 20,
+                              height:20,
+                              child: CircularProgressIndicator(strokeWidth: 1,)),
+                          )
+
+                        )
+
+
+                      ],
+                    )
+                    ,
+                    // body: Center(child: CircularProgressIndicator()),
+                    
+                    // ProductGrid(
+                    //   product: widget.product,
+                    // ),
+                    
+
+                    bottomNavigationBar: BottomAppBar(
+                      child: GestureDetector(
+                          onTap: (){
+
+                          // Navigator.push(context,MaterialPageRoute(
+                          //     builder:(context)=>SortAndFilter()
+                          //    ));
+
+                          // _navigateAndDisplay(context);
+                            // fillProductAndCateogry();
+
+                            },
+                          child: Container(
+                          height: 50,
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: <Widget>[
-                              Icon(Icons.sort,color: Colors.white),
-                              SizedBox(width: 5),                              
-                              Text("Sort",
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
-                                fontSize: 17
+                              // Icon(Icons.sort,
+                              // color: Colors.white,
+                              // size: 22,
+                              // ),
+                              // SizedBox(width: 10,),
+
+                              Expanded(
+                                  child: InkWell(
+                                      onTap: (){
+                                        _navigateAndDisplay(context);
+                                      },
+                                      // _navigateAndDisplay(context)
+                                      child: Container(
+                                      // alignment: Alignment.center,
+                                      // color: Colors.green,
+                                      child: Row(
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        children: <Widget>[
+                                          Icon(Icons.filter_list,color: Colors.white),
+                                          SizedBox(width: 5),
+                                          Text("Filter",
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.white,
+                                            fontSize: 17
+                                          ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
                               ),
-                      ),
+                              Container(height: 30, child: VerticalDivider(color: Colors.white,width: 1,thickness: 1, )),
+                              // Divider(height: 2,color: Colors.white,),
+                              Expanded(
+                                  child: InkWell(
+                                      onTap: (){
+                                        _showSheet(context);
+                                      },
+                                      child: Container(
+                                      // alignment: Alignment.center,
+                                      // color: Colors.green,
+                                      child: Row(
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        children: <Widget>[
+                                          Icon(Icons.sort,color: Colors.white),
+                                          SizedBox(width: 5),                              
+                                          Text("Sort",
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.white,
+                                            fontSize: 17
+                                          ),
+                                ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                              )                    
                             ],
                           ),
                         ),
-                    )                    
-                  ],
-                ),
-              ),
+                      ),
+                      color: Colors.green,
+                      
+                    ),
+                  );
+                
+                  }else{
+                    return Scaffold(body: Center(child:CircularProgressIndicator()),);
+                  }
+                }
+                else{
+                  return Scaffold(body: Center(child:Text("Error")),);
+                }
+
+              },
             ),
-            color: Colors.green,
-            
-          ),
-        ),
-
-
+          )
 
     );
   }
@@ -546,10 +399,6 @@ void fillProductAndCateogry() async{
       ));
         if(product!=null)
         {
-          // print(product[""]);
-          // print(product["isClearAll"]);
-
-          // if(product["isClearAll"]==)
           if(product["isClearAll"]==true)
           {
             setState(() {
@@ -561,13 +410,21 @@ void fillProductAndCateogry() async{
               isLoading = true;
               id = this.widget.subCategory.id;
             });
-            // print("clearAll...........");
-              fillProductAndCateogry();
+
+              // print("more");
+              BlocProvider.of<ProductsBloc>(context).add(
+              FetchProductAndType(
+                id: id,
+                brand: brand,
+                size: size,
+                color: color,
+                ordering: ordering
+              )
+            );
           }
-          // else if(product["items"]!=null)
           else
           {
-            print(product["filter"]["color"]);
+            // print(product["filter"]["color"]);
             setState(() {
               items = product["items"];
               brand = product["filter"]["brands"]??"";
@@ -575,35 +432,132 @@ void fillProductAndCateogry() async{
               color = product["filter"]["color"]??"";
               filter_list = product["filter"]["filter_list"];
               isLoading = true;              
-
               id = this.widget.subCategory.id;
-              // print(filter_list);
             });
-              // print(size);
-              // print(brand);
 
-            fillProductAndCateogry();
-            // setState(() {
-              // brand = product["brands"];
-              // size = product["sizes"];
-            // });
-            // print(product["filter"]);
+            BlocProvider.of<ProductsBloc>(context).add(
+              FetchProductAndType(
+                id: id,
+                brand: brand,
+                size: size,
+                color: color,
+                ordering: ordering
+              )
+            );
           
           }
-          // setState(() {
-          //     nlist = product;        
-          // });
         }
-
-        // else if(product == false)
-        // {
-            
-        // }
-
-        // nlist = product;
-
   }
 
+calltobloc(){
+
+// print(id);
+// print(brand);
+// print(size);
+// print(color);
+// print(ordering);
+
+
+  BlocProvider.of<ProductsBloc>(context).add(
+    FetchProductAndType(
+      id: this.widget.subCategory.id,
+      brand: brand,
+      size: size,
+      color: color,
+      ordering: ordering
+    )
+  );
+}
+
+_showSheet(context){
+
+showModalBottomSheet(
+  context:context,
+  builder: (BuildContext context){
+    return Container(
+      child: Wrap(
+        children: <Widget>[
+          ListTile(
+            onTap: (){
+              ordering = "-id";
+              _currentIndex = tabController.index;
+              calltobloc();
+              Navigator.pop(context);
+            },
+            title: Text("Relevant",style: TextStyle(fontWeight: FontWeight.bold), ),
+            leading: Icon(Icons.calendar_view_day),
+            trailing: ordering=="-id"?Icon(Icons.check_circle,color: Colors.green,):null,
+          ),
+
+
+
+          ListTile(            
+            onTap: (){
+              // print(tabController.index);
+              ordering = "list_price";
+              _currentIndex = tabController.index;
+              calltobloc();
+              Navigator.pop(context);
+            },
+            title: Text("Price low to high",style: TextStyle(fontWeight: FontWeight.bold), ),
+            leading: Icon(Icons.attach_money),
+            trailing: ordering=="list_price"?Icon(Icons.check_circle,color: Colors.green,):null,
+
+
+          ),
+          ListTile(
+            onTap: (){
+              ordering = "-list_price";
+              _currentIndex = tabController.index;
+              calltobloc();
+              Navigator.pop(context);
+            },
+
+
+            title: Text("Price high to low",style: TextStyle(fontWeight: FontWeight.bold),),
+            leading: Icon(Icons.attach_money),
+            trailing: ordering=="-list_price"?Icon(Icons.check_circle,color: Colors.green,):null,
+          ),
+          ListTile(
+            onTap: (){
+              ordering = "name";
+              _currentIndex = tabController.index;
+              calltobloc();
+              Navigator.pop(context);
+            },
+
+            title: Text("Name A-Z",style: TextStyle(fontWeight: FontWeight.bold),),
+            leading: Icon(Icons.text_rotate_vertical),
+            trailing: ordering=="name"?Icon(Icons.check_circle,color: Colors.green,):null,
+          
+          ),
+          ListTile(
+            onTap: (){
+              ordering = "-name";
+              _currentIndex = tabController.index;
+              calltobloc();
+              Navigator.pop(context);
+            },
+            title: Text("Name Z-A",style: TextStyle(fontWeight: FontWeight.bold),),
+            leading: Icon(Icons.sort_by_alpha),
+            trailing: ordering=="-name"?Icon(Icons.check_circle,color: Colors.green,):null,
+          ),
+
+          // ListTile(
+          //   title: Text("Color"),
+          //   leading: Icon(Icons.attach_money),
+          // ),
+          // ListTile(
+          //   title: Text("Size"),
+          //   leading: Icon(Icons.attach_money),
+          // )
+        ],
+      )
+    );
+  }
+);
+
+}
 
   _setting(context){
     showModalBottomSheet(
