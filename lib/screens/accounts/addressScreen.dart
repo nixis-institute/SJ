@@ -76,6 +76,8 @@ class _Addresses extends State<Addresses>
   var total;
   String addressID;
 
+  // print(_character);
+
   void initState(){
   super.initState();
   getUserId().then((c){
@@ -87,7 +89,7 @@ class _Addresses extends State<Addresses>
     {
       isLoading = true;
       isAfterCart = true;
-      _character =0;
+      _character = 0;
       getTotal().then((c){
         setState(() {
           total = c;
@@ -100,7 +102,7 @@ class _Addresses extends State<Addresses>
   }
 
     void _addNewAddress() async{
-      final add = await Navigator.push(context, MaterialPageRoute(builder: (context)=> AddressForm(this.widget.address[0],true)));
+      final add = await Navigator.push(context, MaterialPageRoute(builder: (context)=> AddressForm(true)));
       if(add!=null)
       {
       setState(() {
@@ -126,7 +128,7 @@ class _Addresses extends State<Addresses>
     _updateAddress(address,index)
     async{
     final add = await     Navigator.push(context, MaterialPageRoute(
-      builder: (context) => AddressForm(address,false)
+      builder: (context) => AddressForm(false,address:address)
     ));
     if(add!=null)
     {
@@ -221,6 +223,14 @@ class _Addresses extends State<Addresses>
 
   Widget build(BuildContext context)
   {
+    // print(_character);
+    if(_character == 0 && this.widget.address!=null){
+      setAddress(this.widget.address[0].houseNo +" "+ this.widget.address[0].colony + " "+ this.widget.address[0].city +" "+ this.widget.address[0].state,
+          this.widget.address[0].phoneNumber + ", "+ this.widget.address[0].alternateNumber,
+          this.widget.address[0].id,
+          this.widget.address[0].personName
+          );
+    }
     
     return Scaffold(
       appBar: AppBar(

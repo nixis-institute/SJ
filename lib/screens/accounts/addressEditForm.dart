@@ -10,7 +10,7 @@ class AddressForm extends StatefulWidget{
   @override
   Address address;
   bool isNew;
-  AddressForm(this.address,this.isNew);
+  AddressForm(this.isNew,{this.address});
   _AddressForm createState() => _AddressForm();
 }
 
@@ -82,7 +82,7 @@ class _AddressForm extends State<AddressForm>
           documentNode: gql(addAddressQuery),
           variables:{
             // "id":this.widget.address.id,
-            "user": userId,
+            // "user": userId,
             "house_no": house,
             "colony": colony,
             "landmark": landmark,

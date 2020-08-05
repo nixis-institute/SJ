@@ -35,6 +35,14 @@ class OnLogin extends LoginEvent{
   OnLogin({this.username,this.password});
 }
 
+class OnGoogleLogin extends LoginEvent{
+  String username;
+  String displayName;
+  String phone;
+  String img;
+  OnGoogleLogin({this.username,this.displayName,this.phone,this.img});
+}
+
 class OnLogout extends LoginEvent{
   @override  
   List<Object> get props => null;

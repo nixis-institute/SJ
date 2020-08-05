@@ -46,6 +46,34 @@ query GetSubCateogry(\$CateogryId:ID!){
   }
 }
 """;
+
+final String createGoogleUser ="""
+mutation x(\$displayName:String!,\$phone:String!,\$username:String!,\$photo:String!,){
+  createGoogleUser(displayName:\$displayName,phone:\$phone,username:\$username,photoUrl:\$photo){
+    token
+    password
+    user{
+      id
+      username
+      profile{
+        id
+        isGoogleUser
+        googleImage
+        image
+      }
+      cartSet{
+        edges{
+          node{
+            id
+          }
+        }
+      }
+    }
+  }
+}
+
+""";
+
 final String createUser = """
 
 mutation create(\$user:String!,\$email:String!,\$password:String!,\$firstname:String!,\$lastname:String!){
@@ -171,6 +199,7 @@ query{
     profile{
     	id
       image
+      googleImage
     }
     cartSet{
       edges{
@@ -250,10 +279,9 @@ query x{
 """;
 
 final addAddressQuery ="""
-mutation ax(\$user:Int!,\$house_no:String!,\$colony:String!,\$landmark:String!,\$city:String!,\$state:String!,\$person_name:String!,\$phone_number:String!,\$alternate_number:String!)
+mutation ax(\$house_no:String!,\$colony:String!,\$landmark:String!,\$city:String!,\$state:String!,\$person_name:String!,\$phone_number:String!,\$alternate_number:String!)
 {
  addAddress(
-  user:\$user, 
   houseNo:\$house_no,
   alternateNumber:\$alternate_number,
   city:\$city,

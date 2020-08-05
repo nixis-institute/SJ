@@ -36,6 +36,9 @@ dependencies:
   bloc: ^4.0.0
   flutter_bloc: ^4.0.0
   complimentary_colors: ^1.0.3
+  google_sign_in: ^4.5.1
+  firebase_auth: ^0.16.1
+  loading_overlay: ^0.2.1
   # image_picker: ^0.6.5+3
 
 
@@ -64,6 +67,7 @@ flutter:
   assets:
   #  - assets/
    - assets/namelogo.png
+   - assets/google.png
   #  - assets/slider/
   #  - assets/category/
   #  - assets/products/tops/

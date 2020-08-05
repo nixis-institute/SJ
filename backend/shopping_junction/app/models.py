@@ -16,6 +16,10 @@ class Profile(models.Model):
     gender = models.CharField(max_length=10,null=True,blank=True)
     GST_number = models.CharField(max_length=20, null=True,blank=True)
     image = models.ImageField(upload_to="profile/",blank=True,null=True)
+    google_image = models.CharField(max_length=200,blank=True,null=True)
+    is_google_user = models.BooleanField(default=False)
+    # accessToken = models.CharField(max_length=20, null=True,blank=True)
+
     def __str__(self):
         return self.user.username
 
@@ -147,7 +151,7 @@ class SubProduct(models.Model):
             p.mrp = self.mrp
             p.list_price = self.list_price
         else:
-            if(p.list_price>self.list_price):
+            if(float(p.list_price)>float(self.list_price)):
                 p.mrp = self.mrp
                 p.list_price = self.list_price
         if(not p.sizes):

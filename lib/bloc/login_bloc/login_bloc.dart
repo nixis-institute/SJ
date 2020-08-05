@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:bloc/bloc.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:meta/meta.dart';
 import 'package:shopping_junction/bloc/login_bloc/login_repository.dart';
 import 'package:shopping_junction/models/userModel.dart';
@@ -35,6 +36,7 @@ class AuthenticateBloc extends Bloc<AuthenticateEvent,AuthenticateState>{
 
     }
     if(event is LoggedOut){
+      await repository.signOutGoogle();
       await repository.removeToken();
       yield NotAuthenticated();
     }
@@ -66,6 +68,56 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
   ) async* {
     // TODO: implement mapEventToState
 
+    if(event is OnGoogleLogin)
+    {
+      // yield LoginLoading();
+      
+      
+
+
+      // credential.providerId
+      
+        // final AuthResult authResult = await _auth.signInWithCredential(credential);
+        
+        // final FirebaseUser user = authResult.user;
+
+        // assert(!user.isAnonymous);
+        // assert(await user.getIdToken() != null);
+
+        // final FirebaseUser currentUser = await _auth.currentUser();
+        // assert(user.uid == currentUser.uid);
+        // print('signInWithGoogle succeeded: $user');
+        // return user;
+      
+      
+      
+      AuthCredential credential =  await repository.signInWithGoogle();
+      yield GoogleLoading();
+      FirebaseUser user = await repository.firebaseuser(credential);
+
+      if(user!=null)
+      {
+        // yield GoogleLoading();
+        var token = await repository.googleLogin(user.email, user.displayName, user.phoneNumber, user.photoUrl );
+        // var token = await repository.login(event.username,data["password"]);
+        
+        if(token!=null){
+          // await repository.setUserInfo();
+          await repository.setUserInfoFromGoogle(user.email, user.displayName, user.phoneNumber, user.photoUrl);
+          authenticateBloc.add(
+            OnAuthenticated()
+          );
+        }
+        yield token==null?LoginFailure():LoginSuccess();
+      }
+      else{
+        yield LoginFailure();
+      }
+
+
+      // var token = await 
+
+    }
 
     if(event is OnLogin)
     {

@@ -69,7 +69,9 @@ final ValueNotifier<GraphQLClient> client = ValueNotifier<GraphQLClient>(
 
 GraphQLClient clientToQuery() {
   return GraphQLClient(
-    cache: OptimisticCache(dataIdFromObject: typenameDataIdFromObject),
+    cache: InMemoryCache(),
+    // cache: null,
+    // cache: OptimisticCache(dataIdFromObject: typenameDataIdFromObject),
     link: authLink,
     // link:httpLink as Link,
     // link:authLink,

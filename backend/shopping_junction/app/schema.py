@@ -19,6 +19,9 @@ from django_filters import FilterSet, OrderingFilter
 import json
 from graphene.utils.str_converters import to_snake_case
 import graphql_jwt
+from rest_framework_jwt.settings import api_settings
+from django.contrib.auth import authenticate
+from django.contrib import auth
 
 class OrderedDjangoFilterConnectionField(DjangoFilterConnectionField):
     @classmethod
@@ -209,6 +212,10 @@ class ProductNode(DjangoObjectType):
     #     )]
     # )
     productSize = graphene.Int()
+    instockProduct = graphene.Int()
+    outstockProduct = graphene.Int()
+    inactiveProduct = graphene.Int()
+
     sizes = graphene.List(graphene.String)
     color = graphene.List(graphene.String)
     class Meta:
@@ -236,6 +243,15 @@ class ProductNode(DjangoObjectType):
 
 
         interfaces = (relay.Node,)
+    def resolve_inactiveProduct(self,info):
+        return len([i for i in Product.objects.filter(isActive=False)])
+
+    def resolve_instockProduct(self,info):
+        return len([i for i in Product.objects.filter(instock=True)])
+
+    def resolve_outstockProduct(self,info):
+        return len([i for i in Product.objects.filter(instock=False)])
+
     def resolve_productSize(self,info):
         return len([i for i in SubProduct.objects.filter(parent_id=self.id)])
     def resolve_sizes(self,info):
@@ -450,7 +466,7 @@ class UpdateAddress(graphene.Mutation):
 
 class AddAddress(graphene.Mutation):
     class Arguments:
-        user = graphene.Int(required=True)
+        # user = graphene.Int(required=True)
         house_no = graphene.String(required=True)
         colony = graphene.String(required=True)
         landmark = graphene.String(required=False)
@@ -461,9 +477,9 @@ class AddAddress(graphene.Mutation):
         alternate_number = graphene.String(required=False)
     address = graphene.Field(AddressNode)
     success = graphene.Boolean()
-    def mutate(self,info,user,house_no,colony,landmark,city,state,person_name,phone_number,alternate_number):
+    def mutate(self,info,house_no,colony,landmark,city,state,person_name,phone_number,alternate_number):
         add = Address.objects.create(
-            user_id = user,
+            user_id = info.context.user.id,
             house_no = house_no,
             colony = colony,
             landmark = landmark,
@@ -474,6 +490,45 @@ class AddAddress(graphene.Mutation):
             alternate_number = alternate_number
         )
         return AddAddress(success = True,address = add)
+
+class CreateGoogleUser(graphene.Mutation):
+    class Arguments:
+        username = graphene.String(required=True)
+        displayName = graphene.String(required=True)
+        photoUrl = graphene.String(required=True)
+        phone = graphene.String(required=True)
+
+    user = graphene.Field(UserNode)
+    token = graphene.String() 
+    password = graphene.String()
+    def mutate(self,info,username,displayName,phone,photoUrl):
+        firstname = displayName.split()[0]
+        lastname = displayName.split()[1]
+        if(User.objects.filter(username=username)):
+            user = User.objects.get(username=username)
+            user.first_name = firstname
+            user.last_name = lastname
+            # user.save()
+            p = Profile.objects.get(user_id = user.id)
+            p.google_image = photoUrl
+            p.phone_number = phone
+            p.save()
+        else:
+            user = get_user_model()(username = username,email = username,first_name = firstname,last_name=lastname)
+            user.save()
+            Profile.objects.create(user_id = user.id,google_image=photoUrl,is_google_user=True,phone_number=phone)
+        
+        password = User.objects.make_random_password()
+        user.set_password(password)
+        user.save()
+
+        jwt_payload_handler = api_settings.JWT_PAYLOAD_HANDLER
+        jwt_encode_handler = api_settings.JWT_ENCODE_HANDLER
+        # graphql_jwt.ObtainJSONWebToken.mutate()
+        token = jwt_encode_handler(jwt_payload_handler(user))
+        user = authenticate(username=username,password = password)
+        auth.login(info.context,user)
+        return CreateGoogleUser(user=user,token=token,password = password)
 
 class CreateUser(graphene.Mutation):
     # user = graphene.Field(UserNode)
@@ -498,8 +553,8 @@ class UploadImages(graphene.Mutation):
         # fl = graphene.
     success = graphene.Boolean()
     def mutate(self,info,id):
-        print(dir(info.context))
-        print(info)
+        # print(dir(info.context))
+        # print(info)
         return UploadImages(success=True)
 
 
@@ -773,6 +828,8 @@ class ChangePassword(graphene.Mutation):
 class Mutation(graphene.ObjectType):
 
     # buyer
+    # graphql_jwt.backends.JSONWebTokenBackend.
+
     token_auth = graphql_jwt.ObtainJSONWebToken.Field()
     verify_token = graphql_jwt.Verify.Field()
     refresh_token = graphql_jwt.Refresh.Field()
@@ -793,6 +850,7 @@ class Mutation(graphene.ObjectType):
     delete_product = DeleteProduct.Field()
     delete_sub_product = DeleteSubProduct.Field()
     cancel_order = CancelOrder.Field()
+    create_google_user = CreateGoogleUser.Field()
     # out_of_stock_product = OutOfStockProduct.Field()
 
     # seller
@@ -946,6 +1004,9 @@ class Query(graphene.AbstractType):
         #     return False
 
     def resolve_user(self,info):
+        print(info.context)
+        # print(dir(info))
+        # print(dir(info.schema))
         user_id = info.context.user.id
         return User.objects.get(id = user_id)
 
@@ -960,6 +1021,7 @@ class Query(graphene.AbstractType):
     # def resolve_sublist_by_id
 
     def resolve_sublist_by_subcategory_id(self,info,sub_category_id):
+        print(info.context.user)
         ids = from_global_id(sub_category_id)[1]
         return SubList.objects.filter(sub_category_id = ids)
 
@@ -983,4 +1045,5 @@ class Query(graphene.AbstractType):
         return Product.objects.all().order_by("-id")
 
     def resolve_all_category(self,info,**kwargs):
+        # print(info.context.user)
         return ProductCategory.objects.all()

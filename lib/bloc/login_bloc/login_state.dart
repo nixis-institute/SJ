@@ -24,6 +24,7 @@ class NotAuthenticated extends AuthenticateState{
 abstract class LoginState {}
 class LoginInitial extends LoginState {}
 class LoginLoading extends LoginState {}
+class GoogleLoading extends LoginState {}
 
 class LoginSuccess extends LoginState{
   LoginSuccess();

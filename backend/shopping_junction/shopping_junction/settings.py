@@ -11,6 +11,8 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 """
 
 import os
+# import environ
+# env = environ.Env()
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -38,13 +40,19 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'graphene_django',
+    'social_django',
     'corsheaders',
     'rest_framework',
     'graphql_auth',
+    # 'fcm_django',
     'app',
 ]
 JWT_VERIFY_EXPIRATION = False
 CORS_ORIGIN_ALLOW_ALL = True
+
+FCM_DJANGO_SETTINGS = {
+        "FCM_SERVER_KEY": "AAAAOxkCOyM:APA91bFm3HUcZAWHxwryNIR6mIZ0nxMdg8MS51GFW0xC5d0EQSNhr8AXI7gB6nN8Xaq5Ug4laTX6ycND8960a71EDuu5NDN5qHF4SutTWW4Dr9CEzUkWCVRwScTYeI4rek6B8fJLYGL7"
+}
 
 GRAPHENE = {
     'SCHEMA': 'schema.schema', # Where your Graphene schema lives
@@ -69,9 +77,64 @@ MIDDLEWARE = [
     # 'django.contrib.auth.middleware.AuthenticationMiddleware'
 ]
 AUTHENTICATION_BACKENDS = [
+    # 'social_core.backends.open_id.OpenIdAuth',
+    # 'social_core.backends.google.GoogleOpenId',
+    'social_core.backends.google.GoogleOAuth2',
+    # 'social_core.backends.google.GoogleOAuth',
+    # 'social_core.backends.twitter.TwitterOAuth',
+    # 'social_core.backends.yahoo.YahooOpenId',    
     'graphql_jwt.backends.JSONWebTokenBackend',
     'django.contrib.auth.backends.ModelBackend',
 ]
+
+
+
+
+SOCIAL_AUTH_PIPELINE = [
+    # Get the information we can about the user and return it in a simple
+    # format to create the user instance later. On some cases the details are
+    # already part of the auth response from the provider, but sometimes this
+    # could hit a provider API.
+    'social_core.pipeline.social_auth.social_details',
+
+    # Get the social uid from whichever service we're authing thru. The uid is
+    # the unique identifier of the given user in the provider.
+    'social_core.pipeline.social_auth.social_uid',
+
+    # Verifies that the current auth process is valid within the current
+    # project, this is where emails and domains whitelists are applied (if
+    # defined).
+    'social_core.pipeline.social_auth.auth_allowed',
+
+    # Checks if the current social-account is already associated in the site.
+    'social_core.pipeline.social_auth.social_user',
+
+    # Make up a username for this person, appends a random string at the end if
+    # there's any collision.
+    'social_core.pipeline.user.get_username',
+
+    # Send a validation email to the user to verify its email address.
+    # Disabled by default.
+    # 'social_core.pipeline.mail.mail_validation',
+
+    # Associates the current social details with another user account with
+    # a similar email address. Disabled by default.
+    # 'social_core.pipeline.social_auth.associate_by_email',
+
+    # Create a user account if we haven't found one yet.
+    'social_core.pipeline.user.create_user',
+
+    # Create the record that associates the social account with the user.
+    'social_core.pipeline.social_auth.associate_user',
+
+    # Populate the extra_data field in the social record with the values
+    # specified by settings (and the default ones like access_token, etc).
+    'social_core.pipeline.social_auth.load_extra_data',
+
+    # Update the user record with any changed info from the auth service.
+    'social_core.pipeline.user.user_details',
+]
+
 
 # REST_FRAMEWORK = {
 #     'DEFAULT_AUTHENTICATION_CLASSES': [
@@ -79,6 +142,17 @@ AUTHENTICATION_BACKENDS = [
 #         'rest_framework.authentication.SessionAuthentication',
 #     ]
 # }
+# SOCIAL_AUTH_GOOGLE_OAUTH2_KEY =\
+#      env('SOCIAL_AUTH_GOOGLE_OAUTH2_KEY', default='')
+
+# SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET =\
+#     env('SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET', default='')
+
+# SOCIAL_AUTH_FACEBOOK_KEY = env('SOCIAL_AUTH_FACEBOOK_KEY', default='')
+# SOCIAL_AUTH_FACEBOOK_SECRET = env('SOCIAL_AUTH_FACEBOOK_SECRET', default='')
+
+# SOCIAL_AUTH_TWITTER_KEY = env('SOCIAL_AUTH_TWITTER_KEY', default='')
+# SOCIAL_AUTH_TWITTER_SECRET = env('SOCIAL_AUTH_TWITTER_SECRET', default='')
 
 
 
@@ -169,3 +243,5 @@ STATIC_URL = '/static/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
 MEDIA_URL = '/media/'
 
+#eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VybmFtZSI6ImFkbWluIiwiZXhwIjoxNTkxMzQ1OTI1LCJvcmlnSWF0IjoxNTkxMzQ1NjI1fQ.3P0KOdDyoUOYJBgpRRE6wYKDoKkpHZcelS6XWZZr1P8
+#eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VybmFtZSI6ImFkbWluIiwiZXhwIjoxNTkxNDIyMTM0LCJvcmlnSWF0IjoxNTkxNDIxODM0fQ.X9hH0Mn09QvCaY8lYPGDb3rEi8dGiQkBTQ6Q0f7AXyI

@@ -111,9 +111,9 @@ class _SideDrawerState extends State<SideDrawer>
                         this.widget.user==null||this.widget.user.profilePic==null?Icon(Icons.account_circle,size: 40,color: Colors.white,):
                         CircleAvatar(
                           radius: 70,
-                          backgroundImage: CachedNetworkImageProvider(server_url+"/media/"+
-                          this.widget.user.profilePic
-                          
+                          backgroundImage: CachedNetworkImageProvider(
+                            this.widget.user.profilePic.startsWith("https://") ||this.widget.user.profilePic.startsWith("http://") ?this.widget.user.profilePic:
+                            server_url+"/media/"+this.widget.user.profilePic
                           ))
                         ),
 

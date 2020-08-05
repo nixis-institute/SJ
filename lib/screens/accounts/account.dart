@@ -272,7 +272,10 @@ _clear() async{
                       // _simplePopup();
                       isSubmit==false?
                       Navigator.push(context, MaterialPageRoute(builder: (_) {
-                          return FullScreenImage(server_url+"/media/"+this.widget.user.profilePic);
+                          return FullScreenImage(
+                            this.widget.user.profilePic.startsWith("https://") ||this.widget.user.profilePic.startsWith("http://") ?this.widget.user.profilePic:
+                            server_url+"/media/"+this.widget.user.profilePic
+                            );
                         })):{};
                     }
                     
@@ -293,7 +296,10 @@ _clear() async{
                             backgroundImage: 
                             // _image != null?Image.file(_image,fit: BoxFit.fitHeight,):
                             
-                            CachedNetworkImageProvider(server_url+"/media/"+this.widget.user.profilePic))
+                            CachedNetworkImageProvider(
+                              this.widget.user.profilePic.startsWith("https://") ||this.widget.user.profilePic.startsWith("http://") ?this.widget.user.profilePic:
+                              server_url+"/media/"+this.widget.user.profilePic
+                              ))
                         
                         ),
                         
